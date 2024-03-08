@@ -1,4 +1,5 @@
 package com.classes;
+//Jackson will implement this class
 
 import java.util.List;
 
