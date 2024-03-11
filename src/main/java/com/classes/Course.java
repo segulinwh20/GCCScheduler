@@ -17,6 +17,9 @@ public class Course {
     private int seats;
 
     private void addCourse() {
-        //cow
+    }
+
+    private void removeCourse() {
+
     }
 }
