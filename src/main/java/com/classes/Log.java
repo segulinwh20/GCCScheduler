@@ -6,10 +6,12 @@ public class Log {
     private List<Schedule> actions;
 
     public Schedule getLast() {
+        //Pull test
         return null;
     }
 
     public Schedule undoLast() {
+
         return null;
     }
 
