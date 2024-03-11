@@ -7,6 +7,7 @@ public class TimeSlot {
     private char dayOfWeek; // MTWRF (S for Sat, U for Sun)
 
     public static boolean conflicts(TimeSlot t1, TimeSlot t2) {
+        int test = 123;
         return false;
     }
 
