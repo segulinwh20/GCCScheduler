@@ -55,5 +55,7 @@ class TimeSlotTest {
         l2.remove(c);
 
         assertFalse(TimeSlot.conflicts(l1, l2));
+
+        System.out.println(a);
     }
 }

@@ -27,6 +27,6 @@ public class Search {
     }
 
     public static List<Course> readCoursesFromFile(String filepath) {
-
+        return null;
     }
 }
