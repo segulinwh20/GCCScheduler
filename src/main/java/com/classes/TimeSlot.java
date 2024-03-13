@@ -27,10 +27,13 @@ public class TimeSlot {
         if (hour > startHour && hour < endHour) {
             return true;
         }
-        if (hour == startHour && minute > startMinute) {
+        if (hour == startHour && minute >= startMinute && hour < endHour) {
             return true;
         }
-        if (hour == endHour && minute < endMinute) {
+        if (hour == endHour && minute <= endMinute && hour > startHour) {
+            return true;
+        }
+        if (hour == startHour && hour == endHour && minute >= startMinute && minute <= endMinute) {
             return true;
         }
         return false;

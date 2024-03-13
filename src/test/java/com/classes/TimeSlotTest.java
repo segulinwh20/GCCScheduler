@@ -25,11 +25,15 @@ class TimeSlotTest {
         assertFalse(TimeSlot.conflicts(a, e));
     }
 
+    @Test
     void timeFallsInRange() {
         TimeSlot t = new TimeSlot('M', 1, 00, 1, 50);
 
         assertFalse(t.timeFallsInRange(2, 00));
         assertTrue(t.timeFallsInRange(1, 30));
+        assertTrue(t.timeFallsInRange(1, 00));
+        assertTrue(t.timeFallsInRange(1, 50));
+        assertFalse(t.timeFallsInRange(1, 51));
     }
 
     @Test
