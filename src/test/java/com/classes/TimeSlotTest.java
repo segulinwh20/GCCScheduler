@@ -11,7 +11,7 @@ class TimeSlotTest {
         TimeSlot a = new TimeSlot('M', 1, 00, 1, 50);
         TimeSlot b = new TimeSlot('W', 1, 00, 1, 50);
         TimeSlot c = new TimeSlot('M', 1, 30, 2, 30);
-        TimeSlot d = new TimeSlot('M', 1, 50, 2, 50);
+        TimeSlot d = new TimeSlot('M', 1, 51, 2, 50);
         TimeSlot e = new TimeSlot('M', 2, 00, 2, 50);
 
         System.out.println(TimeSlot.conflicts(a, b));
