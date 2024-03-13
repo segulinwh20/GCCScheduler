@@ -21,14 +21,23 @@ public class TimeSlot {
     }
 
     private boolean timeFallsInRange(int hour, int minute) {
-        if ((hour > startHour && hour < endHour) || (hour == startHour && minute >= startMinute)) {
+        if (hour < startHour || hour > endHour) {
+            return false;
+        }
+        if (hour > startHour && hour < endHour) {
             return true;
         }
-        return hour == endHour && minute <= endMinute;
+        if (hour == startHour && minute >= startMinute) {
+            return true;
+        }
+        if (hour == endHour && minute <= endMinute) {
+            return true;
+        }
+        return false;
     }
 
     public static boolean conflicts(TimeSlot t1, TimeSlot t2) {
-        if (t1.getDayOfWeek() != t2.getDayOfWeek()) {
+        if (t1.dayOfWeek != t2.dayOfWeek) {
             return false;
         }
         return t1.timeFallsInRange(t2.startHour, t2.startMinute) || t1.timeFallsInRange(t2.endHour, t2.endMinute);
