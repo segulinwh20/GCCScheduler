@@ -22,15 +22,19 @@ public class TimeSlot {
 
     private boolean timeFallsInRange(int hour, int minute) {
         if (hour < startHour || hour > endHour) {
+            System.out.println("A");
             return false;
         }
         if (hour > startHour && hour < endHour) {
+            System.out.println("B");
             return true;
         }
         if (hour == startHour && minute > startMinute) {
+            System.out.println("C");
             return true;
         }
         if (hour == endHour && minute < endMinute) {
+            System.out.println("D");
             return true;
         }
         return false;
