@@ -15,11 +15,4 @@ public class Course {
     private char sectionLetter;
     private String location;
     private int seats;
-
-    private void addCourse() {
-    }
-
-    private void removeCourse() {
-
-    }
 }

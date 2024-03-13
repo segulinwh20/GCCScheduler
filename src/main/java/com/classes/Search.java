@@ -25,4 +25,8 @@ public class Search {
     public void clearFilters() {
 
     }
+
+    public static List<Course> readCoursesFromFile(String filepath) {
+        return null;
+    }
 }

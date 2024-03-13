@@ -70,7 +70,7 @@ public class TimeSlot {
                 s.append(startHour);
             }
             s.append(':');
-            s.append(String.format("0%02d", startMinute));
+            s.append(String.format("%02d", startMinute));
             s.append("AM");
         }
         else {
@@ -81,7 +81,7 @@ public class TimeSlot {
                 s.append(startHour-12);
             }
             s.append(':');
-            s.append(String.format("0%02d", startMinute));
+            s.append(String.format("%02d", startMinute));
             s.append("PM");
         }
         s.append('-');
@@ -93,7 +93,7 @@ public class TimeSlot {
                 s.append(endHour);
             }
             s.append(':');
-            s.append(String.format("0%02d", endMinute));
+            s.append(String.format("%02d", endMinute));
             s.append("AM");
         }
         else {
@@ -104,7 +104,7 @@ public class TimeSlot {
                 s.append(endHour-12);
             }
             s.append(':');
-            s.append(String.format("0%02d", endMinute));
+            s.append(String.format("%02d", endMinute));
             s.append("PM");
         }
         return s.toString();
