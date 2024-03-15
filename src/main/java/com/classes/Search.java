@@ -94,7 +94,9 @@ public class Search {
                 }
 
 
-
+                // note, days of the week are field[9] - field[13]
+                String daysOfWeek = fields[9] + fields[10] + fields[11] + fields[12] + fields[13];
+                System.out.println(daysOfWeek);
                 //TODO: Fix TimeSlot to allow for multiple days of the week
                 TimeSlot timeslot = new TimeSlot('M', startHour,
                         Integer.parseInt(beginTimeData[1]),endHour,
