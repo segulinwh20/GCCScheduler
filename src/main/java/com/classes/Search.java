@@ -68,24 +68,41 @@ public class Search {
                 String[] endTimeData = fields[15].split(":");
 
                 if(beginTimeData[0].isEmpty()){ // fixed error were time slots were empty
-                    beginTimeData = new String[2];
+                    beginTimeData = new String[3];
                     beginTimeData[0] = "0";
                     beginTimeData[1] = "0";
-
+                    beginTimeData[2] = "NONE";
                 }
+
+                int startHour = Integer.parseInt(beginTimeData[0]);
+
+                if(beginTimeData[2].charAt(3) == 'P'){
+                    startHour += 12;
+                }
+
                 if(endTimeData[0].isEmpty()) {
-                    endTimeData = new String[2];
+                    endTimeData = new String[3];
                     endTimeData[0] = "0";
                     endTimeData[1] = "0";
+                    endTimeData[2] = "NONE";
                 }
 
+                int endHour = Integer.parseInt(endTimeData[0]);
+
+                if(endTimeData[2].charAt(3) == 'P'){
+                    endTimeData[0] += 12;
+                }
+
+
+
                 //TODO: Fix TimeSlot to allow for multiple days of the week
-                TimeSlot timeslot = new TimeSlot('M', Integer.parseInt(beginTimeData[0]),
-                        Integer.parseInt(beginTimeData[1]),Integer.parseInt(endTimeData[0]),
+                TimeSlot timeslot = new TimeSlot('M', startHour,
+                        Integer.parseInt(beginTimeData[1]),endHour,
                         Integer.parseInt(endTimeData[1]));
 
                 List<TimeSlot> time = new ArrayList<TimeSlot>();
                 time.add(timeslot);
+
 
                 char sectionLetter; // fixed error when the section letter is empty
                 if(fields[4].isEmpty()){
