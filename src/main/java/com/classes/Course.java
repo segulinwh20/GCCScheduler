@@ -24,7 +24,6 @@ public class Course {
                   String description, String courseCode, String semester, Professor professor,
                   List<TimeSlot> times, char sectionLetter, int seats){ // with all info included in csv
         this.id = id;
-
     }
 
     public int getId(){
