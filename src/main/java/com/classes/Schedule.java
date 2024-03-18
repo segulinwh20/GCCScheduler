@@ -1,6 +1,7 @@
 package com.classes;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Schedule {
@@ -9,11 +10,27 @@ public class Schedule {
     private Log log;
     private String name;
 
-    public void addCourse(Course c) {
+    public Schedule(String name, String semester){
+        this.name = name;
+        this.courses = new ArrayList<Course>();
+    }
 
+    public String getName(){
+        return name;
+    }
+
+    public List<Course> getCourses(){
+        return courses;
+    }
+
+    public void addCourse(Course c) {
+        courses.add(c);
     }
 
     public boolean removeCourse(Course c) {
+        if (courses.remove(c)) {
+            return true;
+        }
         return false;
     }
 
