@@ -13,20 +13,20 @@ public class Course {
     private Professor professor;
     private List<TimeSlot> times;
     private char sectionLetter;
-    private String location;
+   // private String location;
     private int seats;
 
-    public Course(){
-
-    }
-
-    public Course(int id, String title, int credits, String department,
-                  String description, String courseCode, String semester, Professor professor,
-                  List<TimeSlot> times, char sectionLetter, int seats){ // with all info included in csv
+    public Course(String semester, String department, int id, char sectionLetter, String courseCode, String title, int credits, int seats, List<TimeSlot> times, Professor professor, String description){
+        this.semester = semester;
+        this.department = department;
+        this.courseCode = courseCode;
         this.id = id;
-    }
-
-    public int getId(){
-        return id;
+        this.sectionLetter = sectionLetter;
+        this.title = title;
+        this.credits = credits;
+        this.seats = seats;
+        this.times = times;
+        this.professor = professor;
+        this.description = description;
     }
 }

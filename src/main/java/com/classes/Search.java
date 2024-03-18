@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Search {
+
+    //List of courses to be input from file
     private List<Course> courses;
+
+    //List of filters that I will modify
     private List<String> filters;
 
     public List<Course> search() {
@@ -27,7 +31,7 @@ public class Search {
     }
 
     public void clearFilters() {
-
+        filters.clear();
     }
 
     public static List<Course> readCoursesFromFile(String filepath) {
