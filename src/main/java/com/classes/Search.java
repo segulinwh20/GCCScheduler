@@ -35,6 +35,7 @@ public class Search {
     }
 
     public static List<Course> readCoursesFromFile(String filepath) {
+        // account 201 in one
         List<Course> c = new ArrayList<Course>();
         try(Scanner inFile = new Scanner(new File(filepath))){
             String line = inFile.nextLine(); // removes header line
@@ -99,15 +100,20 @@ public class Search {
 
 
                 // note, days of the week are field[9] - field[13]
-                String daysOfWeek = fields[9] + fields[10] + fields[11] + fields[12] + fields[13];
-                System.out.println(daysOfWeek);
-                //TODO: Fix TimeSlot to allow for multiple days of the week
-                TimeSlot timeslot = new TimeSlot('M', startHour,
-                        Integer.parseInt(beginTimeData[1]),endHour,
-                        Integer.parseInt(endTimeData[1]));
-
                 List<TimeSlot> time = new ArrayList<TimeSlot>();
-                time.add(timeslot);
+                String daysOfWeek = fields[9] + fields[10] + fields[11] + fields[12] + fields[13];
+
+                for(int i = 0; i < daysOfWeek.length(); i++){
+                    TimeSlot timeslot = new TimeSlot(daysOfWeek.charAt(i), startHour,
+                            Integer.parseInt(beginTimeData[1]),endHour,
+                            Integer.parseInt(endTimeData[1]));
+
+                    time.add(timeslot);
+                }
+
+
+
+
 
 
                 char sectionLetter; // fixed error when the section letter is empty
@@ -117,10 +123,17 @@ public class Search {
                     sectionLetter = fields[4].charAt(0);
                 }
 
+                String department = fields[2];
+                int id = Integer.parseInt(fields[3]);
+                String courseCode = department + " " + id;
+                String title = fields[5];
+                int credits = Integer.parseInt(fields[6]);
+                int seats = Integer.parseInt(fields[7]);
+                String desc = fields[19];
+
+
                 // made course constructor with all information in CSV that lined up with variables already present
-                Course course = new Course(Integer.parseInt(fields[3]), fields[5],
-                        Integer.parseInt(fields[7]), fields[2],fields[19], fields[0],
-                        semester, prof, time, sectionLetter, Integer.parseInt(fields[7]));
+                Course course = new Course(semester, department, id, sectionLetter, courseCode, title, credits, seats, time, prof, desc);
 
 
                 c.add(course);
