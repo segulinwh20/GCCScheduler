@@ -99,7 +99,7 @@ public class Search {
                 }
 
 
-                // note, days of the week are field[9] - field[13]
+                // days of the week are field[9] - field[13]
                 List<TimeSlot> time = new ArrayList<TimeSlot>();
                 String daysOfWeek = fields[9] + fields[10] + fields[11] + fields[12] + fields[13];
 
