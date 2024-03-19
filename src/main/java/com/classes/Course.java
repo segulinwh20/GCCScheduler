@@ -50,7 +50,7 @@ public class Course {
         StringBuilder s = new StringBuilder();
         s.append(year);
         s.append(',');
-        s.append(semester.equals("fall") ? 10 : 30);
+        s.append(semester.equals("Fall") ? 10 : 30);
         s.append(',');
         s.append(department);
         s.append(',');

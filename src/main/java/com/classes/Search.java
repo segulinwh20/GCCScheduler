@@ -53,9 +53,9 @@ public class Search {
                 }
 
                 if(Integer.parseInt(fields[1]) == 10) {
-                    semester = "fall";
+                    semester = "Fall";
                 } else {
-                    semester = "spring";
+                    semester = "Spring";
                 }
 
                 Professor prof = new Professor();
@@ -97,15 +97,15 @@ public class Search {
 
                 // note, days of the week are field[9] - field[13]
                 String daysOfWeek = fields[9] + fields[10] + fields[11] + fields[12] + fields[13];
-                System.out.println(daysOfWeek);
-                //TODO: Fix TimeSlot to allow for multiple days of the week
-                TimeSlot timeslot = new TimeSlot('M', startHour,
-                        Integer.parseInt(beginTimeData[1]),endHour,
-                        Integer.parseInt(endTimeData[1]));
 
                 List<TimeSlot> time = new ArrayList<TimeSlot>();
-                time.add(timeslot);
 
+                for (int i = 0; i < daysOfWeek.length(); i++) {
+                    TimeSlot timeslot = new TimeSlot(daysOfWeek.charAt(i), startHour,
+                            Integer.parseInt(beginTimeData[1]),endHour,
+                            Integer.parseInt(endTimeData[1]));
+                    time.add(timeslot);
+                }
 
                 char sectionLetter; // fixed error when the section letter is empty
                 if(fields[4].isEmpty()){
