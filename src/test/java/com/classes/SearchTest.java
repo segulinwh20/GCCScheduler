@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class SearchTest {
 
     @Test
-    void search() {
-//        assertEquals(1,2);
+    void filterCourses() {
+
     }
 
     @Test
