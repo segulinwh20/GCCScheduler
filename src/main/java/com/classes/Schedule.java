@@ -3,6 +3,7 @@ package com.classes;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Schedule {
@@ -10,6 +11,11 @@ public class Schedule {
     private String semester;
     private Log log;
     private String name;
+
+    public Schedule() {
+        this.name = "My Schedule";
+        courses = new LinkedList<>();
+    }
     public void addCourse(Course c) {
 
     }
@@ -40,6 +46,13 @@ public class Schedule {
         } catch (FileNotFoundException e) {
             System.out.println("Schedule unable to be saved");
         }
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 }
