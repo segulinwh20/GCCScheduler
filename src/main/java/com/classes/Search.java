@@ -116,7 +116,7 @@ public class Search {
                 // made course constructor with all information in CSV that lined up with variables already present
                 Course course = new Course(Integer.parseInt(fields[3]), fields[5],
                         Integer.parseInt(fields[7]), fields[2],fields[19], fields[0],
-                        semester, prof, time, sectionLetter, Integer.parseInt(fields[7]));
+                        semester, Integer.parseInt(fields[0]), prof, time, sectionLetter, Integer.parseInt(fields[7]));
 
 
                 c.add(course);
