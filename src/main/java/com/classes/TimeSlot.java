@@ -129,4 +129,35 @@ public class TimeSlot {
     public char getDayOfWeek() {
         return dayOfWeek;
     }
+
+    public boolean sameStartEndTime(TimeSlot other) {
+        return this.startHour == other.startHour && this.startMinute == other.startMinute &&
+                this.endHour == other.endHour && this.endMinute == other.endMinute;
+    }
+
+    public boolean sameDayOfWeek(TimeSlot other) {
+        return this.dayOfWeek == other.dayOfWeek;
+    }
+
+    public String csvFormattedStartTime() {
+        StringBuilder s = new StringBuilder();
+        boolean isAM = startHour >= 12;
+        s.append(isAM ? startHour : startHour-12);
+        s.append(':');
+        s.append(startMinute);
+        s.append(":00 ");
+        s.append(isAM ? "AM" : "PM");
+        return s.toString();
+    }
+
+    public String csvFormattedEndTime() {
+        StringBuilder s = new StringBuilder();
+        boolean isAM = endHour >= 12;
+        s.append(isAM ? endHour : endHour-12);
+        s.append(':');
+        s.append(endMinute);
+        s.append(":00 ");
+        s.append(isAM ? "AM" : "PM");
+        return s.toString();
+    }
 }
