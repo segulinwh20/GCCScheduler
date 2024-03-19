@@ -62,6 +62,7 @@ public class Search {
 
                 prof.setFirst(fields[18]);
                 prof.setLast(fields[17]);
+                prof.setPreferred(fields[19]);
                 prof.setDepartment(fields[2]);
 
                 String[] beginTimeData = fields[14].split(":");
@@ -115,8 +116,9 @@ public class Search {
 
                 // made course constructor with all information in CSV that lined up with variables already present
                 Course course = new Course(Integer.parseInt(fields[3]), fields[5],
-                        Integer.parseInt(fields[7]), fields[2],fields[19], fields[0],
-                        semester, Integer.parseInt(fields[0]), prof, time, sectionLetter, Integer.parseInt(fields[7]));
+                        Integer.parseInt(fields[7]), fields[2],fields[19], Integer.parseInt(fields[3]),
+                        semester, Integer.parseInt(fields[0]), prof, time, sectionLetter,
+                        Integer.parseInt(fields[7]), fields[20]);
 
 
                 c.add(course);

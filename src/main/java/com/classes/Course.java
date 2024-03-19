@@ -8,7 +8,7 @@ public class Course {
     private int credits;
     private String department;
     private String description;
-    private String courseCode;
+    private int courseCode;
     private String semester;
 
     private int year;
@@ -18,13 +18,15 @@ public class Course {
     private String location;
     private int seats;
 
+    private String comments;
+
     public Course(){
 
     }
 
     public Course(int id, String title, int credits, String department,
-                  String description, String courseCode, String semester, int year, Professor professor,
-                  List<TimeSlot> times, char sectionLetter, int seats) { // with all info included in csv
+                  String description, int courseCode, String semester, int year, Professor professor,
+                  List<TimeSlot> times, char sectionLetter, int seats, String comments) { // with all info included in csv
         this.id = id;
         this.title = title;
         this.credits = credits;
@@ -37,6 +39,7 @@ public class Course {
         this.times = times;
         this.sectionLetter = sectionLetter;
         this.seats = seats;
+        this.comments = comments;
     }
 
     public int getId(){
@@ -46,6 +49,33 @@ public class Course {
     public String toCSVFormat() {
         StringBuilder s = new StringBuilder();
         s.append(year);
-        return "";
+        s.append(',');
+        s.append(semester.equals("fall") ? 10 : 30);
+        s.append(',');
+        s.append(department);
+        s.append(',');
+        s.append(courseCode);
+        s.append(',');
+        s.append(title);
+        s.append(',');
+        s.append(credits);
+        s.append(',');
+        s.append(seats); // this might be wrong
+        s.append(',');
+        s.append(seats);
+        s.append(',');
+
+        // Time logic
+
+        s.append(',');
+        s.append(professor.getLast());
+        s.append(',');
+        s.append(professor.getFirst());
+        s.append(',');
+        s.append(professor.getPreferred());
+        s.append(',');
+        s.append(comments);
+
+        return s.toString();
     }
 }
