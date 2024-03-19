@@ -9,7 +9,7 @@ public class Course {
     private int credits;
     private String department;
     private String description;
-    private int courseCode;
+    private String courseCode;
     private String semester;
 
     private int year;
@@ -26,7 +26,7 @@ public class Course {
     }
 
     public Course(int id, String title, int credits, String department,
-                  String description, int courseCode, String semester, int year, Professor professor,
+                  String description, String courseCode, String semester, int year, Professor professor,
                   List<TimeSlot> times, char sectionLetter, int seats, String comments) { // with all info included in csv
         this.id = id;
         this.title = title;
@@ -60,6 +60,8 @@ public class Course {
             s.append(department);
             s.append(',');
             s.append(courseCode);
+            s.append(',');
+            s.append(sectionLetter);
             s.append(',');
             s.append(title);
             s.append(',');
@@ -114,7 +116,7 @@ public class Course {
     }
 
     // this is for the toCSVFormat method
-    private List<List<TimeSlot>> getTimeSlotGroups() {
+    public List<List<TimeSlot>> getTimeSlotGroups() {
         List<List<TimeSlot>> groups = new LinkedList<>();
         for (TimeSlot t : times) {
             boolean updated = false;
@@ -132,5 +134,23 @@ public class Course {
             }
         }
         return groups;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Course) {
+            Course o = (Course) obj;
+            return this.courseCode.equals(o.courseCode) && this.sectionLetter == o.sectionLetter
+                    && this.year == o.year && this.semester == o.semester;
+        }
+        return false;
+    }
+
+    public List<TimeSlot> getTimes() {
+        return times;
+    }
+
+    public void setTimes(List<TimeSlot> times) {
+        this.times = times;
     }
 }

@@ -3,6 +3,7 @@ package com.classes;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -116,16 +117,37 @@ public class Search {
 
                 // made course constructor with all information in CSV that lined up with variables already present
                 Course course = new Course(Integer.parseInt(fields[3]), fields[5],
-                        Integer.parseInt(fields[7]), fields[2],fields[19], Integer.parseInt(fields[3]),
+                        Integer.parseInt(fields[6]), fields[2], fields[19], fields[2] + " " + fields[3],
                         semester, Integer.parseInt(fields[0]), prof, time, sectionLetter,
-                        Integer.parseInt(fields[7]), fields[20]);
+                        Integer.parseInt(fields[7]), fields[19]);
 
 
                 c.add(course);
 
 
             }
-            return c;
+
+            List<Course> combined = new ArrayList<>(c.size());
+
+            for (int i = 0; i < c.size(); i++) {
+                boolean addedToList = false;
+                for (int j = 0; j < combined.size(); j++) {
+                    if (c.get(i).equals(combined.get(j))) {         // if there is a matching course, combine the times
+                        Course old = c.get(i);
+                        Course keep = combined.get(j);
+                        List<TimeSlot> newTimes = keep.getTimes();
+                        newTimes.addAll(old.getTimes());
+                        keep.setTimes(newTimes);
+                        addedToList = true;
+                        break;
+                    }
+                }
+                if (!addedToList) {
+                    combined.add(c.get(i));
+                }
+            }
+
+            return combined;
         }
         catch (FileNotFoundException e){
             throw new RuntimeException("NO FILE");
