@@ -107,6 +107,7 @@ public class Course {
             s.append(professor.getPreferred());
             s.append(',');
             s.append(comments);
+            s.append('\n');
         }
 
         return s.toString();
