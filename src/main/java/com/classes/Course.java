@@ -59,7 +59,7 @@ public class Course {
             s.append(',');
             s.append(department);
             s.append(',');
-            s.append(courseCode);
+            s.append(id);
             s.append(',');
             s.append(sectionLetter);
             s.append(',');
