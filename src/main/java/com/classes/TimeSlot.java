@@ -129,4 +129,68 @@ public class TimeSlot {
     public char getDayOfWeek() {
         return dayOfWeek;
     }
+
+    public boolean sameStartEndTime(TimeSlot other) {
+        return this.startHour == other.startHour && this.startMinute == other.startMinute &&
+                this.endHour == other.endHour && this.endMinute == other.endMinute;
+    }
+
+    public boolean sameDayOfWeek(TimeSlot other) {
+        return this.dayOfWeek == other.dayOfWeek;
+    }
+
+    public String csvFormattedStartTime() {
+        StringBuilder s = new StringBuilder();
+        boolean isAM = startHour >= 12;
+        if (startHour < 12) {
+            if (startHour == 0) {
+                s.append(12);
+            }
+            else {
+                s.append(startHour);
+            }
+            s.append(':');
+            s.append(String.format("%02d", startMinute));
+            s.append(":00 AM");
+        }
+        else {
+            if (startHour == 12) {
+                s.append(12);
+            }
+            else {
+                s.append(startHour-12);
+            }
+            s.append(':');
+            s.append(String.format("%02d", startMinute));
+            s.append(":00 PM");
+        }
+        return s.toString();
+    }
+
+    public String csvFormattedEndTime() {
+        StringBuilder s = new StringBuilder();
+        if (endHour < 12) {
+            if (endHour == 0) {
+                s.append(12);
+            }
+            else {
+                s.append(endHour);
+            }
+            s.append(':');
+            s.append(String.format("%02d", endMinute));
+            s.append(":00 AM");
+        }
+        else {
+            if (endHour == 12) {
+                s.append(12);
+            }
+            else {
+                s.append(endHour-12);
+            }
+            s.append(':');
+            s.append(String.format("%02d", endMinute));
+            s.append(":00 PM");
+        }
+        return s.toString();
+    }
 }

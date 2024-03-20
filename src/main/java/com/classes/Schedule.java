@@ -1,6 +1,9 @@
 package com.classes;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,5 +47,25 @@ public class Schedule {
 
     public void viewGrid() {
 
+    }
+
+    public void save() {
+        try {
+            PrintWriter p = new PrintWriter("data/" + name + ".csv");
+            for (Course c : courses) {
+                p.print(c.toCSVFormat());
+            }
+            p.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Schedule unable to be saved");
+        }
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 }
