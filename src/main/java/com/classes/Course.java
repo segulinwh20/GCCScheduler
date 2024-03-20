@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Course {
+
     private int id;
     private String title;
     private int credits;
@@ -16,8 +17,53 @@ public class Course {
     private Professor professor;
     private List<TimeSlot> times;
     private char sectionLetter;
-   // private String location;
+    // private String location;
     private int seats;
+    public int getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public int getCredits() {
+        return credits;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public String getSemester() {
+        return semester;
+    }
+
+    public Professor getProfessor() {
+        return professor;
+    }
+
+    public List<TimeSlot> getTimes() {
+        return times;
+    }
+
+    public char getSectionLetter() {
+        return sectionLetter;
+    }
+
+    public int getSeats() {
+        return seats;
+    }
+
+
 
     public Course(String semester, String department, int id, char sectionLetter, String courseCode, String title, int credits, int seats, List<TimeSlot> times, Professor professor, String description){
         this.semester = semester;
