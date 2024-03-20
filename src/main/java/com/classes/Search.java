@@ -18,6 +18,15 @@ public class Search {
         filters = new HashMap<>();
     }
 
+    //Testing  purposes
+    public List<Course> getCourses() {
+        return courses;
+    }
+
+    public Map<String, String> getFilters() {
+        return filters;
+    }
+
     public List<Course> filterCourses(List<Course> courses){
         List<Course> data = readCoursesFromFile("data/2020-2021.csv");
 
@@ -27,9 +36,21 @@ public class Search {
                 String filterType = entry.getKey();
                 String filterValue = entry.getValue();
                 switch (filterType) {
-                    case "timeSlot":
-                        if (!datum.getTimes().equals(filterValue)) {
-                            match = false;
+                    case "startHour":
+                        for(TimeSlot timeSlot: datum.getTimes()){
+                            if(timeSlot.getStartHour() != Integer.parseInt(filterValue)){
+                                match = false;
+                                break;
+                            }
+                        }
+                        break;
+                    case "day":
+                        //TODO: Fix this so classes with days including tuesday AND others are returned as well.
+                        for(TimeSlot timeSlot: datum.getTimes()){
+                            if(timeSlot.getDayOfWeek() != filterValue.charAt(0)){
+                                match = false;
+                                break;
+                            }
                         }
                         break;
                     case "courseCode":
@@ -53,6 +74,7 @@ public class Search {
             if (match) {
                 courses.add(datum);
             }
+
         }
         return courses;
     }
@@ -62,6 +84,8 @@ public class Search {
         filters.put(filterType, filterValue);
 
     }
+
+
 
     public void removeFilter(String filterType, String filterValue) {
         filters.remove(filterType, filterValue);
