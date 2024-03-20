@@ -61,9 +61,9 @@ public class Search {
 
                 Professor prof = new Professor();
 
-                prof.setFirst(fields[18]);
-                prof.setLast(fields[17]);
-                prof.setPreferred(fields[19]);
+                prof.setFirst(fields[17]);
+                prof.setLast(fields[16]);
+                prof.setPreferred(fields[18]);
                 prof.setDepartment(fields[2]);
 
                 String[] beginTimeData = fields[14].split(":");
