@@ -55,7 +55,15 @@ class TimeSlotTest {
         l2.remove(c);
 
         assertFalse(TimeSlot.conflicts(l1, l2));
+    }
 
-        System.out.println(a);
+    @Test
+    public void testCSVFormatStrings() {
+        TimeSlot a = new TimeSlot('M', 8, 00, 9, 00);
+        assertEquals("8:00:00 AM", a.csvFormattedStartTime());
+        assertEquals("9:00:00 AM", a.csvFormattedEndTime());
+        TimeSlot b = new TimeSlot('T', 11, 30, 12, 30);
+        assertEquals("11:30:00 AM", b.csvFormattedStartTime());
+        assertEquals("12:30:00 PM", b.csvFormattedEndTime());
     }
 }
