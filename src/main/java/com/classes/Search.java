@@ -127,15 +127,16 @@ public class Search {
                 }
 
                 if(Integer.parseInt(fields[1]) == 10) {
-                    semester = "fall";
+                    semester = "Fall";
                 } else {
-                    semester = "spring";
+                    semester = "Spring";
                 }
 
                 Professor prof = new Professor();
 
-                prof.setFirst(fields[18]);
-                prof.setLast(fields[17]);
+                prof.setFirst(fields[17]);
+                prof.setLast(fields[16]);
+                prof.setPreferred(fields[18]);
                 prof.setDepartment(fields[2]);
 
                 String[] beginTimeData = fields[14].split(":");
@@ -176,14 +177,8 @@ public class Search {
                     TimeSlot timeslot = new TimeSlot(daysOfWeek.charAt(i), startHour,
                             Integer.parseInt(beginTimeData[1]),endHour,
                             Integer.parseInt(endTimeData[1]));
-
                     time.add(timeslot);
                 }
-
-
-
-
-
 
                 char sectionLetter; // fixed error when the section letter is empty
                 if(fields[4].isEmpty()){
@@ -209,7 +204,28 @@ public class Search {
 
 
             }
-            return c;
+
+            List<Course> combined = new ArrayList<>(c.size());
+
+            for (int i = 0; i < c.size(); i++) {
+                boolean addedToList = false;
+                for (int j = 0; j < combined.size(); j++) {
+                    if (c.get(i).equals(combined.get(j))) {         // if there is a matching course, combine the times
+                        Course old = c.get(i);
+                        Course keep = combined.get(j);
+                        List<TimeSlot> newTimes = keep.getTimes();
+                        newTimes.addAll(old.getTimes());
+                        keep.setTimes(newTimes);
+                        addedToList = true;
+                        break;
+                    }
+                }
+                if (!addedToList) {
+                    combined.add(c.get(i));
+                }
+            }
+
+            return combined;
         }
         catch (FileNotFoundException e){
             throw new RuntimeException("NO FILE");

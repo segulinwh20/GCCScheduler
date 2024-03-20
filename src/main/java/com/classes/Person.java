@@ -1,7 +1,7 @@
 package com.classes;
 
 public abstract class Person {
-    private String first, last;
+    private String first, last, preferred;
 
     public String getFirst() {
         return first;
@@ -17,5 +17,13 @@ public abstract class Person {
 
     public void setLast(String last) {
         this.last = last;
+    }
+
+    public String getPreferred() {
+        return preferred;
+    }
+
+    public void setPreferred(String preferred) {
+        this.preferred = preferred;
     }
 }
