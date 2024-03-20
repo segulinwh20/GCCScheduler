@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Schedule {
@@ -12,15 +13,27 @@ public class Schedule {
     private Log log;
     private String name;
 
-    public Schedule() {
-        this.name = "My Schedule";
-        courses = new LinkedList<>();
+    public Schedule(String name, String semester){
+        this.name = name;
+        this.courses = new ArrayList<Course>();
     }
-    public void addCourse(Course c) {
 
+    public String getName(){
+        return name;
+    }
+
+    public List<Course> getCourses(){
+        return courses;
+    }
+
+    public void addCourse(Course c) {
+        courses.add(c);
     }
 
     public boolean removeCourse(Course c) {
+        if (courses.remove(c)) {
+            return true;
+        }
         return false;
     }
 
