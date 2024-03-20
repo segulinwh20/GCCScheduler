@@ -2,33 +2,101 @@ package com.classes;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+
+//Load all of the courses into a giant course list. From there,
+//when it comes time to search based on parameters, iterate through each course's "get____" method,
+//and return the list of classes containing that match.
 
 public class Search {
-
-    //List of courses to be input from file
     private List<Course> courses;
+    //private List<String> filters = new ArrayList<>();
+    private Map<String, String> filters;
 
-    //List of filters that I will modify
-    private List<String> filters;
-
-    public List<Course> search() {
-        return null;
+    public Search() {
+        courses = new ArrayList<>();
+        filters = new HashMap<>();
     }
 
-    public List<Course> addFilter(String filter) {
-        return null;
+    //Testing  purposes
+    public List<Course> getCourses() {
+        return courses;
     }
 
-    public List<Course> removeFilter(String filter) {
-        return null;
+    public Map<String, String> getFilters() {
+        return filters;
     }
 
-    public List<Course> modifyFilter(String filter) {
-        return null;
+    public List<Course> filterCourses(List<Course> courses){
+        List<Course> data = readCoursesFromFile("data/2020-2021.csv");
+
+        for (Course datum : data) {
+            boolean match = true;
+            for (Map.Entry<String, String> entry : filters.entrySet()) {
+                String filterType = entry.getKey();
+                String filterValue = entry.getValue();
+                switch (filterType) {
+                    case "startHour":
+                        for(TimeSlot timeSlot: datum.getTimes()){
+                            if(timeSlot.getStartHour() != Integer.parseInt(filterValue)){
+                                match = false;
+                                break;
+                            }
+                        }
+                        break;
+                    case "day":
+                        //TODO: Fix this so classes with days including tuesday AND others are returned as well.
+                        for(TimeSlot timeSlot: datum.getTimes()){
+                            if(timeSlot.getDayOfWeek() != filterValue.charAt(0)){
+                                match = false;
+                                break;
+                            }
+                        }
+                        break;
+                    case "courseCode":
+                        if (!datum.getCourseCode().equals(filterValue)) {
+                            match = false;
+                        }
+                        break;
+                    case "title":
+                        if (!datum.getTitle().equals(filterValue)) {
+                            match = false;
+                        }
+                        break;
+                    default:
+                        System.out.println("Invalid filter type");
+                        break;
+                }
+                if (!match) {
+                    break;
+                }
+            }
+            if (match) {
+                courses.add(datum);
+            }
+
+        }
+        return courses;
+    }
+
+    //Syntax [FilterType]:"filterName"
+    public void addFilter(String filterType, String filterValue) {
+        filters.put(filterType, filterValue);
+
+    }
+
+
+
+    public void removeFilter(String filterType, String filterValue) {
+        filters.remove(filterType, filterValue);
+    }
+
+    public void modifyFilter(String filterType, String filterValue) {
+        if(filters.containsKey(filterType)){
+            filters.put(filterType, filterValue);
+        } else {
+            System.out.println("No such filter has been set");
+        }
     }
 
     public void clearFilters() {
