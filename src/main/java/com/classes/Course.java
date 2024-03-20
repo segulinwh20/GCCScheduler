@@ -29,4 +29,8 @@ public class Course {
         this.professor = professor;
         this.description = description;
     }
+
+    public int getId() {
+        return id;
+    }
 }

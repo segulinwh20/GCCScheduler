@@ -7,7 +7,7 @@ public class Log {
     private List<Schedule> actions = new ArrayList<Schedule>();
     private int index = 0;
     public Log() {
-        Schedule s = new Schedule();
+        Schedule s = new Schedule("empty", "fall");
         actions.add(s);
     }
 
