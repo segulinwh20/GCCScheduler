@@ -4,7 +4,7 @@ import java.util.List;
 
 public class TimeSlot {
     private int startHour, endHour, startMinute, endMinute;
-    private char dayOfWeek; // MTWRF (S for Sat, U for Sun, X for no day)
+    private char dayOfWeek;
 
     public TimeSlot(char dayOfWeek, int startHour, int startMinute, int endHour, int endMinute) {
         dayOfWeek = Character.toUpperCase(dayOfWeek);

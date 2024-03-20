@@ -178,10 +178,6 @@ public class Course {
         return false;
     }
 
-    public List<TimeSlot> getTimes() {
-        return times;
-    }
-
     public void setTimes(List<TimeSlot> times) {
         this.times = times;
     }
