@@ -15,7 +15,17 @@ public class Schedule {
 
     public Schedule(String name, String semester){
         this.name = name;
+        //TODO: semester
+        //TODO: log
         this.courses = new ArrayList<Course>();
+    }
+
+    public Schedule(String filepath) {
+        String[] path = filepath.split("/");
+        this.name = path[path.length - 1];
+        //TODO: semester
+        //TODO: log
+        this.courses = Search.readCoursesFromFile(filepath);
     }
 
     public String getName(){
