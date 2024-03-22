@@ -65,7 +65,8 @@ public class Course {
 
 
 
-    public Course(String semester, String department, int id, char sectionLetter, String courseCode, String title, int credits, int seats, List<TimeSlot> times, Professor professor, String description){
+    public Course(int year, String semester, String department, int id, char sectionLetter, String courseCode, String title, int credits, int seats, List<TimeSlot> times, Professor professor, String description){
+        this.year = year;
         this.semester = semester;
         this.department = department;
         this.courseCode = courseCode;
