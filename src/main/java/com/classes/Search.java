@@ -113,6 +113,7 @@ public class Search {
             while(inFile.hasNextLine()){
                 line = inFile.nextLine();
                 String[] fields = line.split(",");
+                inFile.close();
 
                 if(fields.length != 20){ // fixed errors due to empty values at end of csv
                     String[] hold = new String[20];
@@ -165,7 +166,7 @@ public class Search {
                 int endHour = Integer.parseInt(endTimeData[0]);
 
                 if(endTimeData[2].charAt(3) == 'P'){
-                    endTimeData[0] += 12;
+                    endHour += 12;
                 }
 
 
