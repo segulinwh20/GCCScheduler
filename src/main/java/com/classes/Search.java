@@ -104,7 +104,7 @@ public class Search {
     }
 
     public static List<Course> readCoursesFromFile(String filepath) {
-        // account 201 in one
+
         List<Course> c = new ArrayList<Course>();
         try(Scanner inFile = new Scanner(new File(filepath))){
             String line = inFile.nextLine(); // removes header line
