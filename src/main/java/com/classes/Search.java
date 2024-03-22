@@ -45,10 +45,10 @@ public class Search {
                         }
                         break;
                     case "day":
-                        //TODO: Fix this so classes with days including tuesday AND others are returned as well.
+                        match = false;
                         for(TimeSlot timeSlot: datum.getTimes()){
-                            if(timeSlot.getDayOfWeek() != filterValue.charAt(0)){
-                                match = false;
+                            if(timeSlot.getDayOfWeek() == filterValue.charAt(0)){
+                                match = true;
                                 break;
                             }
                         }
