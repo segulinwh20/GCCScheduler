@@ -113,7 +113,6 @@ public class Search {
             while(inFile.hasNextLine()){
                 line = inFile.nextLine();
                 String[] fields = line.split(",");
-                inFile.close();
 
                 if(fields.length != 20){ // fixed errors due to empty values at end of csv
                     String[] hold = new String[20];
