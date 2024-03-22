@@ -104,7 +104,7 @@ public class Search {
     }
 
     public static List<Course> readCoursesFromFile(String filepath) {
-
+        // account 201 in one
         List<Course> c = new ArrayList<Course>();
         try(Scanner inFile = new Scanner(new File(filepath))){
             String line = inFile.nextLine(); // removes header line
@@ -113,7 +113,7 @@ public class Search {
             while(inFile.hasNextLine()){
                 line = inFile.nextLine();
                 String[] fields = line.split(",");
-
+                inFile.close();
 
                 if(fields.length != 20){ // fixed errors due to empty values at end of csv
                     String[] hold = new String[20];
