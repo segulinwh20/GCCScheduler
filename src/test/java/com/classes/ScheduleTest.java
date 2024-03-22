@@ -12,7 +12,7 @@ class ScheduleTest {
     @Test
     void testAddCourse() {
         Schedule scheduleA = new Schedule("myFirstSchedule", "Spring");
-        Course courseA = new Course("Spring", "COMP", 350, 'B',
+        Course courseA = new Course(2024, "Spring", "COMP", 350, 'B',
                 "COMP350", "Software Engineering", 3, 30, null, null, "");
         scheduleA.addCourse(courseA);
         List<Course> testCourses = new ArrayList<>();
@@ -23,9 +23,9 @@ class ScheduleTest {
     @Test
     void testRemoveCourse() {
         Schedule scheduleA = new Schedule("myFirstSchedule", "Spring");
-        Course courseA = new Course("Spring", "COMP", 350, 'A',
+        Course courseA = new Course(2024, "Spring", "COMP", 350, 'A',
                 "COMP350", "Software Engineering", 3, 30, null, null, "");
-        Course courseB = new Course("Spring", "COMP", 350, 'B',
+        Course courseB = new Course(2024, "Spring", "COMP", 350, 'B',
                 "COMP350", "Software Engineering", 3, 30, null, null, "");
         scheduleA.addCourse(courseA);
         scheduleA.addCourse(courseB);

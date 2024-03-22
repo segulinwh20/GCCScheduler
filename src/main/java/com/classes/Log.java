@@ -6,18 +6,17 @@ import java.util.List;
 public class Log {
     private List<Schedule> actions = new ArrayList<Schedule>();
     private int index = 0;
+
     public Log() {
         Schedule s = new Schedule("","");
         actions.add(s);
     }
 
     public Log(Schedule s){
-
         actions.add(s);
     }
 
     public Schedule getLast() {
-
         return actions.get(index);
     }
 
@@ -39,6 +38,7 @@ public class Log {
     }
 
     public void addAction(Schedule action) {
+        index ++;
         actions.add(action);
     }
 }

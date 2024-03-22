@@ -113,6 +113,7 @@ public class Search {
             while(inFile.hasNextLine()){
                 line = inFile.nextLine();
                 String[] fields = line.split(",");
+                inFile.close();
 
                 if(fields.length != 20){ // fixed errors due to empty values at end of csv
                     String[] hold = new String[20];
@@ -165,7 +166,7 @@ public class Search {
                 int endHour = Integer.parseInt(endTimeData[0]);
 
                 if(endTimeData[2].charAt(3) == 'P'){
-                    endTimeData[0] += 12;
+                    endHour += 12;
                 }
 
 
@@ -187,6 +188,7 @@ public class Search {
                     sectionLetter = fields[4].charAt(0);
                 }
 
+                int year = Integer.parseInt(fields[0]);
                 String department = fields[2];
                 int id = Integer.parseInt(fields[3]);
                 String courseCode = department + " " + id;
@@ -197,7 +199,7 @@ public class Search {
 
 
                 // made course constructor with all information in CSV that lined up with variables already present
-                Course course = new Course(semester, department, id, sectionLetter, courseCode, title, credits, seats, time, prof, desc);
+                Course course = new Course(year, semester, department, id, sectionLetter, courseCode, title, credits, seats, time, prof, desc);
 
 
                 c.add(course);
