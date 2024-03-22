@@ -15,7 +15,7 @@ class SearchTest {
     }
     @Test
     void filterCourses() {
-        s.addFilter("startHour", "9");
+        s.addFilter("day", "W");
         System.out.println(s.getFilters());
         s.filterCourses(s.getCourses());
         for(Course course: s.getCourses()){
