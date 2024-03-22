@@ -45,10 +45,10 @@ public class Search {
                         }
                         break;
                     case "day":
-                        //TODO: Fix this so classes with days including tuesday AND others are returned as well.
+                        match = false;
                         for(TimeSlot timeSlot: datum.getTimes()){
-                            if(timeSlot.getDayOfWeek() != filterValue.charAt(0)){
-                                match = false;
+                            if(timeSlot.getDayOfWeek() == filterValue.charAt(0)){
+                                match = true;
                                 break;
                             }
                         }
@@ -187,6 +187,7 @@ public class Search {
                     sectionLetter = fields[4].charAt(0);
                 }
 
+                int year = Integer.parseInt(fields[0]);
                 String department = fields[2];
                 int id = Integer.parseInt(fields[3]);
                 String courseCode = department + " " + id;
@@ -197,7 +198,7 @@ public class Search {
 
 
                 // made course constructor with all information in CSV that lined up with variables already present
-                Course course = new Course(semester, department, id, sectionLetter, courseCode, title, credits, seats, time, prof, desc);
+                Course course = new Course(year, semester, department, id, sectionLetter, courseCode, title, credits, seats, time, prof, desc);
 
 
                 c.add(course);
