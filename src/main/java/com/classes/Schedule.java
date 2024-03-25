@@ -41,9 +41,15 @@ public class Schedule {
     }
 
     public boolean removeCourse(Course c) {
+        if (courses.size() == 0) {
+            System.out.println("You have no courses in your schedule.");
+            return false;
+        }
         if (courses.remove(c)) {
+            System.out.println(c + " has been removed from your schedule.");
             return true;
         }
+        System.out.println(c + " is not in your schedule.");
         return false;
     }
 
