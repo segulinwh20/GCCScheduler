@@ -27,6 +27,8 @@ public class Search {
         return filters;
     }
 
+
+
     public List<Course> filterCourses(List<Course> courses){
         List<Course> data = readCoursesFromFile("data/2020-2021.csv");
 
@@ -37,12 +39,18 @@ public class Search {
                 String filterValue = entry.getValue();
                 switch (filterType) {
                     case "startHour":
-                        for(TimeSlot timeSlot: datum.getTimes()){
-                            if(timeSlot.getStartHour() != Integer.parseInt(filterValue)){
+                        for(TimeSlot timeslot: datum.getTimes()){
+                            //System.out.println(datum.getCourseCode() + " "  + datum.getSectionLetter() + " " + timeSlot.getStartHour());
+                            if(timeslot.getStartHour() != Integer.parseInt(filterValue)){
                                 match = false;
                                 break;
                             }
                         }
+
+                    if(datum.getTimes().isEmpty()){
+                        match = false;
+                    }
+
                         break;
                     case "day":
                         match = false;
@@ -73,6 +81,11 @@ public class Search {
             }
             if (match) {
                 courses.add(datum);
+                System.out.println(datum.getTimes());
+                for(TimeSlot timeslot: datum.getTimes()){
+                    System.out.println(datum.getCourseCode() + " " + datum.getSectionLetter() + " " + timeslot.getStartHour());
+                }
+
             }
 
         }
