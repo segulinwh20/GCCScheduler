@@ -7,6 +7,7 @@ import java.util.Scanner;
 public class Main {
     static Student student;
     static Schedule currentSchedule;
+    static Search courseSearch;
 
 
     public static void main(String[] args) {
@@ -14,6 +15,13 @@ public class Main {
         System.out.println("Start building your schedule or type 'help' for a list of commands.");
         student = new Student();
         cmdTerminal: do {
+            if (currentSchedule != null) {
+                System.out.println("Currently editing schedule " + currentSchedule.getName());
+            }
+            List<Course> courses = currentSchedule.getCourses();
+            for (int i = 0; i < ; i++) {
+
+            }
             System.out.print("Command: ");
             Scanner scan = new Scanner(System.in);
             String cmdLine = scan.nextLine();
@@ -85,9 +93,12 @@ public class Main {
     }
 
     static void search() {
-        System.out.println("Welcome to GCC Scheduler");
         System.out.println("Start searching for courses or type 'help' for a list of search filters.");
+        courseSearch = new Search();
         searchTerminal: do {
+            if (courseSearch.getFilters().size() > 0) {
+                System.out.println(courseSearch.getFilters());
+            }
             System.out.print("Search: ");
             Scanner scan = new Scanner(System.in);
             String cmdLine = scan.nextLine();
@@ -96,13 +107,46 @@ public class Main {
                 case "help":
                     searchHelp();
                     break;
+                case "addFilter":
+                    addFilter(cmdItems);
+                    break;
+                case "removeFilter":
+                    removeFilter(cmdItems);
+                    break;
+                case "clearFilters":
+                    courseSearch.clearFilters();
+                    break;
+//                case "modifyFilter":
                 case "search":
-
+                    if (courseSearch.getFilters().size() == 0) {
+                        System.out.println("You have no filters selected, this will return every class, are you sure?");
+                        System.out.println("Y/N");
+                        String killSwitch = scan.nextLine();
+                        if (killSwitch == "Y" || killSwitch == "y") {
+                            courseSearch.filterCourses(courseSearch.getCourses());
+                        } else {continue; }
+                    }
+                    courseSearch.filterCourses(courseSearch.getCourses());
+                    break;
                 case "quit":
                     break searchTerminal;
                 default:
                     System.out.println("Invalid Command, Please Re-Enter Command");
             }
         } while(true);
+    }
+
+    static void addFilter(String[] filterParam) {
+        String filterType = filterParam[1];
+        for (int i = 2; i < filterParam.length; i++) {
+            courseSearch.addFilter(filterType, filterParam[i]);
+        }
+    }
+
+    static void removeFilter(String[] filterParam) {
+        String filterType = filterParam[1];
+        for (int i = 2; i < filterParam.length; i++) {
+            courseSearch.removeFilter(filterType, filterParam[i]);
+        }
     }
 }
