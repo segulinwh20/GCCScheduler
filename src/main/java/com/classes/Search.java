@@ -10,7 +10,16 @@ import java.util.*;
 
 public class Search {
 
-    private Map<String, List<String>> filters;
+    enum Type {
+        STARTHOUR,
+        DAY,
+        COURSECODE,
+        TITLE
+
+    }
+
+
+    private Map<Type, List<String>> filters;
 
     private List<String> timeFilters;
 
@@ -23,7 +32,7 @@ public class Search {
     }
 
 
-    public Map<String, List<String>> getFilters() {
+    public Map<Type, List<String>> getFilters() {
         return filters;
     }
 
@@ -34,12 +43,12 @@ public class Search {
 
         for (Course datum : data) {
             boolean match = true;
-            for (Map.Entry<String, List<String>> entry : filters.entrySet()) {
-                String filterType = entry.getKey();
+            for (Map.Entry<Type, List<String>> entry : filters.entrySet()) {
+                Type filterType = entry.getKey();
                 List<String> filterValues = entry.getValue();
 
                 switch (filterType) {
-                    case "startHour":
+                    case Type.STARTHOUR:
                         match = false;
                         for (TimeSlot timeslot : datum.getTimes()) {
                             if (filterValues.contains(String.valueOf(timeslot.getStartHour()))) {
@@ -52,7 +61,7 @@ public class Search {
                             break;
                         }
                         break;
-                    case "day":
+                    case Type.DAY:
                         match = false;
                         for (TimeSlot timeSlot : datum.getTimes()) {
                             if (filterValues.contains(String.valueOf(timeSlot.getDayOfWeek()))) {
@@ -65,12 +74,12 @@ public class Search {
                             break;
                         }
                         break;
-                    case "courseCode":
+                    case Type.COURSECODE:
                         if (!filterValues.contains(datum.getCourseCode())) {
                             match = false;
                         }
                         break;
-                    case "title":
+                    case Type.TITLE:
                         if (!filterValues.contains(datum.getTitle())) {
                             match = false;
                         }
@@ -90,11 +99,11 @@ public class Search {
         return filteredCourses;
     }
 
-    public void addFilter(String filterType, String filterValue) {
-        if (filterType.equals("startHour")) {
+    public void addFilter(Type filterType, String filterValue) {
+        if (filterType.equals(Type.STARTHOUR)) {
             timeFilters.add(filterValue);
             filters.put(filterType, timeFilters);
-        } else if(filterType.equals("day")){
+        } else if(filterType.equals(Type.DAY)){
             dayFilters.add(filterValue);
             filters.put(filterType, dayFilters);
         }
@@ -103,14 +112,14 @@ public class Search {
         }
     }
 
-public void removeFilter(String filterType, String filterValue) {
-    if (filterType.equals("startHour")) {
+public void removeFilter(Type filterType, String filterValue) {
+    if (filterType.equals(Type.STARTHOUR)) {
         if (timeFilters.contains(filterValue)) {
             timeFilters.remove(filterValue);
         } else {
             System.out.println("No such filter present");
         }
-    } else if (filterType.equals("day")) {
+    } else if (filterType.equals(Type.DAY)) {
         if (dayFilters.contains(filterValue)) {
             dayFilters.remove(filterValue);
         } else {

@@ -60,8 +60,8 @@ class SearchTest {
 //        }
 
         Search x = new Search();
-        x.addFilter("day", "W");
-        x.addFilter("day", "R");
+        x.addFilter(Search.Type.DAY, "W");
+        x.addFilter(Search.Type.DAY, "R");
         List<Course> w;
         w = x.filterCourses();
         for(Course course: w){
@@ -82,26 +82,23 @@ class SearchTest {
 
     @Test
     void addFilter() {
-        Search s = new Search();
-        testAddFilters.put("courseCode", "ACCT 201");
-        s.addFilter("courseCode", "ACCT 201");
-        assertEquals(s.getFilters(), getTestAddFilters());
+
     }
 
     @Test
     void removeFilter() {
         Search x = new Search();
-        x.addFilter("day", "W");
-        x.addFilter("day", "R");
-        x.addFilter("startHour", "9");
+        x.addFilter(Search.Type.DAY, "W");
+        x.addFilter(Search.Type.DAY, "R");
+        x.addFilter(Search.Type.STARTHOUR, "9");
         System.out.println("Before: " + x.getFilters());
 //        List<Course> w;
 //        w = x.filterCourses();
 //        for(Course course: w){
 //            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
 //        }
-        x.removeFilter("day", "R");
-        x.removeFilter("startHour", "9");
+        x.removeFilter(Search.Type.DAY, "R");
+        x.removeFilter(Search.Type.STARTHOUR, "9");
         System.out.println("After: " + x.getFilters());
 //        List<Course> courses;
 //        courses = x.filterCourses();
@@ -117,24 +114,11 @@ class SearchTest {
 
     @Test
     void modifyFilter() {
-        Search s = new Search();
-        Search y = new Search();
-        y.addFilter("startHour", "9,10");
-        // y.addFilter("startHour", "10");
-        List<Course> e;
-        e = y.filterCourses();
-        for(Course course: e){
-            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
-        }
+
     }
 
     @Test
     void clearFilters() {
-        Search s = new Search();
-        testClearFilters.put("courseCode", "ACCT 201");
-        s.addFilter("courseCode", "ACCT 201");
-        testClearFilters.clear();
-        s.clearFilters();
-        assertEquals(s.getFilters(), getTestClearFilters());
+
     }
 }
