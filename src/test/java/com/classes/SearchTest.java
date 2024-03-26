@@ -60,8 +60,10 @@ class SearchTest {
 //        }
 
         Search x = new Search();
-        x.addFilter(Search.Type.DAY, "W");
-        x.addFilter(Search.Type.DAY, "R");
+//        x.addFilter(Search.Type.DAY, "W");
+//        x.addFilter(Search.Type.DAY, "R");
+        x.addFilter(Search.Type.STARTMINUTE, "30");
+        x.addFilter(Search.Type.STARTHOUR, "11");
         List<Course> w;
         w = x.filterCourses();
         for(Course course: w){
@@ -91,6 +93,7 @@ class SearchTest {
         x.addFilter(Search.Type.DAY, "W");
         x.addFilter(Search.Type.DAY, "R");
         x.addFilter(Search.Type.STARTHOUR, "9");
+        x.addFilter(Search.Type.STARTMINUTE, "30");
         System.out.println("Before: " + x.getFilters());
 //        List<Course> w;
 //        w = x.filterCourses();
@@ -99,6 +102,7 @@ class SearchTest {
 //        }
         x.removeFilter(Search.Type.DAY, "R");
         x.removeFilter(Search.Type.STARTHOUR, "9");
+        x.removeFilter(Search.Type.STARTMINUTE, "30");
         System.out.println("After: " + x.getFilters());
 //        List<Course> courses;
 //        courses = x.filterCourses();
@@ -112,10 +116,6 @@ class SearchTest {
     }
 
 
-    @Test
-    void modifyFilter() {
-
-    }
 
     @Test
     void clearFilters() {
