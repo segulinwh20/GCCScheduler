@@ -2,51 +2,111 @@ package com.classes;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SearchTest {
 
-    Search s = new Search();
+
+
+//class variables for testing
+    private Map<String, String> testAddFilters = new HashMap<>();
+
+    private Map<String, String> testRemoveFilters = new HashMap<>();
+
+
+    private Map<String, String> testModifyFilters = new HashMap<>();
+
+    private Map<String, String> testClearFilters = new HashMap<>();
+
+    public Map<String, String> getTestModifyFilters() {
+        return testModifyFilters;
+    }
+
+    public Map<String, String> getTestClearFilters() {
+        return testClearFilters;
+    }
+
+    public Map<String, String> getTestRemoveFilters() {
+        return testRemoveFilters;
+    }
+
+    public Map<String, String> getTestAddFilters() {
+        return testAddFilters;
+    }
 
 
     @Test
     void search(){
+        Search s = new Search();
 
     }
+
+    //Tests multiple filters
     @Test
     void filterCourses() {
         s.addFilter("day", "W");
+        s.addFilter("day", "T");
         System.out.println(s.getFilters());
         s.filterCourses(s.getCourses());
         for(Course course: s.getCourses()){
             System.out.println(course.getCourseCode() +" " + course.getSectionLetter());
+
         }
 
+//        Search y = new Search();
+//        y.addFilter("startHour", "9");
+//        y.addFilter("startHour", "10");
+//       // y.addFilter("startHour", "10");
+//        List<Course> e;
+//        e = y.filterCourses();
+//        for(Course course: e){
+//            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
+//        }
     }
+
 
     @Test
     void addFilter() {
-//        s.addFilter("courseCode", "ACCT 201");
-//        System.out.println(s.getFilters());
-
 
     }
 
     @Test
     void removeFilter() {
-//        s.removeFilter("courseCode", "ACCT 201");
-//        System.out.println(s.getFilters());
+        Search x = new Search();
+        x.addFilter(Search.Type.DAY, "W");
+        x.addFilter(Search.Type.DAY, "R");
+        x.addFilter(Search.Type.STARTHOUR, "9");
+        x.addFilter(Search.Type.STARTMINUTE, "30");
+        System.out.println("Before: " + x.getFilters());
+//        List<Course> w;
+//        w = x.filterCourses();
+//        for(Course course: w){
+//            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
+//        }
+        x.removeFilter(Search.Type.DAY, "R");
+        x.removeFilter(Search.Type.STARTHOUR, "9");
+        x.removeFilter(Search.Type.STARTMINUTE, "30");
+        System.out.println("After: " + x.getFilters());
+//        List<Course> courses;
+//        courses = x.filterCourses();
+//        for(Course course: courses){
+//            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
+//        }
+
+
+
+
     }
 
-    @Test
-    void modifyFilter() {
-//        s.modifyFilter("courseCode", "CHEM 105");
-//        System.out.println(s.getFilters());
-    }
+
 
     @Test
     void clearFilters() {
-//        s.clearFilters();
-//        System.out.println(s.getFilters());
+
     }
 }

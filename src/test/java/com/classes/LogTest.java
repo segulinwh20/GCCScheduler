@@ -14,9 +14,9 @@ class LogTest {
         Schedule s = new Schedule("", "");
         Schedule s1 = new Schedule("", "");
         Log log = new Log(s);
-        log.addAction(s1);
-
         assertEquals(log.getLast(), s);
+
+        log.addAction(s1);
         assertEquals(log.getLast(), s1);
     }
 
@@ -54,5 +54,27 @@ class LogTest {
 
     @Test
     void addAction() {
+        Schedule s = new Schedule("", "");
+        Schedule s1 = new Schedule("", "");
+        Schedule first = new Schedule("","");
+        Log log = new Log(first);
+
+        log.addAction(s);
+        log.addAction(s);
+        log.addAction(s1);
+
+        assertEquals(log.getLast(), s1); // log.getLast() should equal the last item added
+        log.undoLast();
+        log.undoLast();
+        log.undoLast();
+        assertEquals(log.getLast(), first); // should be at the first index
+
+        log.addAction(s1);
+        assertNull(log.redoLast()); // should be at the end of redo
+        log.undoLast();
+        assertEquals(log.getLast(), first); //should be at the first index
+
+
+
     }
 }

@@ -9,57 +9,95 @@ import java.util.*;
 //and return the list of classes containing that match.
 
 public class Search {
-    private List<Course> courses;
-    //private List<String> filters = new ArrayList<>();
-    private Map<String, String> filters;
+
+    enum Type {
+        STARTHOUR,
+        STARTMINUTE,
+        DAY,
+        COURSECODE,
+        TITLE
+
+    }
+
+
+    private Map<Type, List<String>> filters;
+
+    private List<String> timeFilters;
+
+    private List<String> minuteFilters;
+
+    private List<String> dayFilters;
 
     public Search() {
-        courses = new ArrayList<>();
         filters = new HashMap<>();
+        timeFilters = new ArrayList<>();
+        dayFilters = new ArrayList<>();
+        minuteFilters = new ArrayList<>();
     }
 
-    //Testing  purposes
-    public List<Course> getCourses() {
-        return courses;
-    }
 
-    public Map<String, String> getFilters() {
+    public Map<Type, List<String>> getFilters() {
         return filters;
     }
 
-    public List<Course> filterCourses(List<Course> courses){
+
+    public List<Course> filterCourses() {
         List<Course> data = readCoursesFromFile("data/2020-2021.csv");
+        List<Course> filteredCourses = new ArrayList<>();
 
         for (Course datum : data) {
             boolean match = true;
-            for (Map.Entry<String, String> entry : filters.entrySet()) {
-                String filterType = entry.getKey();
-                String filterValue = entry.getValue();
+            for (Map.Entry<Type, List<String>> entry : filters.entrySet()) {
+                Type filterType = entry.getKey();
+                List<String> filterValues = entry.getValue();
+
                 switch (filterType) {
-                    case "startHour":
-                        for(TimeSlot timeSlot: datum.getTimes()){
-                            if(timeSlot.getStartHour() != Integer.parseInt(filterValue)){
-                                match = false;
-                                break;
-                            }
-                        }
-                        break;
-                    case "day":
+                    case Type.STARTHOUR:
                         match = false;
-                        for(TimeSlot timeSlot: datum.getTimes()){
-                            if(timeSlot.getDayOfWeek() == filterValue.charAt(0)){
+                        for (TimeSlot timeslot : datum.getTimes()) {
+                            if (filterValues.contains(String.valueOf(timeslot.getStartHour()))) {
                                 match = true;
                                 break;
                             }
                         }
+                        if(datum.getTimes().isEmpty()){
+                            match = false;
+                            break;
+                        }
                         break;
-                    case "courseCode":
-                        if (!datum.getCourseCode().equals(filterValue)) {
+                    case Type.STARTMINUTE:
+                        match = false;
+                        for (TimeSlot timeslot : datum.getTimes()) {
+                            if (filterValues.contains(String.valueOf(timeslot.getStartMinute()))) {
+                                match = true;
+                                break;
+                            }
+                        }
+                        if(datum.getTimes().isEmpty()){
+                            match = false;
+                            break;
+                        }
+                        break;
+                    case Type.DAY:
+                        match = false;
+                        for (TimeSlot timeSlot : datum.getTimes()) {
+                            if (filterValues.contains(String.valueOf(timeSlot.getDayOfWeek()))) {
+                                match = true;
+                                break;
+                            }
+                        }
+                        if(datum.getTimes().isEmpty()){
+                            match = false;
+                            break;
+                        }
+                        break;
+                    case Type.COURSECODE:
+                        if (!filterValues.contains(datum.getCourseCode())) {
                             match = false;
                         }
                         break;
-                    case "title":
-                        if (!datum.getTitle().equals(filterValue)) {
+                    case Type.TITLE:
+                        if (!filterValues.contains(datum.getTitle())) {
                             match = false;
                         }
                         break;
@@ -72,32 +110,60 @@ public class Search {
                 }
             }
             if (match) {
-                courses.add(datum);
+                filteredCourses.add(datum);
             }
-
         }
-        return courses;
+        return filteredCourses;
     }
 
-    //Syntax [FilterType]:"filterName"
-    public void addFilter(String filterType, String filterValue) {
-        filters.put(filterType, filterValue);
-
+    public void addFilter(Type filterType, String filterValue) {
+        if (filterType.equals(Type.STARTHOUR)) {
+            timeFilters.add(filterValue);
+            filters.put(filterType, timeFilters);
+        } else if(filterType.equals(Type.DAY)){
+            dayFilters.add(filterValue);
+            filters.put(filterType, dayFilters);
+        } else if(filterType.equals(Type.STARTMINUTE)){
+            minuteFilters.add(filterValue);
+            filters.put(filterType, minuteFilters);
+        }
+        else {
+            filters.computeIfAbsent(filterType, k -> new ArrayList<>()).add(filterValue);
+        }
     }
 
-
-
-    public void removeFilter(String filterType, String filterValue) {
-        filters.remove(filterType, filterValue);
-    }
-
-    public void modifyFilter(String filterType, String filterValue) {
-        if(filters.containsKey(filterType)){
-            filters.put(filterType, filterValue);
+public void removeFilter(Type filterType, String filterValue) {
+    if (filterType.equals(Type.STARTHOUR)) {
+        if (timeFilters.contains(filterValue)) {
+            timeFilters.remove(filterValue);
         } else {
-            System.out.println("No such filter has been set");
+            System.out.println("No such filter present");
+        }
+    } else if (filterType.equals(Type.DAY)) {
+        if (dayFilters.contains(filterValue)) {
+            dayFilters.remove(filterValue);
+        } else {
+            System.out.println("No such filter present");
+        }
+    } else if (filterType.equals(Type.STARTMINUTE)) {
+        if (minuteFilters.contains(filterValue)) {
+            minuteFilters.remove(filterValue);
+        } else {
+            System.out.println("No such filter present");
         }
     }
+        List<String> values = filters.get(filterType);
+        if (values != null) {
+            values.remove(filterValue);
+            if (values.isEmpty()) {
+                filters.remove(filterType);
+            }
+        }
+
+}
+
+
+
 
     public void clearFilters() {
         filters.clear();
@@ -114,16 +180,12 @@ public class Search {
                 line = inFile.nextLine();
                 String[] fields = line.split(",");
 
+
                 if(fields.length != 20){ // fixed errors due to empty values at end of csv
                     String[] hold = new String[20];
-                    for (int i = 0; i < fields.length; i++) {
-                        hold[i] = fields[i];
-                    }
+                    System.arraycopy(fields, 0, hold, 0, fields.length);
                     fields = new String[20];
-                    for (int i = 0; i < 20; i++) {
-                        fields[i] = hold[i];
-
-                    }
+                    System.arraycopy(hold, 0, fields, 0, 20);
                 }
 
                 if(Integer.parseInt(fields[1]) == 10) {
@@ -190,7 +252,7 @@ public class Search {
                 int year = Integer.parseInt(fields[0]);
                 String department = fields[2];
                 int id = Integer.parseInt(fields[3]);
-                String courseCode = department + " " + id;
+                String courseCode = department + id;
                 String title = fields[5];
                 int credits = Integer.parseInt(fields[6]);
                 int seats = Integer.parseInt(fields[7]);
