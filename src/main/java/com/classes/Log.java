@@ -38,6 +38,12 @@ public class Log {
     }
 
     public void addAction(Schedule action) {
+        if(index != actions.size()-1){ // if index isn't at the end of the log, remove everything after it
+            while (index != actions.size()-1){
+                actions.removeLast();
+            }
+        }
+
         index ++;
         actions.add(action);
     }

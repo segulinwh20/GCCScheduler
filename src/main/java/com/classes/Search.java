@@ -114,6 +114,7 @@ public class Search {
                 line = inFile.nextLine();
                 String[] fields = line.split(",");
 
+
                 if(fields.length != 20){ // fixed errors due to empty values at end of csv
                     String[] hold = new String[20];
                     for (int i = 0; i < fields.length; i++) {
