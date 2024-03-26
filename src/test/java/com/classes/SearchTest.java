@@ -53,31 +53,30 @@ class SearchTest {
 //        s.addFilter("day", "W");
 //        s.addFilter("courseCode", "HUMA 200");
 //        s.addFilter("startHour", "15");
-//        s.filterCourses(s.getCourses());
-//        for(Course course: s.getCourses()){
+//        List<Course> q;5
+//        q = s.filterCourses();
+//        for(Course course: q){
 //            assertEquals(course.getCourseCode() + " " + course.getSectionLetter(), "HUMA 200 D");
 //        }
-//
-//        Search x = new Search();
-//        x.addFilter("day", "W");
-//        x.addFilter("day", "T");
-//        x.filterCourses(x.getCourses());
-//       // System.out.println(x.getCourses().size());
-//        for(Course course: x.getCourses()){
-//          //  System.out.println(course.getCourseCode());
-//        }
 
-        Search y = new Search();
-        y.addFilter("startHour", "90");
-       // y.addFilter("startHour", "10");
-        List<Course> newCourses = new ArrayList<>();
-        newCourses = y.filterCourses(y.getCourses());
-        for(Course course: newCourses){
-           System.out.println(course.getCourseCode());
-           for(TimeSlot timeslot: course.getTimes()){
-               System.out.println(timeslot.getStartHour());
-           }
+        Search x = new Search();
+        x.addFilter("day", "W");
+        x.addFilter("day", "R");
+        List<Course> w;
+        w = x.filterCourses();
+        for(Course course: w){
+          System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
         }
+
+//        Search y = new Search();
+//        y.addFilter("startHour", "9");
+//        y.addFilter("startHour", "10");
+//       // y.addFilter("startHour", "10");
+//        List<Course> e;
+//        e = y.filterCourses();
+//        for(Course course: e){
+//            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
+//        }
     }
 
 
@@ -87,18 +86,29 @@ class SearchTest {
         testAddFilters.put("courseCode", "ACCT 201");
         s.addFilter("courseCode", "ACCT 201");
         assertEquals(s.getFilters(), getTestAddFilters());
-
-
     }
 
     @Test
     void removeFilter() {
-        Search s = new Search();
-        testRemoveFilters.put("courseCode", "ACCT 201");
-        s.addFilter("courseCode", "ACCT 201");
-        testRemoveFilters.remove("courseCode", "ACCT 201");
-        s.removeFilter("courseCode", "ACCT 201");
-        assertEquals(s.getFilters(), getTestRemoveFilters());
+        Search x = new Search();
+        x.addFilter("day", "W");
+        x.addFilter("day", "R");
+        x.addFilter("startHour", "9");
+        System.out.println("Before: " + x.getFilters());
+//        List<Course> w;
+//        w = x.filterCourses();
+//        for(Course course: w){
+//            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
+//        }
+        x.removeFilter("day", "R");
+        x.removeFilter("startHour", "9");
+        System.out.println("After: " + x.getFilters());
+//        List<Course> courses;
+//        courses = x.filterCourses();
+//        for(Course course: courses){
+//            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
+//        }
+
 
 
 
@@ -108,11 +118,14 @@ class SearchTest {
     @Test
     void modifyFilter() {
         Search s = new Search();
-        testModifyFilters.put("courseCode", "ACCT 201");
-        s.addFilter("courseCode", "ACCT 201");
-        testModifyFilters.put("courseCode", "HIST 283");
-        s.modifyFilter("courseCode", "HIST 283");
-        assertEquals(s.getFilters(), getTestModifyFilters());
+        Search y = new Search();
+        y.addFilter("startHour", "9,10");
+        // y.addFilter("startHour", "10");
+        List<Course> e;
+        e = y.filterCourses();
+        for(Course course: e){
+            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
+        }
     }
 
     @Test

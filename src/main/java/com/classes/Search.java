@@ -9,65 +9,69 @@ import java.util.*;
 //and return the list of classes containing that match.
 
 public class Search {
-    private List<Course> courses;
-    //private List<String> filters = new ArrayList<>();
-    private Map<String, String> filters;
+
+    private Map<String, List<String>> filters;
+
+    private List<String> timeFilters;
+
+    private List<String> dayFilters;
 
     public Search() {
-        courses = new ArrayList<>();
         filters = new HashMap<>();
+        timeFilters = new ArrayList<>();
+        dayFilters = new ArrayList<>();
     }
 
-    //Testing  purposes
-    public List<Course> getCourses() {
-        return courses;
-    }
 
-    public Map<String, String> getFilters() {
+    public Map<String, List<String>> getFilters() {
         return filters;
     }
 
 
-
-    public List<Course> filterCourses(List<Course> courses){
+    public List<Course> filterCourses() {
         List<Course> data = readCoursesFromFile("data/2020-2021.csv");
+        List<Course> filteredCourses = new ArrayList<>();
 
         for (Course datum : data) {
             boolean match = true;
-            for (Map.Entry<String, String> entry : filters.entrySet()) {
+            for (Map.Entry<String, List<String>> entry : filters.entrySet()) {
                 String filterType = entry.getKey();
-                String filterValue = entry.getValue();
+                List<String> filterValues = entry.getValue();
+
                 switch (filterType) {
                     case "startHour":
-                        for(TimeSlot timeslot: datum.getTimes()){
-                            //System.out.println(datum.getCourseCode() + " "  + datum.getSectionLetter() + " " + timeSlot.getStartHour());
-                            if(timeslot.getStartHour() != Integer.parseInt(filterValue)){
-                                match = false;
-                                break;
-                            }
-                        }
-
-                    if(datum.getTimes().isEmpty()){
                         match = false;
-                    }
-
-                        break;
-                    case "day":
-                        match = false;
-                        for(TimeSlot timeSlot: datum.getTimes()){
-                            if(timeSlot.getDayOfWeek() == filterValue.charAt(0)){
+                        for (TimeSlot timeslot : datum.getTimes()) {
+                            if (filterValues.contains(String.valueOf(timeslot.getStartHour()))) {
                                 match = true;
                                 break;
                             }
                         }
+                        if(datum.getTimes().isEmpty()){
+                            match = false;
+                            break;
+                        }
+                        break;
+                    case "day":
+                        match = false;
+                        for (TimeSlot timeSlot : datum.getTimes()) {
+                            if (filterValues.contains(String.valueOf(timeSlot.getDayOfWeek()))) {
+                                match = true;
+                                break;
+                            }
+                        }
+                        if(datum.getTimes().isEmpty()){
+                            match = false;
+                            break;
+                        }
                         break;
                     case "courseCode":
-                        if (!datum.getCourseCode().equals(filterValue)) {
+                        if (!filterValues.contains(datum.getCourseCode())) {
                             match = false;
                         }
                         break;
                     case "title":
-                        if (!datum.getTitle().equals(filterValue)) {
+                        if (!filterValues.contains(datum.getTitle())) {
                             match = false;
                         }
                         break;
@@ -80,37 +84,59 @@ public class Search {
                 }
             }
             if (match) {
-                courses.add(datum);
-                System.out.println(datum.getTimes());
-                for(TimeSlot timeslot: datum.getTimes()){
-                    System.out.println(datum.getCourseCode() + " " + datum.getSectionLetter() + " " + timeslot.getStartHour());
-                }
-
+                filteredCourses.add(datum);
             }
-
         }
-        return courses;
+        return filteredCourses;
     }
 
-    //Syntax [FilterType]:"filterName"
     public void addFilter(String filterType, String filterValue) {
-        filters.put(filterType, filterValue);
-
-    }
-
-
-
-    public void removeFilter(String filterType, String filterValue) {
-        filters.remove(filterType, filterValue);
-    }
-
-    public void modifyFilter(String filterType, String filterValue) {
-        if(filters.containsKey(filterType)){
-            filters.put(filterType, filterValue);
-        } else {
-            System.out.println("No such filter has been set");
+        if (filterType.equals("startHour")) {
+            timeFilters.add(filterValue);
+            filters.put(filterType, timeFilters);
+        } else if(filterType.equals("day")){
+            dayFilters.add(filterValue);
+            filters.put(filterType, dayFilters);
+        }
+        else {
+            filters.computeIfAbsent(filterType, k -> new ArrayList<>()).add(filterValue);
         }
     }
+
+public void removeFilter(String filterType, String filterValue) {
+    if (filterType.equals("startHour")) {
+        if (timeFilters.contains(filterValue)) {
+            timeFilters.remove(filterValue);
+        } else {
+            System.out.println("No such filter present");
+        }
+    } else if (filterType.equals("day")) {
+        if (dayFilters.contains(filterValue)) {
+            dayFilters.remove(filterValue);
+        } else {
+            System.out.println("No such filter present");
+        }
+    }
+        List<String> values = filters.get(filterType);
+        if (values != null) {
+            values.remove(filterValue);
+            if (values.isEmpty()) {
+                filters.remove(filterType);
+            }
+        }
+
+}
+
+
+public void modifyFilter(String filterType, String filterValue) {
+    List<String> values = filters.get(filterType);
+    if (values != null) {
+        values.clear();
+        values.add(filterValue);
+    } else {
+        System.out.println("No such filter has been set");
+    }
+}
 
     public void clearFilters() {
         filters.clear();
@@ -129,14 +155,9 @@ public class Search {
 
                 if(fields.length != 20){ // fixed errors due to empty values at end of csv
                     String[] hold = new String[20];
-                    for (int i = 0; i < fields.length; i++) {
-                        hold[i] = fields[i];
-                    }
+                    System.arraycopy(fields, 0, hold, 0, fields.length);
                     fields = new String[20];
-                    for (int i = 0; i < 20; i++) {
-                        fields[i] = hold[i];
-
-                    }
+                    System.arraycopy(hold, 0, fields, 0, 20);
                 }
 
                 if(Integer.parseInt(fields[1]) == 10) {
