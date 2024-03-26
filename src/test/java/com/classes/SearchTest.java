@@ -49,25 +49,13 @@ class SearchTest {
     //Tests multiple filters
     @Test
     void filterCourses() {
-//        Search s = new Search();
-//        s.addFilter("day", "W");
-//        s.addFilter("courseCode", "HUMA 200");
-//        s.addFilter("startHour", "15");
-//        List<Course> q;5
-//        q = s.filterCourses();
-//        for(Course course: q){
-//            assertEquals(course.getCourseCode() + " " + course.getSectionLetter(), "HUMA 200 D");
-//        }
+        s.addFilter("day", "W");
+        s.addFilter("day", "T");
+        System.out.println(s.getFilters());
+        s.filterCourses(s.getCourses());
+        for(Course course: s.getCourses()){
+            System.out.println(course.getCourseCode() +" " + course.getSectionLetter());
 
-        Search x = new Search();
-//        x.addFilter(Search.Type.DAY, "W");
-//        x.addFilter(Search.Type.DAY, "R");
-        x.addFilter(Search.Type.STARTMINUTE, "30");
-        x.addFilter(Search.Type.STARTHOUR, "11");
-        List<Course> w;
-        w = x.filterCourses();
-        for(Course course: w){
-          System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
         }
 
 //        Search y = new Search();
