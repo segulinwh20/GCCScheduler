@@ -190,7 +190,7 @@ public class Search {
                 int year = Integer.parseInt(fields[0]);
                 String department = fields[2];
                 int id = Integer.parseInt(fields[3]);
-                String courseCode = department + " " + id;
+                String courseCode = department + id;
                 String title = fields[5];
                 int credits = Integer.parseInt(fields[6]);
                 int seats = Integer.parseInt(fields[7]);

@@ -38,6 +38,7 @@ public class Schedule {
 
     public void addCourse(Course c) {
         courses.add(c);
+
     }
 
     public boolean removeCourse(Course c) {
