@@ -1,7 +1,5 @@
 package com.classes;
 
-import java.sql.SQLOutput;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
@@ -48,6 +46,9 @@ public class Main {
                 case "search":
                     search();
                     break;
+                case "calendarView":
+                    currentSchedule.viewGrid();
+                    break;
                 case "save":
                     currentSchedule.save();
                     break;
@@ -64,6 +65,7 @@ public class Main {
         System.out.println("'switchSchedule' 'name': This allows you to change which schedule you are editing.");
         System.out.println("'getSchedules': This gives you a list of the schedules that you have made.");
         System.out.println("'search': This will allow you to open the search menu for courses.");
+        System.out.println("'calendarView': This will show a weekly calendar view of your current schedule.");
         System.out.println("'save': This will save the course you are currently editing.");
         System.out.println("'quit': This will exit GCC Scheduler");
     }
@@ -112,8 +114,8 @@ public class Main {
     static void search() {
         System.out.println("Start searching for courses or type 'help' for a list of commands.");
         courseSearch = new Search();
-        searchResults = courseSearch.filterCourses(courseSearch.getCourses());
         searchTerminal: do {
+            searchResults = courseSearch.filterCourses();
             System.out.print("Search: ");
             Scanner scan = new Scanner(System.in);
             String cmdLine = scan.nextLine();
@@ -143,13 +145,13 @@ public class Main {
                         if (Objects.equals(killSwitch, "Y") || Objects.equals(killSwitch, "y")) {
                         } else {continue; }
                     }
-                    courseSearch.filterCourses(courseSearch.getCourses());
-                    for(Course course: courseSearch.getCourses()){
+                    searchResults = courseSearch.filterCourses();
+                    for(Course course: searchResults){
                         System.out.println(course.getCourseCode() +" " + course.getSectionLetter());
                     }
                     break;
                 case "addCourse":
-                    addCourse(cmdItems);
+                    addCourse(cmdItems, searchResults);
                     break;
                 case "removeCourse":
                     removeCourse(cmdItems);
@@ -166,21 +168,42 @@ public class Main {
     }
 
     static void addFilter(String[] filterParam) {
-        String filterType = filterParam[1];
+        Search.Type[] filterType = stringToFilterType(filterParam[1]);
+        String[] timeParts = filterParam[2].split(":");
         for (int i = 2; i < filterParam.length; i++) {
-            courseSearch.addFilter(filterType, filterParam[i]);
+            if (filterType.length == 1) {
+                courseSearch.addFilter(filterType[0], filterParam[i]);
+            } else if (filterType.length == 2) {
+                courseSearch.addFilter(filterType[0], timeParts[0]);
+                courseSearch.addFilter(filterType[1], timeParts[1]);
+            }
         }
     }
 
     static void removeFilter(String[] filterParam) {
-        String filterType = filterParam[1];
+        Search.Type[] filterType = stringToFilterType(filterParam[1]);
+        String[] timeParts = filterParam[2].split(":");
         for (int i = 2; i < filterParam.length; i++) {
-            courseSearch.removeFilter(filterType, filterParam[i]);
+            if (filterType.length == 1) {
+                courseSearch.removeFilter(filterType[0], filterParam[i]);
+            } else if (filterType.length == 2) {
+                courseSearch.removeFilter(filterType[0], timeParts[0]);
+                courseSearch.removeFilter(filterType[1], timeParts[1]);
+            }
         }
     }
 
-    static void addCourse(String[] courseData) {
-        List<Course> searchResults = courseSearch.getCourses();
+    static Search.Type[] stringToFilterType(String stringFilter) {
+        return switch (stringFilter) {
+            case "startTime" -> new Search.Type[]{Search.Type.STARTHOUR, Search.Type.STARTMINUTE};
+            case "day" -> new Search.Type[]{Search.Type.DAY};
+            case "courseCode" -> new Search.Type[]{Search.Type.COURSECODE};
+            case "title" -> new Search.Type[]{Search.Type.TITLE};
+            default -> null;
+        };
+    }
+
+    static void addCourse(String[] courseData, List<Course> searchResults) {
         for (Course searchResult : searchResults) {
             if (Objects.equals(courseData[1], searchResult.getCourseCode()) && Objects.equals(courseData[2].charAt(0), searchResult.getSectionLetter())) {
                 currentSchedule.addCourse(searchResult);
@@ -195,6 +218,7 @@ public class Main {
         for (Course course : currentCourses) {
             if (Objects.equals(courseData[1], course.getCourseCode()) && Objects.equals(courseData[2].charAt(0), course.getSectionLetter())) {
                 currentSchedule.removeCourse(course);
+                return;
             }
         }
         System.out.println("Course " + courseData[1] + " " + courseData[2] + " is not in your schedule.");
@@ -202,15 +226,15 @@ public class Main {
 
     static void filterHelp() {
         System.out.println("Enter a filterType to learn more:");
-        System.out.println("startHour\nday\ncourseCode\nback\n");
+        System.out.println("startTime\nday\ncourseCode\ntitle\n");
         helpTerminal: do {
             System.out.print("Command: ");
             Scanner scan = new Scanner(System.in);
             String cmdLine = scan.nextLine();
             String[] cmdItems = cmdLine.split(" ");
             switch (cmdItems[0]) {
-                case "startHour":
-                    startHourHelp();
+                case "startTime":
+                    startTimeHelp();
                     break;
                 case "day":
                     dayHelp();
@@ -229,8 +253,8 @@ public class Main {
         } while(true);
     }
 
-    static void startHourHelp() {
-        System.out.println("startHours are 8:00 AM to 3:00 PM as well as night classes at 6:00 PM.");
+    static void startTimeHelp() {
+        System.out.println("startHours are 8:00 AM to 3:00 PM as well as night classes at 6:00 PM, enter time as 8:00-18:00.");
     }
 
     static void dayHelp() {
