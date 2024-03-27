@@ -49,14 +49,7 @@ class SearchTest {
     //Tests multiple filters
     @Test
     void filterCourses() {
-        s.addFilter("day", "W");
-        s.addFilter("day", "T");
-        System.out.println(s.getFilters());
-        s.filterCourses(s.getCourses());
-        for(Course course: s.getCourses()){
-            System.out.println(course.getCourseCode() +" " + course.getSectionLetter());
 
-        }
 
 //        Search y = new Search();
 //        y.addFilter("startHour", "9");
@@ -78,16 +71,18 @@ class SearchTest {
     @Test
     void removeFilter() {
         Search x = new Search();
-        x.addFilter(Search.Type.DAY, "W");
-        x.addFilter(Search.Type.DAY, "R");
-        x.addFilter(Search.Type.STARTHOUR, "9");
-        x.addFilter(Search.Type.STARTMINUTE, "30");
+       // x.addFilter(Search.Type.DAY, "W");
+       // x.addFilter(Search.Type.COURSECODE, "COMP141");
+        x.addFilter(Search.Type.SEMESTER, "Spring");
+       // x.addFilter(Search.Type.DAY, "R");
+       // x.addFilter(Search.Type.STARTHOUR, "11");
+       // x.addFilter(Search.Type.STARTMINUTE, "30");
         System.out.println("Before: " + x.getFilters());
-//        List<Course> w;
-//        w = x.filterCourses();
-//        for(Course course: w){
-//            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
-//        }
+        List<Course> w;
+        w = x.filterCourses();
+        for(Course course: w){
+            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
+        }
         x.removeFilter(Search.Type.DAY, "R");
         x.removeFilter(Search.Type.STARTHOUR, "9");
         x.removeFilter(Search.Type.STARTMINUTE, "30");
