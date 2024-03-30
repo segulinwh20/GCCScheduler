@@ -15,7 +15,8 @@ public class Search {
         STARTMINUTE,
         DAY,
         COURSECODE,
-        TITLE
+        TITLE,
+        SEMESTER
 
     }
 
@@ -98,6 +99,11 @@ public class Search {
                         break;
                     case Type.TITLE:
                         if (!filterValues.contains(datum.getTitle())) {
+                            match = false;
+                        }
+                        break;
+                    case Type.SEMESTER:
+                        if (!filterValues.contains(datum.getSemester())) {
                             match = false;
                         }
                         break;
