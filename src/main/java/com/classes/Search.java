@@ -45,7 +45,6 @@ public class Search {
     public List<Course> filterCourses() {
         List<Course> data = readCoursesFromFile("data/2020-2021.csv");
         List<Course> filteredCourses = new ArrayList<>();
-
         for (Course datum : data) {
             boolean match = true;
             for (Map.Entry<Type, List<String>> entry : filters.entrySet()) {
@@ -53,30 +52,28 @@ public class Search {
                 List<String> filterValues = entry.getValue();
 
                 switch (filterType) {
+                    case Type.STARTMINUTE:
+                        match = false;
+                        for (TimeSlot timeslot : datum.getTimes()) {
+                            if (filterValues.contains((String.valueOf(timeslot.getStartMinute())))) {
+                                match = true;
+                                break;
+                            }
+                        }
+                        if (datum.getTimes().isEmpty()) {
+                            match = false;
+                        }
+                        break;
                     case Type.STARTHOUR:
                         match = false;
                         for (TimeSlot timeslot : datum.getTimes()) {
                             if (filterValues.contains(String.valueOf(timeslot.getStartHour()))) {
-                                match = true;
-                                break;
-                            }
+                                        match = true;
+                                        break;
+                                }
                         }
-                        if(datum.getTimes().isEmpty()){
+                        if (datum.getTimes().isEmpty()) {
                             match = false;
-                            break;
-                        }
-                        break;
-                    case Type.STARTMINUTE:
-                        match = false;
-                        for (TimeSlot timeslot : datum.getTimes()) {
-                            if (filterValues.contains(String.valueOf(timeslot.getStartMinute()))) {
-                                match = true;
-                                break;
-                            }
-                        }
-                        if(datum.getTimes().isEmpty()){
-                            match = false;
-                            break;
                         }
                         break;
                     case Type.DAY:
@@ -136,6 +133,7 @@ public class Search {
         else {
             filters.computeIfAbsent(filterType, k -> new ArrayList<>()).add(filterValue);
         }
+
     }
 
 public void removeFilter(Type filterType, String filterValue) {
