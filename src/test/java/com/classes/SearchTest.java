@@ -33,8 +33,7 @@ class SearchTest {
     @Test
     void  filter(){
         Search y = new Search();
-        y.addFilter(Search.Type.STARTHOUR, "10");
-        y.addFilter(Search.Type.STARTMINUTE, "05");
+        y.addFilter(Search.Type.TIME, "10:05");
         List<Course> e;
         e = y.filterCourses();
         for(Course course: e){

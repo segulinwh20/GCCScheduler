@@ -16,7 +16,8 @@ public class Search {
         DAY,
         COURSECODE,
         TITLE,
-        SEMESTER
+        SEMESTER,
+        TIME
 
     }
 
@@ -52,6 +53,25 @@ public class Search {
                 List<String> filterValues = entry.getValue();
 
                 switch (filterType) {
+                    case Type.TIME:
+                        match = false;
+                        for(String time: filterValues){
+                            String minute = "";
+                            String hour = "";
+                            String[] tokens = time.split(":");
+                            hour = tokens[0];
+                            minute = tokens[1];
+                            for(TimeSlot timeslot: datum.getTimes()){
+                                if(timeslot.getStartMinute() == Integer.parseInt(minute) && timeslot.getStartHour() == Integer.parseInt(hour)){
+                                    match = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (datum.getTimes().isEmpty()) {
+                            match = false;
+                        }
+                        break;
                     case Type.STARTMINUTE:
                         match = false;
                         for (TimeSlot timeslot : datum.getTimes()) {
@@ -60,9 +80,7 @@ public class Search {
                                 break;
                             }
                         }
-                        if (datum.getTimes().isEmpty()) {
-                            match = false;
-                        }
+
                         break;
                     case Type.STARTHOUR:
                         match = false;
