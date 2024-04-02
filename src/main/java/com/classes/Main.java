@@ -9,11 +9,13 @@ public class Main {
     static Schedule currentSchedule;
     static Search courseSearch;
     static List<Course> searchResults;
+    static Log log = new Log();
 
     public static void main(String[] args) {
         System.out.println("Welcome to GCC Scheduler");
         System.out.println("Start building your schedule or type 'help' for a list of commands.");
         student = new Student();
+        Schedule copyForLog;
         cmdTerminal: do {
             if (currentSchedule != null) {
                 System.out.println("Currently editing schedule " + currentSchedule.getName());
@@ -36,9 +38,13 @@ public class Main {
                 case "createSchedule":
                     currentSchedule = createSchedule(cmdItems[1]);
                     student.addSchedule(currentSchedule);
+                    log = new Log(new Schedule(currentSchedule));
                     break;
                 case "switchSchedule":
                     currentSchedule = switchSchedule(cmdItems[1]);
+                    if(currentSchedule != null) {
+                        log = new Log(new Schedule(currentSchedule));
+                    }
                     break;
                 case "getSchedules":
                     getSchedules();
@@ -54,6 +60,36 @@ public class Main {
                     break;
                 case "quit":
                     break cmdTerminal;
+                case "undo":
+                    if(log.undoLast() == null){
+                        System.out.println("Nothing to undo");
+                    } else {
+                        currentSchedule = log.getLast();
+                        log.fix();
+
+                        List<Schedule> schedules = student.getSchedules();
+                        for (int i = 0; i<schedules.size(); i++) {
+                            if (Objects.equals(currentSchedule.getName(), schedules.get(i).getName())) {
+                                student.updateSchedule(i, currentSchedule);
+                            }
+                        }
+                    }
+                    break;
+                case "redo":
+                    if(log.redoLast() == null){
+                        System.out.println("Nothing to redo");
+                    } else {
+                        currentSchedule = log.getLast();
+                        log.fix();
+
+                        List<Schedule> schedules = student.getSchedules();
+                        for (int i = 0; i<schedules.size(); i++) {
+                            if (Objects.equals(currentSchedule.getName(), schedules.get(i).getName())) {
+                                student.updateSchedule(i, currentSchedule);
+                            }
+                        }
+                    }
+                    break;
                 default:
                     System.out.println("Invalid Command, Please Re-Enter Command");
             }
@@ -67,6 +103,8 @@ public class Main {
         System.out.println("'search': This will allow you to open the search menu for courses.");
         System.out.println("'calendarView': This will show a weekly calendar view of your current schedule.");
         System.out.println("'save': This will save the course you are currently editing.");
+        System.out.println("'undo': Undoes the last change to schedule.");
+        System.out.println("'redo': Redoes the last change to schedule.");
         System.out.println("'quit': This will exit GCC Scheduler");
     }
 
@@ -157,6 +195,8 @@ public class Main {
                     removeCourse(cmdItems);
                     break;
                 case "back":
+                    log.setProblm();
+                    log.redoLast();
                     break searchTerminal;
                 default:
                     System.out.println("Invalid Command, Please Re-Enter Command");

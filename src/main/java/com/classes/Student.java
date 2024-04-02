@@ -28,4 +28,8 @@ public class Student extends Person {
     public List<Schedule> getSchedules() {
         return schedules;
     }
+
+    public void updateSchedule(int index, Schedule schedule){
+        schedules.set(index, schedule);
+    }
 }
