@@ -11,12 +11,11 @@ import java.util.*;
 public class Search {
 
     enum Type {
-        STARTHOUR,
-        STARTMINUTE,
         DAY,
         COURSECODE,
         TITLE,
-        SEMESTER
+        SEMESTER,
+        TIME
 
     }
 
@@ -45,7 +44,6 @@ public class Search {
     public List<Course> filterCourses() {
         List<Course> data = readCoursesFromFile("data/2020-2021.csv");
         List<Course> filteredCourses = new ArrayList<>();
-
         for (Course datum : data) {
             boolean match = true;
             for (Map.Entry<Type, List<String>> entry : filters.entrySet()) {
@@ -53,30 +51,23 @@ public class Search {
                 List<String> filterValues = entry.getValue();
 
                 switch (filterType) {
-                    case Type.STARTHOUR:
+                    case Type.TIME:
                         match = false;
-                        for (TimeSlot timeslot : datum.getTimes()) {
-                            if (filterValues.contains(String.valueOf(timeslot.getStartHour()))) {
-                                match = true;
-                                break;
+                        for(String time: filterValues){
+                            String minute = "";
+                            String hour = "";
+                            String[] tokens = time.split(":");
+                            hour = tokens[0];
+                            minute = tokens[1];
+                            for(TimeSlot timeslot: datum.getTimes()){
+                                if(timeslot.getStartMinute() == Integer.parseInt(minute) && timeslot.getStartHour() == Integer.parseInt(hour)){
+                                    match = true;
+                                    break;
+                                }
                             }
                         }
-                        if(datum.getTimes().isEmpty()){
+                        if (datum.getTimes().isEmpty()) {
                             match = false;
-                            break;
-                        }
-                        break;
-                    case Type.STARTMINUTE:
-                        match = false;
-                        for (TimeSlot timeslot : datum.getTimes()) {
-                            if (filterValues.contains(String.valueOf(timeslot.getStartMinute()))) {
-                                match = true;
-                                break;
-                            }
-                        }
-                        if(datum.getTimes().isEmpty()){
-                            match = false;
-                            break;
                         }
                         break;
                     case Type.DAY:
@@ -123,37 +114,20 @@ public class Search {
     }
 
     public void addFilter(Type filterType, String filterValue) {
-        if (filterType.equals(Type.STARTHOUR)) {
-            timeFilters.add(filterValue);
-            filters.put(filterType, timeFilters);
-        } else if(filterType.equals(Type.DAY)){
+       if(filterType.equals(Type.DAY)){
             dayFilters.add(filterValue);
             filters.put(filterType, dayFilters);
-        } else if(filterType.equals(Type.STARTMINUTE)){
-            minuteFilters.add(filterValue);
-            filters.put(filterType, minuteFilters);
         }
         else {
             filters.computeIfAbsent(filterType, k -> new ArrayList<>()).add(filterValue);
         }
+
     }
 
 public void removeFilter(Type filterType, String filterValue) {
-    if (filterType.equals(Type.STARTHOUR)) {
-        if (timeFilters.contains(filterValue)) {
-            timeFilters.remove(filterValue);
-        } else {
-            System.out.println("No such filter present");
-        }
-    } else if (filterType.equals(Type.DAY)) {
+   if (filterType.equals(Type.DAY)) {
         if (dayFilters.contains(filterValue)) {
             dayFilters.remove(filterValue);
-        } else {
-            System.out.println("No such filter present");
-        }
-    } else if (filterType.equals(Type.STARTMINUTE)) {
-        if (minuteFilters.contains(filterValue)) {
-            minuteFilters.remove(filterValue);
         } else {
             System.out.println("No such filter present");
         }
@@ -165,11 +139,7 @@ public void removeFilter(Type filterType, String filterValue) {
                 filters.remove(filterType);
             }
         }
-
 }
-
-
-
 
     public void clearFilters() {
         filters.clear();
