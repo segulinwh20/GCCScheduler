@@ -31,10 +31,22 @@ class SearchTest {
     }
 
     @Test
-    void  filter(){
+    void  filterTimeTest(){
+        //time as 10:05
+        System.out.println(" \n Starting 10:05 test \n");
         Search y = new Search();
         y.addFilter(Search.Type.TIME, "10:05");
         List<Course> e;
+        e = y.filterCourses();
+        for(Course course: e){
+            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
+        }
+
+        //time as 9:30
+        System.out.println("Starting 9:30 test \n");
+        y.clearFilters();
+        y.addFilter(Search.Type.TIME, "11:30");
+        e.clear();
         e = y.filterCourses();
         for(Course course: e){
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
@@ -49,12 +61,22 @@ class SearchTest {
     void filterCourses() {
         System.out.println("Starting multiple filters test");
         Search y = new Search();
-        y.addFilter(Search.Type.STARTHOUR, "9");
+        y.addFilter(Search.Type.TIME, "9:00");
         y.addFilter(Search.Type.COURSECODE, "ACCT201");
         List<Course> e;
         e = y.filterCourses();
         for(Course course: e){
             assertEquals("ACCT201 A", (course.getCourseCode()) + " " + course.getSectionLetter());
+            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
+        }
+
+        //Test based on 10:05
+        System.out.println("Starting fall semester test");
+        y = new Search();
+        e.clear();
+        y.addFilter(Search.Type.SEMESTER, "Fall");
+        e = y.filterCourses();
+        for(Course course: e){
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
         }
 
@@ -73,26 +95,6 @@ class SearchTest {
         y = new Search();
         e.clear();
         y.addFilter(Search.Type.SEMESTER, "Spring");
-        e = y.filterCourses();
-        for(Course course: e){
-            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
-        }
-
-        //Test based on 12pm
-        System.out.println("Starting 12pm test");
-        y = new Search();
-        e.clear();
-        y.addFilter(Search.Type.STARTHOUR, "24");
-        e = y.filterCourses();
-        for(Course course: e){
-            System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
-        }
-
-        //Test based on starting at minute :05
-        System.out.println("Starting :05 test");
-        y = new Search();
-        e.clear();
-        y.addFilter(Search.Type.STARTMINUTE, "5");
         e = y.filterCourses();
         for(Course course: e){
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
@@ -137,9 +139,9 @@ class SearchTest {
     void addFilter() {
         Search y = new Search();
         Map<Search.Type, List<String>> testFilters = new HashMap<>();
-        testFilters.computeIfAbsent(Search.Type.STARTHOUR, k -> new ArrayList<>()).add("9");
-        y.addFilter(Search.Type.STARTHOUR, "9");
-        assertEquals(testFilters.get(Search.Type.STARTHOUR), y.getFilters().get(Search.Type.STARTHOUR));
+        testFilters.computeIfAbsent(Search.Type.TIME, k -> new ArrayList<>()).add("9:00");
+        y.addFilter(Search.Type.TIME, "9:00");
+        assertEquals(testFilters.get(Search.Type.TIME), y.getFilters().get(Search.Type.TIME));
 
     }
 
@@ -147,11 +149,11 @@ class SearchTest {
     void removeFilter() {
         Search y = new Search();
         Map<Search.Type, List<String>> testFilters = new HashMap<>();
-        testFilters.computeIfAbsent(Search.Type.STARTHOUR, k -> new ArrayList<>()).add("9");
-        y.addFilter(Search.Type.STARTHOUR, "9");
-        y.removeFilter(Search.Type.STARTHOUR, "9");
-        testFilters.remove(Search.Type.STARTHOUR);
-        assertEquals(testFilters.get(Search.Type.STARTHOUR), y.getFilters().get(Search.Type.STARTHOUR));
+        testFilters.computeIfAbsent(Search.Type.TIME, k -> new ArrayList<>()).add("9:00");
+        y.addFilter(Search.Type.TIME, "9:00");
+        y.removeFilter(Search.Type.TIME, "9:00");
+        testFilters.remove(Search.Type.TIME);
+        assertEquals(testFilters.get(Search.Type.TIME), y.getFilters().get(Search.Type.TIME));
 
 
     }
@@ -162,15 +164,15 @@ class SearchTest {
     void clearFilters() {
         Search y = new Search();
         Map<Search.Type, List<String>> testFilters = new HashMap<>();
-        testFilters.computeIfAbsent(Search.Type.STARTHOUR, k -> new ArrayList<>()).add("9");
-        y.addFilter(Search.Type.STARTHOUR, "9");
+        testFilters.computeIfAbsent(Search.Type.TIME, k -> new ArrayList<>()).add("9:00");
+        y.addFilter(Search.Type.TIME, "9:00");
         y.addFilter(Search.Type.SEMESTER, "Spring");
         y.addFilter(Search.Type.COURSECODE, "ACCT201");
         y.clearFilters();
-        testFilters.computeIfAbsent(Search.Type.STARTHOUR, k -> new ArrayList<>()).add("9");
+        testFilters.computeIfAbsent(Search.Type.TIME, k -> new ArrayList<>()).add("9:00");
         testFilters.computeIfAbsent(Search.Type.SEMESTER, k -> new ArrayList<>()).add("Spring");
         testFilters.computeIfAbsent(Search.Type.COURSECODE, k -> new ArrayList<>()).add("ACCT201");
         testFilters.clear();
-        assertEquals(testFilters.get(Search.Type.STARTHOUR), y.getFilters().get(Search.Type.STARTHOUR));
+        assertEquals(testFilters.get(Search.Type.TIME), y.getFilters().get(Search.Type.TIME));
     }
 }
