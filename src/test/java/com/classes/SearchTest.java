@@ -30,6 +30,7 @@ class SearchTest {
         assert s!= null;
     }
 
+    //to test time + minute
     @Test
     void  filterTimeTest(){
         //time as 10:05
