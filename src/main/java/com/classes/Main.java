@@ -14,8 +14,17 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Welcome to GCC Scheduler");
+        do{
+            System.out.println("Please enter your first and last name and your major separated by a space.");
+            Scanner scanly = new Scanner(System.in);
+            String studentData = scanly.nextLine();
+            String[] studentParam = studentData.split(" ");
+            if (studentBuilder(studentParam)) {
+                break;
+            }
+            System.out.println("Please fill out all three fields.");
+        } while (true);
         System.out.println("Start building your schedule or type 'help' for a list of commands.");
-        student = new Student();
         cmdTerminal: do {
             if (currentSchedule != null) {
                 System.out.println("Currently editing schedule " + currentSchedule.getName());
@@ -125,6 +134,16 @@ public class Main {
         } while(true);
     }
 
+    static boolean studentBuilder(String[] studentParam) {
+        if (studentParam.length <= 2) {
+            return false;
+        }
+        student = new Student(studentParam[2]);
+        student.setFirst(studentParam[0]);
+        student.setLast(studentParam[1]);
+        return true;
+    }
+
     static void consoleHelp() {
         System.out.println("'createSchedule' 'name' 'semester': This creates a schedule with the given name and semester.");
         System.out.println("'switchSchedule' 'name': This allows you to change which schedule you are editing.");
@@ -229,6 +248,7 @@ public class Main {
                         System.out.println("Y/N");
                         String killSwitch = scan.nextLine();
                         if (Objects.equals(killSwitch, "Y") || Objects.equals(killSwitch, "y")) {
+                            break;
                         } else {continue; }
                     }
                     searchResults = courseSearch.filterCourses();

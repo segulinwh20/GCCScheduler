@@ -9,7 +9,8 @@ public class Student extends Person {
     private String major;
     private List<Schedule> schedules;
 
-    public Student(){
+    public Student(String major){
+        this.major = major;
         this.schedules = new ArrayList<Schedule>();
     }
 
