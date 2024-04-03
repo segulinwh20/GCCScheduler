@@ -142,6 +142,8 @@ public void removeFilter(Type filterType, String filterValue) {
 }
 
     public void clearFilters() {
+        dayFilters.clear();
+        timeFilters.clear();
         filters.clear();
     }
 
