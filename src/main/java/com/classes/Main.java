@@ -9,11 +9,13 @@ public class Main {
     static Schedule currentSchedule;
     static Search courseSearch;
     static List<Course> searchResults;
+    static Log log = new Log();
 
     public static void main(String[] args) {
         System.out.println("Welcome to GCC Scheduler");
         System.out.println("Start building your schedule or type 'help' for a list of commands.");
         student = new Student();
+        Schedule copyForLog;
         cmdTerminal: do {
             if (currentSchedule != null) {
                 System.out.println("Currently editing schedule " + currentSchedule.getName());
@@ -34,11 +36,26 @@ public class Main {
                     consoleHelp();
                     break;
                 case "createSchedule":
-                    currentSchedule = createSchedule(cmdItems[1]);
+                    if (cmdItems.length < 2) {
+                        System.out.println("Cannot create a schedule with no name.");
+                        break;
+                    } else if (cmdItems.length < 3) {
+                        System.out.println("Cannot create a schedule with no name.");
+                        break;
+                    }
+                    currentSchedule = createSchedule(cmdItems[1], cmdItems[2]);
                     student.addSchedule(currentSchedule);
+                    log = new Log(new Schedule(currentSchedule));
                     break;
                 case "switchSchedule":
+                    if (cmdItems.length < 2) {
+                        System.out.println("No schedule specified.");
+                        break;
+                    }
                     currentSchedule = switchSchedule(cmdItems[1]);
+                    if(currentSchedule != null) {
+                        log = new Log(new Schedule(currentSchedule));
+                    }
                     break;
                 case "getSchedules":
                     getSchedules();
@@ -54,6 +71,36 @@ public class Main {
                     break;
                 case "quit":
                     break cmdTerminal;
+                case "undo":
+                    if(log.undoLast() == null){
+                        System.out.println("Nothing to undo");
+                    } else {
+                        currentSchedule = log.getLast();
+                        log.fix();
+
+                        List<Schedule> schedules = student.getSchedules();
+                        for (int i = 0; i<schedules.size(); i++) {
+                            if (Objects.equals(currentSchedule.getName(), schedules.get(i).getName())) {
+                                student.updateSchedule(i, currentSchedule);
+                            }
+                        }
+                    }
+                    break;
+                case "redo":
+                    if(log.redoLast() == null){
+                        System.out.println("Nothing to redo");
+                    } else {
+                        currentSchedule = log.getLast();
+                        log.fix();
+
+                        List<Schedule> schedules = student.getSchedules();
+                        for (int i = 0; i<schedules.size(); i++) {
+                            if (Objects.equals(currentSchedule.getName(), schedules.get(i).getName())) {
+                                student.updateSchedule(i, currentSchedule);
+                            }
+                        }
+                    }
+                    break;
                 default:
                     System.out.println("Invalid Command, Please Re-Enter Command");
             }
@@ -61,12 +108,14 @@ public class Main {
     }
 
     static void consoleHelp() {
-        System.out.println("'createSchedule' 'name': This creates a schedule with the given name.");
+        System.out.println("'createSchedule' 'name' 'semester': This creates a schedule with the given name and semester.");
         System.out.println("'switchSchedule' 'name': This allows you to change which schedule you are editing.");
         System.out.println("'getSchedules': This gives you a list of the schedules that you have made.");
         System.out.println("'search': This will allow you to open the search menu for courses.");
         System.out.println("'calendarView': This will show a weekly calendar view of your current schedule.");
         System.out.println("'save': This will save the course you are currently editing.");
+        System.out.println("'undo': Undoes the last change to schedule.");
+        System.out.println("'redo': Redoes the last change to schedule.");
         System.out.println("'quit': This will exit GCC Scheduler");
     }
 
@@ -81,8 +130,8 @@ public class Main {
         System.out.println("'back': This will return to the schedule management section");
     }
 
-    static Schedule createSchedule(String name) {
-        return new Schedule(name, null);
+    static Schedule createSchedule(String name, String semester) {
+        return new Schedule(name, semester);
     }
 
     static Schedule switchSchedule(String name) {
@@ -114,6 +163,7 @@ public class Main {
     static void search() {
         System.out.println("Start searching for courses or type 'help' for a list of commands.");
         courseSearch = new Search();
+        courseSearch.addFilter(Search.Type.SEMESTER, currentSchedule.getSemester());
         searchTerminal: do {
             searchResults = courseSearch.filterCourses();
             System.out.print("Search: ");
@@ -128,9 +178,17 @@ public class Main {
                     filterHelp();
                     break;
                 case "addFilter":
+                    if (cmdItems.length <= 2) {
+                        System.out.println("No filter specified.");
+                        break;
+                    }
                     addFilter(cmdItems);
                     break;
                 case "removeFilter":
+                    if (cmdItems.length <= 2) {
+                        System.out.println("No filter specified.");
+                        break;
+                    }
                     removeFilter(cmdItems);
                     break;
                 case "clearFilters":
@@ -151,12 +209,22 @@ public class Main {
                     }
                     break;
                 case "addCourse":
+                    if (cmdItems.length < 2) {
+                        System.out.println("No course specified.");
+                        break;
+                    }
                     addCourse(cmdItems, searchResults);
                     break;
                 case "removeCourse":
+                    if (cmdItems.length < 2) {
+                        System.out.println("No course specified.");
+                        break;
+                    }
                     removeCourse(cmdItems);
                     break;
                 case "back":
+                    log.setProblm();
+                    log.redoLast();
                     break searchTerminal;
                 default:
                     System.out.println("Invalid Command, Please Re-Enter Command");
@@ -169,33 +237,29 @@ public class Main {
 
     static void addFilter(String[] filterParam) {
         Search.Type[] filterType = stringToFilterType(filterParam[1]);
-        String[] timeParts = filterParam[2].split(":");
+        if (filterType[0] == null) {
+            System.out.println("Filter " + filterParam[1] + " does not exist exist.");
+            return;
+        }
         for (int i = 2; i < filterParam.length; i++) {
-            if (filterType.length == 1) {
-                courseSearch.addFilter(filterType[0], filterParam[i]);
-            } else if (filterType.length == 2) {
-                courseSearch.addFilter(filterType[0], timeParts[0]);
-                courseSearch.addFilter(filterType[1], timeParts[1]);
-            }
+            courseSearch.addFilter(filterType[0], filterParam[i]);
         }
     }
 
     static void removeFilter(String[] filterParam) {
         Search.Type[] filterType = stringToFilterType(filterParam[1]);
-        String[] timeParts = filterParam[2].split(":");
+        if (filterType[0] == null) {
+            System.out.println("Filter " + filterParam[1] + " does not exist exist.");
+            return;
+        }
         for (int i = 2; i < filterParam.length; i++) {
-            if (filterType.length == 1) {
-                courseSearch.removeFilter(filterType[0], filterParam[i]);
-            } else if (filterType.length == 2) {
-                courseSearch.removeFilter(filterType[0], timeParts[0]);
-                courseSearch.removeFilter(filterType[1], timeParts[1]);
-            }
+            courseSearch.removeFilter(filterType[0], filterParam[i]);
         }
     }
 
     static Search.Type[] stringToFilterType(String stringFilter) {
         return switch (stringFilter) {
-            case "startTime" -> new Search.Type[]{Search.Type.STARTHOUR, Search.Type.STARTMINUTE};
+            case "startTime" -> new Search.Type[]{Search.Type.TIME};
             case "day" -> new Search.Type[]{Search.Type.DAY};
             case "courseCode" -> new Search.Type[]{Search.Type.COURSECODE};
             case "title" -> new Search.Type[]{Search.Type.TITLE};
@@ -234,16 +298,16 @@ public class Main {
             String[] cmdItems = cmdLine.split(" ");
             switch (cmdItems[0]) {
                 case "startTime":
-                    startTimeHelp();
+                    System.out.println("startHours are 8:00 AM to 3:00 PM as well as night classes at 6:00 PM, enter time as 8:00-18:00.");
                     break;
                 case "day":
-                    dayHelp();
+                    System.out.println("days are M T W R F, each corresponding to Monday, Tuesday, Wednesday, Thursday, and Friday respectively.");
                     break;
                 case "courseCode":
-                    courseCodeHelp();
+                    System.out.println("courseCode is the department followed by the courseID, ex. COMP350.");
                     break;
                 case "title":
-                    titleHelp();
+                    System.out.println("title is the name of the course, ex. Software Engineering.");
                     break;
                 case "back":
                     break helpTerminal;
@@ -251,21 +315,5 @@ public class Main {
                     System.out.println("Invalid Command, Please Re-Enter Command");
             }
         } while(true);
-    }
-
-    static void startTimeHelp() {
-        System.out.println("startHours are 8:00 AM to 3:00 PM as well as night classes at 6:00 PM, enter time as 8:00-18:00.");
-    }
-
-    static void dayHelp() {
-        System.out.println("days are M T W R F, each corresponding to Monday, Tuesday, Wednesday, Thursday, and Friday respectively.");
-    }
-
-    static void courseCodeHelp() {
-        System.out.println("courseCode is the department followed by the courseID, ex. COMP350.");
-    }
-
-    static void titleHelp() {
-        System.out.println("title is the name of the course, ex. Software Engineering.");
     }
 }

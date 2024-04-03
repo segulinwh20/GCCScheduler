@@ -8,7 +8,7 @@ import java.util.*;
 public class Schedule {
     private List<Course> courses;
     private String semester;
-    private Log log;
+    private Log log = new Log();
     private String name;
     private final String[] DAYS = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
     private final String[] TIMES = {"8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM",
@@ -20,7 +20,6 @@ public class Schedule {
     public Schedule(String name, String semester){
         this.name = name;
         //TODO: semester
-        //TODO: log
         this.courses = new ArrayList<Course>();
     }
 
@@ -28,13 +27,20 @@ public class Schedule {
         String[] path = filepath.split("/");
         this.name = path[path.length - 1];
         //TODO: semester
-        //TODO: log
         this.courses = Search.readCoursesFromFile(filepath);
+    }
+
+    public Schedule(Schedule s){
+        this.name = s.name;
+        this.courses = new ArrayList<Course>();
+        this.courses.addAll(s.courses);
     }
 
     public String getName(){
         return name;
     }
+
+    public String getSemester() {return semester;}
 
     public List<Course> getCourses(){
         return courses;
@@ -42,7 +48,7 @@ public class Schedule {
 
     public void addCourse(Course c) {
         courses.add(c);
-
+        log.addAction(new Schedule(this));
     }
 
     public boolean removeCourse(Course c) {
@@ -53,6 +59,7 @@ public class Schedule {
         if (courses.remove(c)) {
 
             System.out.println(c.getCourseCode() + " " + c.getSectionLetter() + " has been removed from your schedule.");
+            log.addAction(new Schedule(this));
             return true;
         }
         System.out.println(c.getCourseCode() + " " + c.getSectionLetter() + " is not in your schedule.");
