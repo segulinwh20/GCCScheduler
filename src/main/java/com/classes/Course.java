@@ -149,7 +149,7 @@ public class Course {
     }
 
     // this is for the toCSVFormat method
-    public List<List<TimeSlot>> getTimeSlotGroups() {
+    private List<List<TimeSlot>> getTimeSlotGroups() {
         List<List<TimeSlot>> groups = new LinkedList<>();
         for (TimeSlot t : times) {
             boolean updated = false;
