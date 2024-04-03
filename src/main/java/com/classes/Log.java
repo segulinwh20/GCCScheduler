@@ -55,17 +55,17 @@ public class Log {
     public void setProblemIndex(){
         problemIndex = index;
     }
-    public void getProblemAction(){
+    public void setProblemAction(){
         problemAction = new Schedule(actions.get(problemIndex));
     }
-    public void setProblm(){
+    public void setErrorIndex(){
         if(problemAction == null){
             return;
         }
         actions.set(problemIndex, problemAction);
     }
-    public void fix(){
+    public void setProblems(){
         setProblemIndex();
-        getProblemAction();
+        setProblemAction();
     }
 }

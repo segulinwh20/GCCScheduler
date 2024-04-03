@@ -10,12 +10,12 @@ public class Main {
     static Search courseSearch;
     static List<Course> searchResults;
     static Log log = new Log();
+    static RawLog rawlog = new RawLog();
 
     public static void main(String[] args) {
         System.out.println("Welcome to GCC Scheduler");
         System.out.println("Start building your schedule or type 'help' for a list of commands.");
         student = new Student();
-        Schedule copyForLog;
         cmdTerminal: do {
             if (currentSchedule != null) {
                 System.out.println("Currently editing schedule " + currentSchedule.getName());
@@ -33,22 +33,29 @@ public class Main {
             String[] cmdItems = cmdLine.split(" ");
             switch (cmdItems[0]) {
                 case "help":
+                    RawLog.logger.info("Opened Schedule Help Menu");
                     consoleHelp();
                     break;
                 case "createSchedule":
+                    RawLog.logger.info("Creating New Schedule");
                     if (cmdItems.length < 2) {
+                        RawLog.logger.warning("Tried to Create a Schedule With No Name");
                         System.out.println("Cannot create a schedule with no name.");
                         break;
                     } else if (cmdItems.length < 3) {
+                        RawLog.logger.warning("Tried to Create a Schedule With No Name");
                         System.out.println("Cannot create a schedule with no name.");
                         break;
                     }
                     currentSchedule = createSchedule(cmdItems[1], cmdItems[2]);
                     student.addSchedule(currentSchedule);
                     log = new Log(new Schedule(currentSchedule));
+                    RawLog.logger.info("Schedule Successfully Created");
                     break;
                 case "switchSchedule":
+                    RawLog.logger.info("Switching to new Schedule");
                     if (cmdItems.length < 2) {
+                        RawLog.logger.warning("No Schedule was Specified");
                         System.out.println("No schedule specified.");
                         break;
                     }
@@ -56,27 +63,34 @@ public class Main {
                     if(currentSchedule != null) {
                         log = new Log(new Schedule(currentSchedule));
                     }
+                    RawLog.logger.info("Successfully Switched to new Schedule");
                     break;
                 case "getSchedules":
+                    RawLog.logger.info("Displayed All Schedules");
                     getSchedules();
                     break;
                 case "search":
+                    RawLog.logger.info("Opened Search Menu");
                     search();
                     break;
                 case "calendarView":
+                    RawLog.logger.info("Opened Calender View");
                     currentSchedule.viewGrid();
                     break;
                 case "save":
+                    RawLog.logger.info("Saved Schedule");
                     currentSchedule.save();
                     break;
                 case "quit":
+                    RawLog.logger.info("Exiting Program");
                     break cmdTerminal;
                 case "undo":
                     if(log.undoLast() == null){
+                        RawLog.logger.warning("Tried to Undo Nothing");
                         System.out.println("Nothing to undo");
                     } else {
                         currentSchedule = log.getLast();
-                        log.fix();
+                        log.setProblems();
 
                         List<Schedule> schedules = student.getSchedules();
                         for (int i = 0; i<schedules.size(); i++) {
@@ -85,13 +99,15 @@ public class Main {
                             }
                         }
                     }
+                    RawLog.logger.info("Last Action Undone");
                     break;
                 case "redo":
                     if(log.redoLast() == null){
+                        RawLog.logger.warning("Tried to Redo Nothing");
                         System.out.println("Nothing to redo");
                     } else {
                         currentSchedule = log.getLast();
-                        log.fix();
+                        log.setProblems();
 
                         List<Schedule> schedules = student.getSchedules();
                         for (int i = 0; i<schedules.size(); i++) {
@@ -100,8 +116,10 @@ public class Main {
                             }
                         }
                     }
+                    RawLog.logger.info("Last Action Redone");
                     break;
                 default:
+                    RawLog.logger.info("Invalid Command Entered in Schedule Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
             }
         } while(true);
@@ -172,30 +190,40 @@ public class Main {
             String[] cmdItems = cmdLine.split(" ");
             switch (cmdItems[0]) {
                 case "help":
+                    RawLog.logger.info("Opened Search Help Menu");
                     searchHelp();
                     break;
                 case "filterHelp":
+                    RawLog.logger.info("Opened Filter Help Menu");
                     filterHelp();
                     break;
                 case "addFilter":
+                    RawLog.logger.info("Add Filter");
                     if (cmdItems.length <= 2) {
+                        RawLog.logger.warning("No filter specified");
                         System.out.println("No filter specified.");
                         break;
                     }
+                    RawLog.logger.info("Successfully Added Filter");
                     addFilter(cmdItems);
                     break;
                 case "removeFilter":
+                    RawLog.logger.info("Remove Filter");
                     if (cmdItems.length <= 2) {
+                        RawLog.logger.warning("No filter specified");
                         System.out.println("No filter specified.");
                         break;
                     }
+                    RawLog.logger.info("Successfully Removed Filter");
                     removeFilter(cmdItems);
                     break;
                 case "clearFilters":
+                    RawLog.logger.info("Cleared Filters");
                     courseSearch.clearFilters();
                     break;
 //                case "modifyFilter":
                 case "search":
+                    RawLog.logger.info("Searching for courses");
                     if (courseSearch.getFilters().isEmpty()) {
                         System.out.println("You have no filters selected, this will return every class, are you sure?");
                         System.out.println("Y/N");
@@ -209,24 +237,30 @@ public class Main {
                     }
                     break;
                 case "addCourse":
+                    RawLog.logger.info("Add Course");
                     if (cmdItems.length < 2) {
+                        RawLog.logger.warning("No course specified");
                         System.out.println("No course specified.");
                         break;
                     }
                     addCourse(cmdItems, searchResults);
                     break;
                 case "removeCourse":
+                    RawLog.logger.info("Remove Course");
                     if (cmdItems.length < 2) {
+                        RawLog.logger.warning("No course specified");
                         System.out.println("No course specified.");
                         break;
                     }
                     removeCourse(cmdItems);
                     break;
                 case "back":
-                    log.setProblm();
+                    RawLog.logger.info("Going Back to Schedule Menu");
+                    log.setErrorIndex();
                     log.redoLast();
                     break searchTerminal;
                 default:
+                    RawLog.logger.warning("Invalid Command Entered in Search Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
             }
             if (!courseSearch.getFilters().isEmpty()) {
@@ -238,10 +272,12 @@ public class Main {
     static void addFilter(String[] filterParam) {
         Search.Type[] filterType = stringToFilterType(filterParam[1]);
         if (filterType[0] == null) {
+            RawLog.logger.warning("Attempted to Add Filter That Does Not Exist");
             System.out.println("Filter " + filterParam[1] + " does not exist exist.");
             return;
         }
         for (int i = 2; i < filterParam.length; i++) {
+            RawLog.logger.info("Filter Successfully Added");
             courseSearch.addFilter(filterType[0], filterParam[i]);
         }
     }
@@ -249,10 +285,12 @@ public class Main {
     static void removeFilter(String[] filterParam) {
         Search.Type[] filterType = stringToFilterType(filterParam[1]);
         if (filterType[0] == null) {
+            RawLog.logger.warning("Attempted to Remove Filter That Does Not Exist");
             System.out.println("Filter " + filterParam[1] + " does not exist exist.");
             return;
         }
         for (int i = 2; i < filterParam.length; i++) {
+            RawLog.logger.info("Filter Successfully Removed");
             courseSearch.removeFilter(filterType[0], filterParam[i]);
         }
     }
@@ -271,9 +309,11 @@ public class Main {
         for (Course searchResult : searchResults) {
             if (Objects.equals(courseData[1], searchResult.getCourseCode()) && Objects.equals(courseData[2].charAt(0), searchResult.getSectionLetter())) {
                 currentSchedule.addCourse(searchResult);
+                RawLog.logger.info("Successfully Added Course");
                 return;
             }
         }
+        RawLog.logger.warning("Attempting to add a course that does not exist");
         System.out.println("Course " + courseData[1] + " " + courseData[2] + " does not exist.");
     }
 
@@ -282,9 +322,11 @@ public class Main {
         for (Course course : currentCourses) {
             if (Objects.equals(courseData[1], course.getCourseCode()) && Objects.equals(courseData[2].charAt(0), course.getSectionLetter())) {
                 currentSchedule.removeCourse(course);
+                RawLog.logger.info("Course Successfully Removed");
                 return;
             }
         }
+        RawLog.logger.warning("Course Not in Schedule");
         System.out.println("Course " + courseData[1] + " " + courseData[2] + " is not in your schedule.");
     }
 
@@ -298,20 +340,26 @@ public class Main {
             String[] cmdItems = cmdLine.split(" ");
             switch (cmdItems[0]) {
                 case "startTime":
+                    RawLog.logger.info("Displaying Start Time Filter Info");
                     System.out.println("startHours are 8:00 AM to 3:00 PM as well as night classes at 6:00 PM, enter time as 8:00-18:00.");
                     break;
                 case "day":
+                    RawLog.logger.info("Displaying Day Filter Info");
                     System.out.println("days are M T W R F, each corresponding to Monday, Tuesday, Wednesday, Thursday, and Friday respectively.");
                     break;
                 case "courseCode":
+                    RawLog.logger.info("Displaying Course Code Filter Info");
                     System.out.println("courseCode is the department followed by the courseID, ex. COMP350.");
                     break;
                 case "title":
+                    RawLog.logger.info("Displaying Title Filter Info");
                     System.out.println("title is the name of the course, ex. Software Engineering.");
                     break;
                 case "back":
+                    RawLog.logger.info("Going Back to Search Menu");
                     break helpTerminal;
                 default:
+                    RawLog.logger.warning("Invalid Filter Entered");
                     System.out.println("Invalid Command, Please Re-Enter Command");
             }
         } while(true);
