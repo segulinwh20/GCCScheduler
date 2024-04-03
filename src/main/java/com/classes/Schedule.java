@@ -40,6 +40,8 @@ public class Schedule {
         return name;
     }
 
+    public String getSemester() {return semester;}
+
     public List<Course> getCourses(){
         return courses;
     }
