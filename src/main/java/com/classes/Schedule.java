@@ -68,7 +68,7 @@ public class Schedule {
 
     private boolean conflicts(Course c) {
         for (Course current : courses) {
-            if (TimeSlot.conflicts(current.getTimes(), c.getTimes())) {
+            if (TimeSlot.conflicts(current.getTimes(), c.getTimes()) || current.getCourseCode().equals(c.getCourseCode())) {
                 return true;
             }
         }
