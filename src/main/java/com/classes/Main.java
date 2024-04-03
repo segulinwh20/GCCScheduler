@@ -10,12 +10,12 @@ public class Main {
     static Search courseSearch;
     static List<Course> searchResults;
     static Log log = new Log();
+    static RawLog rawLog = new RawLog();
 
     public static void main(String[] args) {
         System.out.println("Welcome to GCC Scheduler");
         System.out.println("Start building your schedule or type 'help' for a list of commands.");
         student = new Student();
-        Schedule copyForLog;
         cmdTerminal: do {
             if (currentSchedule != null) {
                 System.out.println("Currently editing schedule " + currentSchedule.getName());
@@ -33,35 +33,47 @@ public class Main {
             String[] cmdItems = cmdLine.split(" ");
             switch (cmdItems[0]) {
                 case "help":
+                    RawLog.logger.info("Opened Schedule Help Menu");
                     consoleHelp();
                     break;
                 case "createSchedule":
+                    RawLog.logger.info("Created New Schedule");
                     currentSchedule = createSchedule(cmdItems[1]);
                     student.addSchedule(currentSchedule);
                     log = new Log(new Schedule(currentSchedule));
                     break;
                 case "switchSchedule":
+                    RawLog.logger.info("Switched to New Schedule");
                     currentSchedule = switchSchedule(cmdItems[1]);
                     if(currentSchedule != null) {
                         log = new Log(new Schedule(currentSchedule));
+                    } else {
+                        RawLog.logger.warning("Switched to the Same Schedule");
                     }
                     break;
                 case "getSchedules":
+                    RawLog.logger.info("Displayed All Schedules");
                     getSchedules();
                     break;
                 case "search":
+                    RawLog.logger.info("Opened Search Menu");
                     search();
                     break;
                 case "calendarView":
+                    RawLog.logger.info("Opened Calender View");
                     currentSchedule.viewGrid();
                     break;
                 case "save":
+                    RawLog.logger.info("Saved Schedule");
                     currentSchedule.save();
                     break;
                 case "quit":
+                    RawLog.logger.info("Exiting Program");
                     break cmdTerminal;
                 case "undo":
+                    RawLog.logger.info("Last Action Undone");
                     if(log.undoLast() == null){
+                        RawLog.logger.warning("Tried to Undo Nothing");
                         System.out.println("Nothing to undo");
                     } else {
                         currentSchedule = log.getLast();
@@ -76,7 +88,9 @@ public class Main {
                     }
                     break;
                 case "redo":
+                    RawLog.logger.info("Last Action Redone");
                     if(log.redoLast() == null){
+                        RawLog.logger.warning("Tried to Redo Nothing");
                         System.out.println("Nothing to redo");
                     } else {
                         currentSchedule = log.getLast();
@@ -91,6 +105,7 @@ public class Main {
                     }
                     break;
                 default:
+                    RawLog.logger.info("Invalid Command Entered in Schedule Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
             }
         } while(true);
@@ -160,23 +175,30 @@ public class Main {
             String[] cmdItems = cmdLine.split(" ");
             switch (cmdItems[0]) {
                 case "help":
+                    RawLog.logger.info("Opened Search Help Menu");
                     searchHelp();
                     break;
                 case "filterHelp":
+                    RawLog.logger.info("Opened Filter Help Menu");
                     filterHelp();
                     break;
                 case "addFilter":
+                    RawLog.logger.info("Added Filter");
                     addFilter(cmdItems);
                     break;
                 case "removeFilter":
+                    RawLog.logger.info("Removed Filter");
                     removeFilter(cmdItems);
                     break;
                 case "clearFilters":
+                    RawLog.logger.info("Cleared Filters");
                     courseSearch.clearFilters();
                     break;
 //                case "modifyFilter":
                 case "search":
+                    RawLog.logger.info("Searching for Courses");
                     if (courseSearch.getFilters().isEmpty()) {
+                        RawLog.logger.info("Searching for all Courses");
                         System.out.println("You have no filters selected, this will return every class, are you sure?");
                         System.out.println("Y/N");
                         String killSwitch = scan.nextLine();
@@ -189,16 +211,20 @@ public class Main {
                     }
                     break;
                 case "addCourse":
+                    RawLog.logger.info("Course Added");
                     addCourse(cmdItems, searchResults);
                     break;
                 case "removeCourse":
+                    RawLog.logger.info("Course Removed");
                     removeCourse(cmdItems);
                     break;
                 case "back":
+                    RawLog.logger.info("Going Back to Schedule Menu");
                     log.setProblm();
                     log.redoLast();
                     break searchTerminal;
                 default:
+                    RawLog.logger.info("Invalid Command Entered in Search Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
             }
             if (!courseSearch.getFilters().isEmpty()) {
