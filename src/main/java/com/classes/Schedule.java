@@ -46,9 +46,14 @@ public class Schedule {
         return courses;
     }
 
-    public void addCourse(Course c) {
+    public boolean addCourse(Course c) {
+        if (conflicts(c)) {
+            System.out.println("Class cannot be added because it conflicts with another course in the schedule.");
+            return false;
+        }
         courses.add(c);
         log.addAction(new Schedule(this));
+        return true;
     }
 
     public boolean removeCourse(Course c) {
