@@ -58,6 +58,10 @@ public class Main {
                         break;
                     }
                     currentSchedule = createSchedule(cmdItems[1], cmdItems[2]);
+                    if (currentSchedule == null) {
+                        RawLog.logger.info("Invalid semester added.");
+                        break;
+                    }
                     student.addSchedule(currentSchedule);
                     log = new Log(new Schedule(currentSchedule));
                     RawLog.logger.info("Schedule Successfully Created");
@@ -93,8 +97,14 @@ public class Main {
                     currentSchedule.viewGrid();
                     break;
                 case "save":
-                    RawLog.logger.info("Saved Schedule");
+                    if (currentSchedule.getCourses().isEmpty()){
+                        RawLog.logger.info("Failed to save schedule");
+                        System.out.println("Cannot save a schedule with no courses.");
+                        break;
+                    }
                     currentSchedule.save();
+                    RawLog.logger.info("Saved Schedule");
+                    System.out.println(currentSchedule.getName() + " has been saved.");
                     break;
                 case "quit":
                     RawLog.logger.info("Exiting Program");
@@ -133,19 +143,25 @@ public class Main {
                     }
                     RawLog.logger.info("Last Action Redone");
                     break;
-//                case "load":
-//                    RawLog.logger.info("Loading new Schedule");
-//                    if (cmdItems.length < 2) {
-//                        RawLog.logger.warning("No Schedule was Specified");
-//                        System.out.println("No schedule specified.");
-//                        break;
-//                    }
-//                    loadSchedule(cmdItems[1]);
-//                    if(currentSchedule != null) {
-//                        log = new Log(new Schedule(currentSchedule));
-//                    }
-//                    RawLog.logger.info("Successfully loaded Schedule");
-//                    break;
+                case "load":
+                    RawLog.logger.info("Loading new Schedule");
+                    if (cmdItems.length < 2) {
+                        RawLog.logger.warning("No Schedule was Specified");
+                        System.out.println("No schedule specified.");
+                        break;
+                    }
+                    boolean load = loadSchedule(cmdItems[1]);
+                    if (!load) {
+                        RawLog.logger.info("Failed To Load Schedule");
+                        System.out.println("Unable to load schedule.");
+                        break;
+                    }
+                    if(currentSchedule != null) {
+                        log = new Log(new Schedule(currentSchedule));
+                    }
+                    System.out.println("Successfully loaded schedule.");
+                    RawLog.logger.info("Successfully loaded Schedule");
+                    break;
                 default:
                     RawLog.logger.info("Invalid Command Entered in Schedule Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
@@ -153,10 +169,9 @@ public class Main {
         } while(true);
     }
 
-    static void loadSchedule(String scheduleFile) {
-        List<Course> coursesToAdd = Search.readCoursesFromFile("data/" + scheduleFile + ".csv");
-        String[] scheduleParams = scheduleFile.split("-");
-        currentSchedule = createSchedule(scheduleParams[0], scheduleParams[1]);
+    static boolean loadSchedule(String name) {
+        List<Course> coursesToAdd = Search.readCoursesFromFile("data/" + name + ".csv");
+        currentSchedule = new Schedule(name, coursesToAdd.getFirst().getSemester());
         student.addSchedule(currentSchedule);
         for (int i = 0; i < coursesToAdd.size(); i++) {
             String[] courseParams = new String[3];
@@ -164,6 +179,7 @@ public class Main {
             courseParams[2] = String.valueOf(coursesToAdd.get(i).getSectionLetter());
             addCourse(courseParams, coursesToAdd);
         }
+        return true;
     }
 
     static boolean studentBuilder(String[] studentParam) {
@@ -201,7 +217,11 @@ public class Main {
     }
 
     static Schedule createSchedule(String name, String semester) {
-        return new Schedule(name, semester);
+        if (semester.equals("Fall") || semester.equals("Spring")) {
+            return new Schedule(name, semester);
+        }
+        System.out.println(semester + " is not a valid semester.");
+        return null;
     }
 
     static Schedule switchSchedule(String name) {

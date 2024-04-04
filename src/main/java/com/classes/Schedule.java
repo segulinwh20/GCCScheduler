@@ -25,8 +25,9 @@ public class Schedule {
 
     public Schedule(String filepath) {
         String[] path = filepath.split("/");
-        this.name = path[path.length - 1];
-        //TODO: semester
+        String[] scheduleData = path[path.length - 1].split("\\|");
+        this.name = scheduleData[0];
+        this.semester = scheduleData[1];
         this.courses = Search.readCoursesFromFile(filepath);
     }
 
@@ -131,6 +132,7 @@ public class Schedule {
     public void save() {
         try {
             PrintWriter p = new PrintWriter("data/" + name + ".csv");
+            p.println(semester);
             for (Course c : courses) {
                 p.print(c.toCSVFormat());
             }
