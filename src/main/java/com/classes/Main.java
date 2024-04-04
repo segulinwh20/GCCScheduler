@@ -52,12 +52,8 @@ public class Main {
                         RawLog.logger.warning("Tried to Create a Schedule With No Name");
                         System.out.println("Cannot create a schedule with no name.");
                         break;
-                    } else if (cmdItems.length < 3) {
-                        RawLog.logger.warning("Tried to Create a Schedule With No Semester");
-                        System.out.println("Cannot create a schedule with no semester.");
-                        break;
                     }
-                    currentSchedule = createSchedule(cmdItems[1], cmdItems[2]);
+                    currentSchedule = createSchedule(cmdItems);
                     if (currentSchedule == null) {
                         RawLog.logger.info("Invalid semester added.");
                         break;
@@ -182,18 +178,16 @@ public class Main {
         return true;
     }
 
-    static boolean studentBuilder(String[] studentParam) {
-        if (studentParam.length <= 2) {
+    static boolean studentBuilder(String[] studentParams) {
+        if (studentParams.length <= 2) {
             return false;
         }
-        student = new Student(studentParam[2]);
-        student.setFirst(studentParam[0]);
-        student.setLast(studentParam[1]);
+        student = new Student(studentParams);
         return true;
     }
 
     static void consoleHelp() {
-        System.out.println("'createSchedule' 'name' 'semester': This creates a schedule with the given name and semester.");
+        System.out.println("'createSchedule' 'name' : This creates a schedule with the given name.");
         System.out.println("'switchSchedule' 'name': This allows you to change which schedule you are editing.");
         System.out.println("'getSchedules': This gives you a list of the schedules that you have made.");
         System.out.println("'search': This will allow you to open the search menu for courses.");
@@ -216,9 +210,17 @@ public class Main {
         System.out.println("'back': This will return to the schedule management section");
     }
 
-    static Schedule createSchedule(String name, String semester) {
+    static Schedule createSchedule(String[] name) {
+        StringBuilder scheduleName = new StringBuilder();
+        scheduleName.append(name[1]);
+        for (int i = 2; i < name.length; i++) {
+            scheduleName.append(" ").append(name[i]);
+        }
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Enter Semester: ");
+        String semester = scan.nextLine();
         if (semester.equals("Fall") || semester.equals("Spring")) {
-            return new Schedule(name, semester);
+            return new Schedule(String.valueOf(scheduleName), semester);
         }
         System.out.println(semester + " is not a valid semester.");
         return null;
