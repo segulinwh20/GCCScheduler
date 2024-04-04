@@ -9,8 +9,15 @@ public class Student extends Person {
     private String major;
     private List<Schedule> schedules;
 
-    public Student(String major){
-        this.major = major;
+    public Student(String[] studentParams){
+        setFirst(studentParams[0]);
+        setLast(studentParams[1]);
+        StringBuilder major = new StringBuilder();
+        major.append(studentParams[2]);
+        for (int i = 3; i < studentParams.length; i++) {
+            major.append(" ").append(studentParams[i]);
+        }
+        this.major = String.valueOf(major);
         this.schedules = new ArrayList<Schedule>();
     }
 

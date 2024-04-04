@@ -8,6 +8,7 @@ public class Main {
     static Student student;
     static Schedule currentSchedule;
     static Search courseSearch;
+    static List<Course> courseList;
     static List<Course> searchResults;
     static Log log = new Log();
     static RawLog rawlog = new RawLog();
@@ -51,12 +52,12 @@ public class Main {
                         RawLog.logger.warning("Tried to Create a Schedule With No Name");
                         System.out.println("Cannot create a schedule with no name.");
                         break;
-                    } else if (cmdItems.length < 3) {
-                        RawLog.logger.warning("Tried to Create a Schedule With No Name");
-                        System.out.println("Cannot create a schedule with no name.");
+                    }
+                    currentSchedule = createSchedule(cmdItems);
+                    if (currentSchedule == null) {
+                        RawLog.logger.info("Invalid semester added.");
                         break;
                     }
-                    currentSchedule = createSchedule(cmdItems[1], cmdItems[2]);
                     student.addSchedule(currentSchedule);
                     log = new Log(new Schedule(currentSchedule));
                     RawLog.logger.info("Schedule Successfully Created");
@@ -79,6 +80,11 @@ public class Main {
                     getSchedules();
                     break;
                 case "search":
+                    if (currentSchedule == null) {
+                        RawLog.logger.info("No Schedule Selected");
+                        System.out.println("Cannot search without a schedule.");
+                        break;
+                    }
                     RawLog.logger.info("Opened Search Menu");
                     search();
                     break;
@@ -87,8 +93,14 @@ public class Main {
                     currentSchedule.viewGrid();
                     break;
                 case "save":
-                    RawLog.logger.info("Saved Schedule");
+                    if (currentSchedule.getCourses().isEmpty()){
+                        RawLog.logger.info("Failed to save schedule");
+                        System.out.println("Cannot save a schedule with no courses.");
+                        break;
+                    }
                     currentSchedule.save();
+                    RawLog.logger.info("Saved Schedule");
+                    System.out.println(currentSchedule.getName() + " has been saved.");
                     break;
                 case "quit":
                     RawLog.logger.info("Exiting Program");
@@ -127,6 +139,25 @@ public class Main {
                     }
                     RawLog.logger.info("Last Action Redone");
                     break;
+                case "load":
+                    RawLog.logger.info("Loading new Schedule");
+                    if (cmdItems.length < 2) {
+                        RawLog.logger.warning("No Schedule was Specified");
+                        System.out.println("No schedule specified.");
+                        break;
+                    }
+                    boolean load = loadSchedule(cmdItems[1]);
+                    if (!load) {
+                        RawLog.logger.info("Failed To Load Schedule");
+                        System.out.println("Unable to load schedule.");
+                        break;
+                    }
+                    if(currentSchedule != null) {
+                        log = new Log(new Schedule(currentSchedule));
+                    }
+                    System.out.println("Successfully loaded schedule.");
+                    RawLog.logger.info("Successfully loaded Schedule");
+                    break;
                 default:
                     RawLog.logger.info("Invalid Command Entered in Schedule Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
@@ -134,25 +165,37 @@ public class Main {
         } while(true);
     }
 
-    static boolean studentBuilder(String[] studentParam) {
-        if (studentParam.length <= 2) {
+    static boolean loadSchedule(String name) {
+        List<Course> coursesToAdd = Search.readCoursesFromFile("data/" + name + ".csv");
+        currentSchedule = new Schedule(name, coursesToAdd.getFirst().getSemester());
+        student.addSchedule(currentSchedule);
+        for (int i = 0; i < coursesToAdd.size(); i++) {
+            String[] courseParams = new String[3];
+            courseParams[1] = coursesToAdd.get(i).getCourseCode();
+            courseParams[2] = String.valueOf(coursesToAdd.get(i).getSectionLetter());
+            addCourse(courseParams, coursesToAdd);
+        }
+        return true;
+    }
+
+    static boolean studentBuilder(String[] studentParams) {
+        if (studentParams.length <= 2) {
             return false;
         }
-        student = new Student(studentParam[2]);
-        student.setFirst(studentParam[0]);
-        student.setLast(studentParam[1]);
+        student = new Student(studentParams);
         return true;
     }
 
     static void consoleHelp() {
-        System.out.println("'createSchedule' 'name' 'semester': This creates a schedule with the given name and semester.");
+        System.out.println("'createSchedule' 'name' : This creates a schedule with the given name.");
         System.out.println("'switchSchedule' 'name': This allows you to change which schedule you are editing.");
         System.out.println("'getSchedules': This gives you a list of the schedules that you have made.");
         System.out.println("'search': This will allow you to open the search menu for courses.");
         System.out.println("'calendarView': This will show a weekly calendar view of your current schedule.");
         System.out.println("'save': This will save the course you are currently editing.");
-        System.out.println("'undo': Undoes the last change to schedule.");
-        System.out.println("'redo': Redoes the last change to schedule.");
+        System.out.println("'load' 'schedule': This will load the specified schedule.");
+        System.out.println("'undo': This will undo the last change to schedule.");
+        System.out.println("'redo': This will redo the last change to schedule.");
         System.out.println("'quit': This will exit GCC Scheduler");
     }
 
@@ -167,14 +210,26 @@ public class Main {
         System.out.println("'back': This will return to the schedule management section");
     }
 
-    static Schedule createSchedule(String name, String semester) {
-        return new Schedule(name, semester);
+    static Schedule createSchedule(String[] name) {
+        StringBuilder scheduleName = new StringBuilder();
+        scheduleName.append(name[1]);
+        for (int i = 2; i < name.length; i++) {
+            scheduleName.append(" ").append(name[i]);
+        }
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Enter Semester: ");
+        String semester = scan.nextLine();
+        if (semester.equals("Fall") || semester.equals("Spring")) {
+            return new Schedule(String.valueOf(scheduleName), semester);
+        }
+        System.out.println(semester + " is not a valid semester.");
+        return null;
     }
 
     static Schedule switchSchedule(String name) {
         if (Objects.equals(currentSchedule.getName(), name)) {
             System.out.println("You are already editing schedule " + name);
-            return null;
+            return currentSchedule;
         }
         List<Schedule> schedules = student.getSchedules();
         for (Schedule schedule : schedules) {
@@ -201,8 +256,9 @@ public class Main {
         System.out.println("Start searching for courses or type 'help' for a list of commands.");
         courseSearch = new Search();
         courseSearch.addFilter(Search.Type.SEMESTER, currentSchedule.getSemester());
+        courseList = Search.readCoursesFromFile("data/2020-2021.csv");
         searchTerminal: do {
-            searchResults = courseSearch.filterCourses();
+            System.out.println(courseSearch.getFilters());
             System.out.print("Search: ");
             Scanner scan = new Scanner(System.in);
             String cmdLine = scan.nextLine();
@@ -263,13 +319,23 @@ public class Main {
                         System.out.println("No course specified.");
                         break;
                     }
-                    addCourse(cmdItems, searchResults);
+                    if (cmdItems.length < 3) {
+                        RawLog.logger.warning("No section letter specified");
+                        System.out.println("No section letter specified.");
+                        break;
+                    }
+                    addCourse(cmdItems, courseList);
                     break;
                 case "removeCourse":
                     RawLog.logger.info("Remove Course");
                     if (cmdItems.length < 2) {
                         RawLog.logger.warning("No course specified");
                         System.out.println("No course specified.");
+                        break;
+                    }
+                    if (cmdItems.length < 3) {
+                        RawLog.logger.warning("No section letter specified");
+                        System.out.println("No section letter specified.");
                         break;
                     }
                     removeCourse(cmdItems);
@@ -282,9 +348,6 @@ public class Main {
                 default:
                     RawLog.logger.warning("Invalid Command Entered in Search Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
-            }
-            if (!courseSearch.getFilters().isEmpty()) {
-                System.out.println(courseSearch.getFilters());
             }
         } while(true);
     }

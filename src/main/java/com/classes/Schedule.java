@@ -19,14 +19,15 @@ public class Schedule {
 
     public Schedule(String name, String semester){
         this.name = name;
-        //TODO: semester
+        this.semester = semester;
         this.courses = new ArrayList<Course>();
     }
 
     public Schedule(String filepath) {
         String[] path = filepath.split("/");
-        this.name = path[path.length - 1];
-        //TODO: semester
+        String[] scheduleData = path[path.length - 1].split("\\|");
+        this.name = scheduleData[0];
+        this.semester = scheduleData[1];
         this.courses = Search.readCoursesFromFile(filepath);
     }
 
@@ -113,7 +114,7 @@ public class Schedule {
 
     private boolean isTimeInSlot(TimeSlot timeSlot, String time) {
         String[] parts = time.split(":");
-        int hour = Integer.parseInt(parts[0]);
+        int hour = Integer.parseInt(parts[0]) + 12;
         String stringMinute = parts[1];
         if (!timeCheck(stringMinute, timeSlot.toString())) {
             return false;
@@ -131,6 +132,7 @@ public class Schedule {
     public void save() {
         try {
             PrintWriter p = new PrintWriter("data/" + name + ".csv");
+            p.println(semester);
             for (Course c : courses) {
                 p.print(c.toCSVFormat());
             }
