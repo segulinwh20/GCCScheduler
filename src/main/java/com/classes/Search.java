@@ -152,7 +152,11 @@ public void removeFilter(Type filterType, String filterValue) {
     public static List<Course> readCoursesFromFile(String filepath) {
         // account 201 in one
         List<Course> c = new ArrayList<Course>();
-        try(Scanner inFile = new Scanner(new File(filepath))){
+        File file = new File(filepath);
+        if (!file.exists()) {
+            return null;
+        }
+        try(Scanner inFile = new Scanner(file)){
             String line = inFile.nextLine(); // removes header line
             String semester;
 

@@ -149,7 +149,6 @@ public class Main {
                     boolean load = loadSchedule(cmdItems[1]);
                     if (!load) {
                         RawLog.logger.info("Failed To Load Schedule");
-                        System.out.println("Unable to load schedule.");
                         break;
                     }
                     if(currentSchedule != null) {
@@ -167,6 +166,10 @@ public class Main {
 
     static boolean loadSchedule(String name) {
         List<Course> coursesToAdd = Search.readCoursesFromFile("data/" + name + ".csv");
+        if (coursesToAdd == null) {
+            System.out.println("Schedule " + name + " does not exist.");
+            return false;
+        }
         currentSchedule = new Schedule(name, coursesToAdd.getFirst().getSemester());
         student.addSchedule(currentSchedule);
         for (int i = 0; i < coursesToAdd.size(); i++) {

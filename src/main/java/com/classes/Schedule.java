@@ -136,6 +136,7 @@ public class Schedule {
             for (Course c : courses) {
                 p.print(c.toCSVFormat());
             }
+            p.flush();
             p.close();
         } catch (FileNotFoundException e) {
             System.out.println("Schedule unable to be saved");
