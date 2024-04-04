@@ -35,6 +35,7 @@ public class Schedule {
         this.name = s.name;
         this.courses = new ArrayList<Course>();
         this.courses.addAll(s.courses);
+        this.semester = s.semester;
     }
 
     public String getName(){
