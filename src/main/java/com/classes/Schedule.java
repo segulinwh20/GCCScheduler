@@ -19,7 +19,7 @@ public class Schedule {
 
     public Schedule(String name, String semester){
         this.name = name;
-        //TODO: semester
+        this.semester = semester;
         this.courses = new ArrayList<Course>();
     }
 
@@ -113,7 +113,7 @@ public class Schedule {
 
     private boolean isTimeInSlot(TimeSlot timeSlot, String time) {
         String[] parts = time.split(":");
-        int hour = Integer.parseInt(parts[0]);
+        int hour = Integer.parseInt(parts[0]) + 12;
         String stringMinute = parts[1];
         if (!timeCheck(stringMinute, timeSlot.toString())) {
             return false;

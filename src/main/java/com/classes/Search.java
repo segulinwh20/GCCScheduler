@@ -142,9 +142,11 @@ public void removeFilter(Type filterType, String filterValue) {
 }
 
     public void clearFilters() {
+        List<String> semester = filters.get(Type.SEMESTER);
         dayFilters.clear();
         timeFilters.clear();
         filters.clear();
+        addFilter(Type.SEMESTER, semester.getFirst());
     }
 
     public static List<Course> readCoursesFromFile(String filepath) {

@@ -8,6 +8,7 @@ public class Main {
     static Student student;
     static Schedule currentSchedule;
     static Search courseSearch;
+    static List<Course> courseList;
     static List<Course> searchResults;
     static Log log = new Log();
     static RawLog rawlog = new RawLog();
@@ -52,8 +53,8 @@ public class Main {
                         System.out.println("Cannot create a schedule with no name.");
                         break;
                     } else if (cmdItems.length < 3) {
-                        RawLog.logger.warning("Tried to Create a Schedule With No Name");
-                        System.out.println("Cannot create a schedule with no name.");
+                        RawLog.logger.warning("Tried to Create a Schedule With No Semester");
+                        System.out.println("Cannot create a schedule with no semester.");
                         break;
                     }
                     currentSchedule = createSchedule(cmdItems[1], cmdItems[2]);
@@ -79,6 +80,11 @@ public class Main {
                     getSchedules();
                     break;
                 case "search":
+                    if (currentSchedule == null) {
+                        RawLog.logger.info("No Schedule Selected");
+                        System.out.println("Cannot search without a schedule.");
+                        break;
+                    }
                     RawLog.logger.info("Opened Search Menu");
                     search();
                     break;
@@ -127,11 +133,37 @@ public class Main {
                     }
                     RawLog.logger.info("Last Action Redone");
                     break;
+//                case "load":
+//                    RawLog.logger.info("Loading new Schedule");
+//                    if (cmdItems.length < 2) {
+//                        RawLog.logger.warning("No Schedule was Specified");
+//                        System.out.println("No schedule specified.");
+//                        break;
+//                    }
+//                    loadSchedule(cmdItems[1]);
+//                    if(currentSchedule != null) {
+//                        log = new Log(new Schedule(currentSchedule));
+//                    }
+//                    RawLog.logger.info("Successfully loaded Schedule");
+//                    break;
                 default:
                     RawLog.logger.info("Invalid Command Entered in Schedule Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
             }
         } while(true);
+    }
+
+    static void loadSchedule(String scheduleFile) {
+        List<Course> coursesToAdd = Search.readCoursesFromFile("data/" + scheduleFile + ".csv");
+        String[] scheduleParams = scheduleFile.split("-");
+        currentSchedule = createSchedule(scheduleParams[0], scheduleParams[1]);
+        student.addSchedule(currentSchedule);
+        for (int i = 0; i < coursesToAdd.size(); i++) {
+            String[] courseParams = new String[3];
+            courseParams[1] = coursesToAdd.get(i).getCourseCode();
+            courseParams[2] = String.valueOf(coursesToAdd.get(i).getSectionLetter());
+            addCourse(courseParams, coursesToAdd);
+        }
     }
 
     static boolean studentBuilder(String[] studentParam) {
@@ -151,8 +183,9 @@ public class Main {
         System.out.println("'search': This will allow you to open the search menu for courses.");
         System.out.println("'calendarView': This will show a weekly calendar view of your current schedule.");
         System.out.println("'save': This will save the course you are currently editing.");
-        System.out.println("'undo': Undoes the last change to schedule.");
-        System.out.println("'redo': Redoes the last change to schedule.");
+        System.out.println("'load' 'schedule': This will load the specified schedule.");
+        System.out.println("'undo': This will undo the last change to schedule.");
+        System.out.println("'redo': This will redo the last change to schedule.");
         System.out.println("'quit': This will exit GCC Scheduler");
     }
 
@@ -174,7 +207,7 @@ public class Main {
     static Schedule switchSchedule(String name) {
         if (Objects.equals(currentSchedule.getName(), name)) {
             System.out.println("You are already editing schedule " + name);
-            return null;
+            return currentSchedule;
         }
         List<Schedule> schedules = student.getSchedules();
         for (Schedule schedule : schedules) {
@@ -201,8 +234,9 @@ public class Main {
         System.out.println("Start searching for courses or type 'help' for a list of commands.");
         courseSearch = new Search();
         courseSearch.addFilter(Search.Type.SEMESTER, currentSchedule.getSemester());
+        courseList = Search.readCoursesFromFile("data/2020-2021.csv");
         searchTerminal: do {
-            searchResults = courseSearch.filterCourses();
+            System.out.println(courseSearch.getFilters());
             System.out.print("Search: ");
             Scanner scan = new Scanner(System.in);
             String cmdLine = scan.nextLine();
@@ -263,13 +297,23 @@ public class Main {
                         System.out.println("No course specified.");
                         break;
                     }
-                    addCourse(cmdItems, searchResults);
+                    if (cmdItems.length < 3) {
+                        RawLog.logger.warning("No section letter specified");
+                        System.out.println("No section letter specified.");
+                        break;
+                    }
+                    addCourse(cmdItems, courseList);
                     break;
                 case "removeCourse":
                     RawLog.logger.info("Remove Course");
                     if (cmdItems.length < 2) {
                         RawLog.logger.warning("No course specified");
                         System.out.println("No course specified.");
+                        break;
+                    }
+                    if (cmdItems.length < 3) {
+                        RawLog.logger.warning("No section letter specified");
+                        System.out.println("No section letter specified.");
                         break;
                     }
                     removeCourse(cmdItems);
@@ -282,9 +326,6 @@ public class Main {
                 default:
                     RawLog.logger.warning("Invalid Command Entered in Search Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
-            }
-            if (!courseSearch.getFilters().isEmpty()) {
-                System.out.println(courseSearch.getFilters());
             }
         } while(true);
     }
