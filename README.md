@@ -41,8 +41,8 @@ will remove the corresponding filter.
 "clearFilters" - This command takes no arguments and removes all filters that you have added.
 "search" - This command takes no arguments and prints out all of the classes that match your filters.
 "addCourse" - This command takes 2 arguments, the course code (ex. COMP350) and the section letter (ex. B),
-and adds the course to your schedule.
+enter 0 for the section letter if there is none, and adds the course to your schedule.
 "removeCourse" - This command takes 2 arguments, the course code (ex. COMP350) and the section letter (ex. B),
-and removes the course from your schedule.
+enter 0 for the section letter if there is none, and removes the course from your schedule.
 "back" - This command takes no arguments and returns you to the command menu.
 ```
