@@ -204,8 +204,8 @@ public class Main {
         System.out.println("'removeFilter' 'filterType' 'filter': This removes the specified filter.");
         System.out.println("'clearFilters': This resets your search filters.");
         System.out.println("'search': This will search for any course matching your search filters.");
-        System.out.println("'addCourse' 'courseCode' 'sectionLetter': This will add the specified course to your schedule.");
-        System.out.println("'removeCourse' 'courseCode' 'sectionLetter': This will remove the specified course from your schedule.");
+        System.out.println("'addCourse' 'courseCode' 'sectionLetter': This will add the specified course to your schedule. Enter 0 for sectionLetter if there is none.");
+        System.out.println("'removeCourse' 'courseCode' 'sectionLetter': This will remove the specified course from your schedule. Enter 0 for sectionLetter if there is none.");
         System.out.println("'back': This will return to the schedule management section");
     }
 
@@ -395,6 +395,13 @@ public class Main {
 
     static void addCourse(String[] courseData, List<Course> searchResults) {
         for (Course searchResult : searchResults) {
+            if (courseData[2].equals("0")) {
+                if (Objects.equals(courseData[1], searchResult.getCourseCode())) {
+                    currentSchedule.addCourse(searchResult);
+                    RawLog.logger.info("Successfully Added Course");
+                    return;
+                }
+            }
             if (Objects.equals(courseData[1], searchResult.getCourseCode()) && Objects.equals(courseData[2].charAt(0), searchResult.getSectionLetter())) {
                 currentSchedule.addCourse(searchResult);
                 RawLog.logger.info("Successfully Added Course");
@@ -408,6 +415,13 @@ public class Main {
     static void removeCourse(String[] courseData) {
         List<Course> currentCourses = currentSchedule.getCourses();
         for (Course course : currentCourses) {
+            if (courseData[2].equals("0")) {
+                if (Objects.equals(courseData[1], course.getCourseCode())) {
+                    currentSchedule.removeCourse(course);
+                    RawLog.logger.info("Course Successfully Removed");
+                    return;
+                }
+            }
             if (Objects.equals(courseData[1], course.getCourseCode()) && Objects.equals(courseData[2].charAt(0), course.getSectionLetter())) {
                 currentSchedule.removeCourse(course);
                 RawLog.logger.info("Course Successfully Removed");
