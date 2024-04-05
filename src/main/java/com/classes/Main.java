@@ -261,7 +261,7 @@ public class Main {
         System.out.println("Start searching for courses or type 'help' for a list of commands.");
         courseSearch = new Search();
         courseSearch.addFilter(Search.Type.SEMESTER, currentSchedule.getSemester());
-        courseList = Search.readCoursesFromFile("data/2020-2021.csv");
+        courseList = courseSearch.filterCourses();
         searchTerminal: do {
             System.out.println(courseSearch.getFilters());
             System.out.print("Search: ");
