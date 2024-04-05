@@ -10,6 +10,8 @@ import java.util.*;
 
 public class Search {
 
+
+//enumerators for search variables
     enum Type {
         DAY,
         COURSECODE,
@@ -20,6 +22,7 @@ public class Search {
     }
 
 
+    //various data structures for search algorithm
     private Map<Type, List<String>> filters;
 
     private List<String> timeFilters;
@@ -28,29 +31,34 @@ public class Search {
 
     private List<String> dayFilters;
 
+    //search constructor
     public Search() {
         filters = new HashMap<>();
         timeFilters = new ArrayList<>();
         dayFilters = new ArrayList<>();
-        minuteFilters = new ArrayList<>();
     }
 
+    //getter for filters
 
     public Map<Type, List<String>> getFilters() {
         return filters;
     }
 
 
+    //main searching algorithm. Reads data from file, creates a new list of courses, and searches for matches of each type
+    //of enumerator.
     public List<Course> filterCourses() {
         List<Course> data = readCoursesFromFile("data/2020-2021.csv");
         List<Course> filteredCourses = new ArrayList<>();
+        //iterating through every course
         for (Course datum : data) {
             boolean match = true;
+            //iterates through each filter
             for (Map.Entry<Type, List<String>> entry : filters.entrySet()) {
                 Type filterType = entry.getKey();
                 List<String> filterValues = entry.getValue();
-
                 switch (filterType) {
+                    //match is true if TIME matches
                     case Type.TIME:
                         match = false;
                         for(String time: filterValues){
@@ -70,6 +78,7 @@ public class Search {
                             match = false;
                         }
                         break;
+                        //match is true if DAY matches
                     case Type.DAY:
                         match = false;
                         for (TimeSlot timeSlot : datum.getTimes()) {
@@ -83,29 +92,35 @@ public class Search {
                             break;
                         }
                         break;
+                        //no match if courseCode doesn't match
                     case Type.COURSECODE:
                         if (!filterValues.contains(datum.getCourseCode())) {
                             match = false;
                         }
                         break;
+                        //no match if title doesn't match
                     case Type.TITLE:
                         if (!filterValues.contains(datum.getTitle())) {
                             match = false;
                         }
                         break;
+                        //no match if semester doesn't match
                     case Type.SEMESTER:
                         if (!filterValues.contains(datum.getSemester())) {
                             match = false;
                         }
                         break;
+                        //error handling
                     default:
                         System.out.println("Invalid filter type");
                         break;
                 }
+                //doesn't add course to search list if no match
                 if (!match) {
                     break;
                 }
             }
+            //Adds course to search list if there is a match
             if (match) {
                 filteredCourses.add(datum);
             }
@@ -113,6 +128,7 @@ public class Search {
         return filteredCourses;
     }
 
+    //Adds filter to the filter list
     public void addFilter(Type filterType, String filterValue) {
        if(filterType.equals(Type.DAY)){
             dayFilters.add(filterValue);
@@ -124,6 +140,7 @@ public class Search {
 
     }
 
+    //Removes filter from the filter list
 public void removeFilter(Type filterType, String filterValue) {
    if (filterType.equals(Type.DAY)) {
         if (dayFilters.contains(filterValue)) {
@@ -141,6 +158,7 @@ public void removeFilter(Type filterType, String filterValue) {
         }
 }
 
+//Clears all filters from the list
     public void clearFilters() {
         List<String> semester = filters.get(Type.SEMESTER);
         dayFilters.clear();
@@ -149,6 +167,7 @@ public void removeFilter(Type filterType, String filterValue) {
         addFilter(Type.SEMESTER, semester.getFirst());
     }
 
+    //File-parsing.
     public static List<Course> readCoursesFromFile(String filepath) {
         // account 201 in one
         List<Course> c = new ArrayList<Course>();
