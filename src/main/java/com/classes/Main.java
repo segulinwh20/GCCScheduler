@@ -17,8 +17,8 @@ public class Main {
         System.out.println("Welcome to GCC Scheduler");
         do{
             System.out.println("Please enter your first and last name and your major separated by a space.");
-            Scanner scanly = new Scanner(System.in);
-            String studentData = scanly.nextLine();
+            Scanner scanner = new Scanner(System.in);
+            String studentData = scanner.nextLine();
             String[] studentParam = studentData.split(" ");
             if (studentBuilder(studentParam)) {
                 break;
