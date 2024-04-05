@@ -54,10 +54,6 @@ public class Main {
                         break;
                     }
                     currentSchedule = createSchedule(cmdItems);
-                    if (currentSchedule == null) {
-                        RawLog.logger.info("Invalid semester added.");
-                        break;
-                    }
                     student.addSchedule(currentSchedule);
                     log = new Log(new Schedule(currentSchedule));
                     RawLog.logger.info("Schedule Successfully Created");
@@ -69,7 +65,7 @@ public class Main {
                         System.out.println("No schedule specified.");
                         break;
                     }
-                    currentSchedule = switchSchedule(cmdItems[1]);
+                    currentSchedule = switchSchedule(cmdItems);
                     if(currentSchedule != null) {
                         log = new Log(new Schedule(currentSchedule));
                     }
@@ -220,29 +216,35 @@ public class Main {
             scheduleName.append(" ").append(name[i]);
         }
         Scanner scan = new Scanner(System.in);
-        System.out.print("Enter Semester: ");
-        String semester = scan.nextLine();
-        if (semester.equals("Fall") || semester.equals("Spring")) {
-            return new Schedule(String.valueOf(scheduleName), semester);
-        }
-        System.out.println(semester + " is not a valid semester.");
-        return null;
+        do {
+            System.out.print("Enter Semester: ");
+            String semester = scan.nextLine();
+            if (semester.equals("Fall") || semester.equals("Spring")) {
+                return new Schedule(String.valueOf(scheduleName), semester);
+            }
+            System.out.println(semester + " is not a valid semester.");
+        } while (true);
     }
 
-    static Schedule switchSchedule(String name) {
-        if (Objects.equals(currentSchedule.getName(), name)) {
-            System.out.println("You are already editing schedule " + name);
+    static Schedule switchSchedule(String[] name) {
+        StringBuilder scheduleName = new StringBuilder();
+        scheduleName.append(name[1]);
+        for (int i = 2; i < name.length; i++) {
+            scheduleName.append(" ").append(name[i]);
+        }
+        if (Objects.equals(currentSchedule.getName(), String.valueOf(scheduleName))) {
+            System.out.println("You are already editing schedule " + scheduleName);
             return currentSchedule;
         }
         List<Schedule> schedules = student.getSchedules();
         for (Schedule schedule : schedules) {
-            if (Objects.equals(name, schedule.getName())) {
-                System.out.println("You are now editing schedule " + name);
+            if (Objects.equals((String.valueOf(scheduleName)), schedule.getName())) {
+                System.out.println("You are now editing schedule " + scheduleName);
                 return schedule;
             }
         }
-        System.out.println("Schedule " + name + " does not exist.");
-        return  null;
+        System.out.println("Schedule " + scheduleName + " does not exist.");
+        return currentSchedule;
     }
 
     static void getSchedules() {
