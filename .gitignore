@@ -42,3 +42,6 @@ bin/
 .DS_Store
 
 .idea/
+
+data/*
+!data/2020-2021.csv
