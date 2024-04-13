@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-//Load all of the courses into a giant course list. From there,
+//Load all the courses into a giant course list. From there,
 //when it comes time to search based on parameters, iterate through each course's "get____" method,
 //and return the list of classes containing that match.
 
