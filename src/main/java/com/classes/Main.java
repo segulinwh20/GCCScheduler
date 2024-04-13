@@ -17,8 +17,8 @@ public class Main {
         System.out.println("Welcome to GCC Scheduler");
         do{
             System.out.println("Please enter your first and last name and your major separated by a space.");
-            Scanner scanly = new Scanner(System.in);
-            String studentData = scanly.nextLine();
+            Scanner scanner = new Scanner(System.in);
+            String studentData = scanner.nextLine();
             String[] studentParam = studentData.split(" ");
             if (studentBuilder(studentParam)) {
                 break;
@@ -54,10 +54,6 @@ public class Main {
                         break;
                     }
                     currentSchedule = createSchedule(cmdItems);
-                    if (currentSchedule == null) {
-                        RawLog.logger.info("Invalid semester added.");
-                        break;
-                    }
                     student.addSchedule(currentSchedule);
                     log = new Log(new Schedule(currentSchedule));
                     RawLog.logger.info("Schedule Successfully Created");
@@ -69,7 +65,7 @@ public class Main {
                         System.out.println("No schedule specified.");
                         break;
                     }
-                    currentSchedule = switchSchedule(cmdItems[1]);
+                    currentSchedule = switchSchedule(cmdItems);
                     if(currentSchedule != null) {
                         log = new Log(new Schedule(currentSchedule));
                     }
@@ -208,8 +204,8 @@ public class Main {
         System.out.println("'removeFilter' 'filterType' 'filter': This removes the specified filter.");
         System.out.println("'clearFilters': This resets your search filters.");
         System.out.println("'search': This will search for any course matching your search filters.");
-        System.out.println("'addCourse' 'courseCode' 'sectionLetter': This will add the specified course to your schedule.");
-        System.out.println("'removeCourse' 'courseCode' 'sectionLetter': This will remove the specified course from your schedule.");
+        System.out.println("'addCourse' 'courseCode' 'sectionLetter': This will add the specified course to your schedule. Enter 0 for sectionLetter if there is none.");
+        System.out.println("'removeCourse' 'courseCode' 'sectionLetter': This will remove the specified course from your schedule. Enter 0 for sectionLetter if there is none.");
         System.out.println("'back': This will return to the schedule management section");
     }
 
@@ -220,29 +216,35 @@ public class Main {
             scheduleName.append(" ").append(name[i]);
         }
         Scanner scan = new Scanner(System.in);
-        System.out.print("Enter Semester: ");
-        String semester = scan.nextLine();
-        if (semester.equals("Fall") || semester.equals("Spring")) {
-            return new Schedule(String.valueOf(scheduleName), semester);
-        }
-        System.out.println(semester + " is not a valid semester.");
-        return null;
+        do {
+            System.out.print("Enter Semester: ");
+            String semester = scan.nextLine();
+            if (semester.equals("Fall") || semester.equals("Spring")) {
+                return new Schedule(String.valueOf(scheduleName), semester);
+            }
+            System.out.println(semester + " is not a valid semester.");
+        } while (true);
     }
 
-    static Schedule switchSchedule(String name) {
-        if (Objects.equals(currentSchedule.getName(), name)) {
-            System.out.println("You are already editing schedule " + name);
+    static Schedule switchSchedule(String[] name) {
+        StringBuilder scheduleName = new StringBuilder();
+        scheduleName.append(name[1]);
+        for (int i = 2; i < name.length; i++) {
+            scheduleName.append(" ").append(name[i]);
+        }
+        if (Objects.equals(currentSchedule.getName(), String.valueOf(scheduleName))) {
+            System.out.println("You are already editing schedule " + scheduleName);
             return currentSchedule;
         }
         List<Schedule> schedules = student.getSchedules();
         for (Schedule schedule : schedules) {
-            if (Objects.equals(name, schedule.getName())) {
-                System.out.println("You are now editing schedule " + name);
+            if (Objects.equals((String.valueOf(scheduleName)), schedule.getName())) {
+                System.out.println("You are now editing schedule " + scheduleName);
                 return schedule;
             }
         }
-        System.out.println("Schedule " + name + " does not exist.");
-        return  null;
+        System.out.println("Schedule " + scheduleName + " does not exist.");
+        return currentSchedule;
     }
 
     static void getSchedules() {
@@ -259,7 +261,7 @@ public class Main {
         System.out.println("Start searching for courses or type 'help' for a list of commands.");
         courseSearch = new Search();
         courseSearch.addFilter(Search.Type.SEMESTER, currentSchedule.getSemester());
-        courseList = Search.readCoursesFromFile("data/2020-2021.csv");
+        courseList = courseSearch.filterCourses();
         searchTerminal: do {
             System.out.println(courseSearch.getFilters());
             System.out.print("Search: ");
@@ -393,6 +395,13 @@ public class Main {
 
     static void addCourse(String[] courseData, List<Course> searchResults) {
         for (Course searchResult : searchResults) {
+            if (courseData[2].equals("0")) {
+                if (Objects.equals(courseData[1], searchResult.getCourseCode())) {
+                    currentSchedule.addCourse(searchResult);
+                    RawLog.logger.info("Successfully Added Course");
+                    return;
+                }
+            }
             if (Objects.equals(courseData[1], searchResult.getCourseCode()) && Objects.equals(courseData[2].charAt(0), searchResult.getSectionLetter())) {
                 currentSchedule.addCourse(searchResult);
                 RawLog.logger.info("Successfully Added Course");
@@ -406,6 +415,13 @@ public class Main {
     static void removeCourse(String[] courseData) {
         List<Course> currentCourses = currentSchedule.getCourses();
         for (Course course : currentCourses) {
+            if (courseData[2].equals("0")) {
+                if (Objects.equals(courseData[1], course.getCourseCode())) {
+                    currentSchedule.removeCourse(course);
+                    RawLog.logger.info("Course Successfully Removed");
+                    return;
+                }
+            }
             if (Objects.equals(courseData[1], course.getCourseCode()) && Objects.equals(courseData[2].charAt(0), course.getSectionLetter())) {
                 currentSchedule.removeCourse(course);
                 RawLog.logger.info("Course Successfully Removed");
