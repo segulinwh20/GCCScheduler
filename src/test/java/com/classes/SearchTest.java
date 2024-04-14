@@ -25,6 +25,10 @@ class SearchTest {
 
 
     @Test
+    void  WebScraper(){
+        WebScraper();
+    }
+    @Test
     void search(){
         Search s = new Search();
         assert s!= null;

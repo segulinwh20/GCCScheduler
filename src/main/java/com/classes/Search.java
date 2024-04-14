@@ -1,8 +1,16 @@
 package com.classes;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.CSVWriter;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
+
+import java.util.List;
 
 //Load all the courses into a giant course list. From there,
 //when it comes time to search based on parameters, iterate through each course's "get____" method,
@@ -165,6 +173,73 @@ public void removeFilter(Type filterType, String filterValue) {
         timeFilters.clear();
         filters.clear();
         addFilter(Type.SEMESTER, semester.getFirst());
+    }
+
+    public static void WebScraper(){
+        try {
+            URL url = new URL("http://10.18.110.187/api/classes.json");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+
+                // Parse JSON response
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode jsonNode = mapper.readTree(response.toString());
+
+                try {
+                    CSVWriter writer = new CSVWriter(new FileWriter("output.csv"));
+                    writer.writeNext(new String[]{"Name, Number", "Credits", "Faculty", "Is Lab", "Is Open", "Location", "Section", "Semester", "Times", "Total Seats", "Open Seats"});
+
+                    for (JsonNode node : jsonNode) {
+                            System.out.println("Processing JSON Object...");
+                            System.out.println("JSON Node: " + node);
+                            String[] times = new String[]{
+                                    node.get("times").get(0).get("day").asText() + " " + node.get("times").get(0).get("start_time").asText() + "-" + node.get("times").get(0).get("end_time").asText(),
+                                    node.get("times").get(1).get("day").asText() + " " + node.get("times").get(1).get("start_time").asText() + "-" + node.get("times").get(1).get("end_time").asText(),
+                                    node.get("times").get(2).get("day").asText() + " " + node.get("times").get(2).get("start_time").asText() + "-" + node.get("times").get(2).get("end_time").asText()
+                            };
+
+
+                            String[] data = new String[]{
+                                    node.get("name").asText(),
+                                    String.valueOf(node.get("number").asInt()),
+                                    String.valueOf(node.get("credits").asDouble()),
+                                    node.get("faculty").get(0).asText(),
+                                    String.valueOf(node.get("is_lab").asBoolean()),
+                                    String.valueOf(node.get("is_open").asBoolean()),
+                                    node.get("location").asText(),
+                                    node.get("section").asText(),
+                                    node.get("semester").asText(),
+                                    String.join(", ", times),
+                                    String.valueOf(node.get("total_seats").asInt()),
+                                    String.valueOf(node.get("open_seats").asInt())
+                            };
+                            System.out.println("Data: " + Arrays.toString(data));
+                            writer.writeNext(data);
+
+                    }
+                    System.out.println("CSV file created successfully");
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+                // Process JSON data
+                // Example: Print the JSON response
+               // System.out.println(jsonNode.toString());
+            } else {
+                System.out.println("HTTP request failed with response code: " + responseCode);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //File-parsing.

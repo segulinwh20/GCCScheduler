@@ -14,6 +14,7 @@ public class Main {
     static RawLog rawlog = new RawLog();
 
     public static void main(String[] args) {
+        //Search.WebScraper();
         System.out.println("Welcome to GCC Scheduler");
         do{
             System.out.println("Please enter your first and last name and your major separated by a space.");
@@ -209,6 +210,11 @@ public class Main {
         System.out.println("'back': This will return to the schedule management section");
     }
 
+    static void eventHelp(){
+        System.out.println("'newEvent': This will start the process to create a new event, prompting you to type a title as well as event times. \n Format: 'newEvent: [title]'");
+        System.out.println("'removeEvent': This will remove the event matching the title given. Format: 'removeEvent: [title]'");
+    }
+
     static Schedule createSchedule(String[] name) {
         StringBuilder scheduleName = new StringBuilder();
         scheduleName.append(name[1]);
@@ -254,6 +260,70 @@ public class Main {
         }
         for (int i = 0; i < schedules.size(); i++) {
             System.out.println("Schedule " + (i + 1) + ": " + schedules.get(i).getName());
+        }
+    }
+
+    static void createEvent(){
+        System.out.println("Start by adding the title of the event, or type 'help' for a list of commands.");
+        eventTerminal: do {
+            System.out.println("createEvent: ");
+            Scanner scan = new Scanner(System.in);
+            String cmdLine = scan.nextLine();
+            String[] cmdItems = cmdLine.split(" ");
+            switch(cmdItems[0]){
+                case "help":
+                    RawLog.logger.info("Opened Event Help Menu");
+                    eventHelp();
+                    break;
+                case "newEvent":
+                    RawLog.logger.info("Creating New Event");
+                    if (cmdItems.length < 2) {
+                        RawLog.logger.warning("Tried to Create an Event With No Name");
+                        System.out.println("Cannot create an event with no name.");
+                        break;
+                    }
+                    RawLog.logger.info("Successfully created event title");
+                    newEvent(cmdItems);
+                    break;
+                case "removeEvent":
+                    RawLog.logger.info("Remove Event");
+                    if(cmdItems.length<= 1){
+                        RawLog.logger.warning("No title specified for removal");
+                        System.out.println("No title specified for removal");
+                        break;
+                    }
+                    removeEvent(cmdItems);
+                    RawLog.logger.info("Successfully removed event");
+                case "back":
+                    RawLog.logger.info("Going Back to Schedule Menu");
+                    log.setErrorIndex();
+                    log.redoLast();
+                    break eventTerminal;
+                default:
+                    RawLog.logger.warning("Invalid Command Entered in Event Menu");
+                    System.out.println("Invalid Command, Please Re-Enter Command");
+            }
+        } while(true);
+    }
+
+    static void newEvent(String[] titleParam){
+        StringBuilder eventName = new StringBuilder();
+        eventName.append(titleParam[1]);
+        for (int i = 2; i < titleParam.length; i++) {
+            eventName.append(" ").append(titleParam[i]);
+        }
+        System.out.println("Please input the days in which this event occurs, separated by commas, in the following format: \n" +
+                "M,T,W,R,F,S,U: ");
+        Scanner scan = new Scanner(System.in);
+
+
+    }
+
+    static void removeEvent(String[] titleParam){
+        StringBuilder eventName = new StringBuilder();
+        eventName.append(titleParam[1]);
+        for (int i = 2; i < titleParam.length; i++) {
+            eventName.append(" ").append(titleParam[i]);
         }
     }
 
