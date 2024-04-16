@@ -4,14 +4,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Event {
-    private String title;
+    private StringBuilder title;
     private List<TimeSlot> times;
 
-    public String getTitle() {
+    public StringBuilder getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(StringBuilder title) {
         this.title = title;
     }
 
@@ -23,7 +23,7 @@ public class Event {
         this.times = times;
     }
 
-    public Event (String title, List<TimeSlot> times){
+    public Event (StringBuilder title, List<TimeSlot> times){
         this.title = title;
         this.times = times;
     }

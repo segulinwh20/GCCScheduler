@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public class Schedule {
+    private List<Event> events;
     private List<Course> courses;
     private String semester;
     private Log log = new Log();

@@ -1,8 +1,7 @@
 package com.classes;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
+import java.sql.Array;
+import java.util.*;
 
 public class Main {
     static Student student;
@@ -46,6 +45,10 @@ public class Main {
                 case "help":
                     RawLog.logger.info("Opened Schedule Help Menu");
                     consoleHelp();
+                    break;
+                case "createEvent":
+                    RawLog.logger.info("Creating New Event");
+                    createEvent();
                     break;
                 case "createSchedule":
                     RawLog.logger.info("Creating New Schedule");
@@ -197,6 +200,7 @@ public class Main {
         System.out.println("'undo': This will undo the last change to schedule.");
         System.out.println("'redo': This will redo the last change to schedule.");
         System.out.println("'quit': This will exit GCC Scheduler");
+        System.out.println("'createEvent': this creates a custom event, prompting you with day(s) and time(s)'");
     }
 
     static void searchHelp() {
@@ -264,7 +268,6 @@ public class Main {
     }
 
     static void createEvent(){
-        System.out.println("Start by adding the title of the event, or type 'help' for a list of commands.");
         eventTerminal: do {
             System.out.println("createEvent: ");
             Scanner scan = new Scanner(System.in);
@@ -307,6 +310,7 @@ public class Main {
     }
 
     static void newEvent(String[] titleParam){
+        String[] newDays = new String[0];
         StringBuilder eventName = new StringBuilder();
         eventName.append(titleParam[1]);
         for (int i = 2; i < titleParam.length; i++) {
@@ -315,8 +319,111 @@ public class Main {
         System.out.println("Please input the days in which this event occurs, separated by commas, in the following format: \n" +
                 "M,T,W,R,F,S,U: ");
         Scanner scan = new Scanner(System.in);
+        String line = scan.nextLine().trim();
+        //TODO: Error handling
+        String[] days = line.split(",");
+        if (!line.matches("^[MTWRFSU](,[MTWRFSU])*$")) {
+            System.out.println("Invalid entry: Please type days as 'M,T,W,R,F,S,U' separated by commas");
+            RawLog.logger.warning("Invalid Day Entered in newEvent menu");
+            newEvent(titleParam);
+        } else {
+            // Split the input by comma
+            String[] daysArray = line.split(",");
 
+            // Use a HashSet to store unique days
+            Set<String> uniqueDays = new HashSet<>();
+            Collections.addAll(uniqueDays, daysArray);
 
+            // Convert the HashSet back to an array
+            newDays = uniqueDays.toArray(new String[0]);
+
+            System.out.println("Days: ");
+            for (String day : days) {
+                System.out.println(day);
+            }
+            System.out.println("Updated Days: ");
+            for (String newDay : newDays) {
+                System.out.println(newDay);
+            }
+
+            // Continue processing the days
+     //       for (String day : newDays) {
+                // Process each unique day
+     //       }
+        }
+
+        boolean correctInput = false;
+        int startHour = -1;
+        int startMinute = -1;
+        int endHour = -1;
+        int endMinute = -1;
+        while(!correctInput){
+            System.out.println("Please input the hour the event starts in military-time format: ");
+            if(scan.hasNextInt()){
+                startHour = scan.nextInt();
+                correctInput = true;
+            }
+            else{
+                System.out.println("Please enter an integer");
+                RawLog.logger.warning("Non-integer entered for startHour");
+                scan.nextLine();
+            }
+        }
+        correctInput = false;
+        while(!correctInput){
+            System.out.println("Please input the minute the event starts: ");
+            if(scan.hasNextInt()){
+                startMinute = scan.nextInt();
+                correctInput = true;
+            }
+            else{
+                System.out.println("Please enter an integer");
+                RawLog.logger.warning("Non-integer entered for startMinute");
+                scan.nextLine();
+            }
+        }
+        correctInput = false;
+        while(!correctInput){
+            System.out.println("Please input the hour the event ends in military-time format: ");
+            if(scan.hasNextInt()){
+                endHour = scan.nextInt();
+                correctInput = true;
+            }
+            else{
+                System.out.println("Please enter an integer");
+                RawLog.logger.warning("Non-integer entered for endHour");
+                scan.nextLine();
+            }
+        }
+        correctInput = false;
+        while(!correctInput){
+            System.out.println("Please input the minute the event ends: ");
+            if(scan.hasNextInt()){
+                endMinute = scan.nextInt();
+                correctInput = true;
+            }
+            else{
+                System.out.println("Please enter an integer");
+                RawLog.logger.warning("Non-integer entered for endMinute");
+                scan.nextLine();
+            }
+        }
+
+        //Creates timeslot(s) for the event
+        String s = "";
+        for (String n:newDays)
+            s+= n;
+        char[] charDays = s.toCharArray();
+        List<TimeSlot> times = new ArrayList<TimeSlot>();
+        for (int i = 0; i < charDays.length; i++) {
+            TimeSlot timeslot = new TimeSlot(charDays[i], startHour, startMinute, endHour, endMinute);
+            times.add(timeslot);
+        }
+        for (int i = 0; i < times.size(); i++) {
+            System.out.println(times.get(i).toString());
+        }
+        Event e = new Event(eventName, times);
+        //schedule.add(e);
     }
 
     static void removeEvent(String[] titleParam){
