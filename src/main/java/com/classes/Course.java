@@ -182,4 +182,22 @@ public class Course {
     public void setTimes(List<TimeSlot> times) {
         this.times = times;
     }
+
+    public boolean meetsOnDay(char c) {
+        for (TimeSlot t : times) {
+            if (t.getDayOfWeek() == Character.toUpperCase(c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean meetsAt(int hour, int minute) {
+        for (TimeSlot t : times) {
+            if (t.timeFallsInRange(hour, minute)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

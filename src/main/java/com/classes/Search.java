@@ -141,22 +141,22 @@ public class Search {
     }
 
     //Removes filter from the filter list
-public void removeFilter(Type filterType, String filterValue) {
-   if (filterType.equals(Type.DAY)) {
-        if (dayFilters.contains(filterValue)) {
-            dayFilters.remove(filterValue);
-        } else {
-            System.out.println("No such filter present");
-        }
-    }
-        List<String> values = filters.get(filterType);
-        if (values != null) {
-            values.remove(filterValue);
-            if (values.isEmpty()) {
-                filters.remove(filterType);
+    public void removeFilter(Type filterType, String filterValue) {
+       if (filterType.equals(Type.DAY)) {
+            if (dayFilters.contains(filterValue)) {
+                dayFilters.remove(filterValue);
+            } else {
+                System.out.println("No such filter present");
             }
         }
-}
+            List<String> values = filters.get(filterType);
+            if (values != null) {
+                values.remove(filterValue);
+                if (values.isEmpty()) {
+                    filters.remove(filterType);
+                }
+            }
+    }
 
 //Clears all filters from the list
     public void clearFilters() {
@@ -296,5 +296,127 @@ public void removeFilter(Type filterType, String filterValue) {
         catch (FileNotFoundException e){
             throw new RuntimeException("NO FILE");
         }
+    }
+
+    public List<Course> smartSearch(String input) {
+        List<Course> courses = filterCourses();
+
+        String[] tokens = input.toUpperCase().split(" ");
+
+        List<Character> daysOfWeek = new ArrayList<>();
+        List<int[]> times = new ArrayList<>();
+        List<String> depts = new ArrayList<>();
+        List<Integer> courseCodes = new ArrayList<>();
+        List<Character> sectionLetters = new ArrayList<>();
+        List<String> genStrings = new ArrayList<>();
+
+        // determine what type of information the token is
+        for (String token : tokens) {
+            if (token.matches("\\d+")) {
+                int num = parseInteger(token);
+                if (num < 24 && num > 0) {
+                    int[] time1 = {num, 0};
+                    times.add(time1);
+                    if (num + 12 < 24) {
+                        int[] time2 = {num+12, 0};
+                        times.add(time2);
+                    }
+
+                }
+                else if (num < 2400) {
+                    if (num / 100 < 24 && num / 100 > 0 && num % 100 < 60) {
+                        int[] time1 = {num/100, num%100};
+                        times.add(time1);
+                        if ((num / 100) + 12 < 24) {
+                            int[] time2 = {(num/100)+12, num%100};
+                            times.add(time2);
+                        }
+                    }
+                    if (num < 600) {
+                        courseCodes.add(num);
+                    }
+                }
+            }
+            else if (token.matches("[MTWRF]+")) {
+                for (int i = 0; i < token.length(); i++) {
+                    if (!daysOfWeek.contains(token.charAt(i))) {
+                        daysOfWeek.add(token.charAt(i));
+                    }
+                }
+            }
+            else if (token.matches("[A-Z]")) {
+                sectionLetters.add(token.charAt(0));
+            }
+            else if (token.matches("[A-Z]{1,4}\\d{1,3}")) {
+                String[] strings = token.split("(?<=\\D)(?=\\d)");
+                depts.add(strings[0]);
+                courseCodes.add(parseInteger(strings[1]));
+            }
+            else if (token.matches("\\d{1,2}:\\d{1,2}")) {
+                String[] time = token.split(":");
+                int hour = parseInteger(time[0]);
+                int minute = parseInteger(time[1]);
+                if (hour < 24 && hour > 0 && minute < 60) {
+                    int[] time1 = {hour, minute};
+                    times.add(time1);
+                    if (hour+12 < 24) {
+                        int[] time2 = {hour+12, minute};
+                        times.add(time2);
+                    }
+                }
+            }
+            if (token.matches("[A-Z]+")) {
+                genStrings.add(token);
+            }
+        }
+
+        // calculate the heuristic
+        Map<Course, Integer> courseHeuristic = new HashMap<>();
+        for (Course course : courses) {
+            int h = 0;
+            for (char day : daysOfWeek) {
+                if (course.meetsOnDay(day)) {
+                    h += 50;
+                }
+                else {
+                    h -= 25;
+                }
+            }
+            for (int[] time : times) {
+                if (course.meetsAt(time[0], time[1])) {
+                    h += 500;
+                }
+                else {
+                    h -= 250;
+                }
+            }
+            for (String dept : depts) {
+                if (jaroWinkler(dept, course.getDepartment()) > .7) {
+                    h += 1000;
+                }
+            }
+            for (int courseCode : courseCodes) {
+                // TODO
+                // if (courseCode)
+            }
+        }
+        return null;
+    }
+
+    private double jaroWinkler(String a, String b) {
+        return 0.0;
+    }
+
+    private double jaro(String a, String b) {
+        return 0.0;
+    }
+
+    private int parseInteger(String s) {
+        int n = 0;
+        for (int i = 0; i < s.length(); i++) {
+            n *= 10;
+            n += (s.charAt(i) - '0');
+        }
+        return n;
     }
 }
