@@ -317,7 +317,7 @@ public class Search {
                 if (num < 24 && num > 0) {
                     int[] time1 = {num, 0};
                     times.add(time1);
-                    if (num + 12 < 24) {
+                    if (num < 12) {
                         int[] time2 = {num+12, 0};
                         times.add(time2);
                     }
@@ -359,7 +359,7 @@ public class Search {
                 if (hour < 24 && hour > 0 && minute < 60) {
                     int[] time1 = {hour, minute};
                     times.add(time1);
-                    if (hour+12 < 24) {
+                    if (hour < 12) {
                         int[] time2 = {hour+12, minute};
                         times.add(time2);
                     }
@@ -396,15 +396,48 @@ public class Search {
                 }
             }
             for (int courseCode : courseCodes) {
-                // TODO
-                // if (courseCode)
+                if (String.valueOf(courseCode).equals(course.getCourseCode())) {
+                    h += 1000;
+                }
+                if (String.valueOf(courseCode).substring(0,1).equals(course.getCourseCode().substring(0,1))) {
+                    h += 100;
+                }
             }
+            for (char sectionLetter : sectionLetters) {
+                if (sectionLetter == course.getSectionLetter()) {
+                    h += 100;
+                }
+            }
+            for (String s : genStrings) {
+                h += 100 * s.length() * jaroWinkler(s, course.getTitle());
+                if (jaroWinkler(s, course.getProfessor().getLast()) > .7) {
+                    h += 500;
+                }
+            }
+            courseHeuristic.put(course, h);
         }
-        return null;
+
+        return sortCourseHeuristic(courseHeuristic);
     }
 
-    private double jaroWinkler(String a, String b) {
-        return 0.0;
+    private double jaroWinkler(String s1, String s2) {
+        s1 = s1.toUpperCase();
+        s2 = s2.toUpperCase();
+        double jaro = jaro(s1, s2);
+        int MAX_PREFIX_LENGTH = 4;
+        int commonPrefixLength = 0;
+        double prefixScalar = 0.1;  // Can't exceed 1 div MAX_PREFIX_LENGTH
+
+        for (int i = 0; i < Integer.min(MAX_PREFIX_LENGTH, Integer.min(s1.length(), s2.length())); i++) {
+            if (s1.charAt(i) == s2.charAt(i)) {
+                commonPrefixLength++;
+            }
+            else {
+                break;
+            }
+        }
+
+        return jaro + commonPrefixLength * prefixScalar * (1 - jaro);
     }
 
     private double jaro(String a, String b) {
@@ -418,5 +451,10 @@ public class Search {
             n += (s.charAt(i) - '0');
         }
         return n;
+    }
+
+    private List<Course> sortCourseHeuristic(Map<Course, Integer> map) {
+        // TODO
+        return null;
     }
 }
