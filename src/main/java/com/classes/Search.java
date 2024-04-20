@@ -440,8 +440,49 @@ public class Search {
         return jaro + commonPrefixLength * prefixScalar * (1 - jaro);
     }
 
-    private double jaro(String a, String b) {
-        return 0.0;
+    private double jaro(String s1, String s2) {
+        char[] a = s1.toUpperCase().toCharArray();
+        char[] b = s2.toUpperCase().toCharArray();
+        int matchDistance = Integer.max(a.length, b.length) / 2 - 1;
+        double matches = 0;
+        int transpositions = 0;
+        if (a.length < b.length) {
+            for (int i = 1; i < a.length; i++) {
+                if (a[i-1] == b[i] && a[i] == b[i-1] && a[i] != a[i-1]) {
+                    transpositions++;
+                }
+            }
+            for (int i = 0; i < a.length; i++) {
+                for (int j = Integer.max(0, i - matchDistance); j <= Integer.min(b.length-1, i + matchDistance); j++) {
+                    if (a[i] == b[j]) {
+                        matches++;
+                        b[j] = Character.toLowerCase(b[j]);
+                        break;
+                    }
+                }
+            }
+        }
+        else {
+            for (int i = 1; i < b.length; i++) {
+                if (b[i-1] == a[i] && b[i] == a[i-1] && b[i] != b[i-1]) {
+                    transpositions++;
+                }
+            }
+            for (int i = 0; i < b.length; i++) {
+                for (int j = Integer.max(0, i - matchDistance); j <= Integer.min(a.length-1, i + matchDistance); j++) {
+                    if (b[i] == a[j]) {
+                        matches++;
+                        a[j] = Character.toLowerCase(a[j]);
+                        break;
+                    }
+                }
+            }
+        }
+        if (matches == 0) {
+            return 0;
+        }
+
+        return ((matches / a.length) + (matches / b.length) + ((matches - transpositions) / matches)) / 3;
     }
 
     private int parseInteger(String s) {
