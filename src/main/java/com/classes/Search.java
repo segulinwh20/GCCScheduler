@@ -494,8 +494,46 @@ public class Search {
         return n;
     }
 
-    private List<Course> sortCourseHeuristic(Map<Course, Integer> map) {
-        // TODO
-        return null;
+    private List<Course> sortCourseHeuristic(Map<Course, Integer> heuristics) {
+        List<Course> list = new LinkedList<>(heuristics.keySet());
+        if (list.size() == 1) {
+            return list;
+        }
+        List<Course> a = list.subList(0, list.size()/2);
+        List<Course> b = list.subList(list.size()/2, list.size());
+        return mergeSort(
     }
+
+    private List<Course> mergeSort(List<Course> list, Map<Course, Integer> heuristics) {
+        if (list.size() == 1) {
+            return list;
+        }
+        List<Course> a = list.subList(0, list.size()/2);
+        List<Course> b = list.subList(list.size()/2, list.size());
+        a = mergeSort(a, heuristics);
+        b = mergeSort(b, heuristics);
+        return merge(a, b, heuristics);
+    }
+
+    private List<Course> merge(List<Course> a, List<Course> b, Map<Course, Integer> heuristics) {
+        if (a.size() == 0) {
+            return b;
+        }
+        if (b.size() == 0) {
+            return a;
+        }
+        List<Course> sorted = new LinkedList<>();
+        while (a.size() > 0 && b.size() > 0) {
+            if (heuristics.get(a.get(0)) < heuristics.get(b.get(0))) {
+                sorted.add(b.remove(0));
+            }
+            else {
+                sorted.add(a.remove(0));
+            }
+        }
+        sorted.addAll(a);
+        sorted.addAll(b);
+        return sorted;
+    }
+
 }
