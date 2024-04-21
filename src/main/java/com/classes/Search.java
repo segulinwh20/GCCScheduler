@@ -298,7 +298,7 @@ public class Search {
         }
     }
 
-    public List<Course> smartSearch(String input) {
+    public Map<Course, Integer>/*List<Course>*/ smartSearch(String input) {
         List<Course> courses = filterCourses();
 
         String[] tokens = input.toUpperCase().split(" ");
@@ -365,6 +365,9 @@ public class Search {
                     }
                 }
             }
+            if (token.matches("[A-Z]{1,5}")) {
+                depts.add(token);
+            }
             if (token.matches("[A-Z]+")) {
                 genStrings.add(token);
             }
@@ -417,7 +420,8 @@ public class Search {
             courseHeuristic.put(course, h);
         }
 
-        return sortCourseHeuristic(courseHeuristic);
+        return courseHeuristic;
+        // return sortCourseHeuristic(courseHeuristic);
     }
 
     private double jaroWinkler(String s1, String s2) {
