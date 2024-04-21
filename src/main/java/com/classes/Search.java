@@ -495,7 +495,11 @@ public class Search {
     }
 
     private List<Course> sortCourseHeuristic(Map<Course, Integer> heuristics) {
-        List<Course> courses = heuristics.keySet().stream().toList();
+        List<Course> courses = new LinkedList<>();
+        Set<Course> keys = heuristics.keySet();
+        for (Course c : keys) {
+            courses.add(c);
+        }
         Course[] arr = new Course[courses.size()];
         for (int i = 0; i < arr.length; i++) {
             arr[i] = courses.remove(0);
