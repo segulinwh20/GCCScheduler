@@ -180,10 +180,10 @@ class SearchTest {
     @Test
     public void smartSearch1() {
         Search search = new Search();
-        Map<Course, Integer> map = search.smartSearch("intro comp");
+        Map<Course, Integer> map = search.smartSearch("comp 1");
 
         for (Course c : map.keySet()) {
-            System.out.println(map.get(c) + "\t" + c.getCourseCode() + "\t" + c.getTitle());
+            System.out.println(map.get(c) + "\t" + c);
         }
 //        List<Course> list = search.smartSearch("comp350");
 //        for (Course c : list) {
