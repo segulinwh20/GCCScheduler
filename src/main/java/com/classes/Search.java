@@ -496,12 +496,7 @@ public class Search {
 
     private List<Course> sortCourseHeuristic(Map<Course, Integer> heuristics) {
         List<Course> list = new LinkedList<>(heuristics.keySet());
-        if (list.size() == 1) {
-            return list;
-        }
-        List<Course> a = list.subList(0, list.size()/2);
-        List<Course> b = list.subList(list.size()/2, list.size());
-        return mergeSort(
+        return mergeSort(list, heuristics);
     }
 
     private List<Course> mergeSort(List<Course> list, Map<Course, Integer> heuristics) {
