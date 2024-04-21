@@ -176,4 +176,13 @@ class SearchTest {
         testFilters.clear();
         assertEquals(testFilters.get(Search.Type.TIME), y.getFilters().get(Search.Type.TIME));
     }
+
+    @Test
+    public void smartSearch1() {
+        Search search = new Search();
+        List<Course> list = search.smartSearch("intro mwf");
+        for (Course c : list) {
+            System.out.println(c);
+        }
+    }
 }

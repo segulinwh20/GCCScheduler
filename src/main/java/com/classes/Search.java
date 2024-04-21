@@ -495,39 +495,58 @@ public class Search {
     }
 
     private List<Course> sortCourseHeuristic(Map<Course, Integer> heuristics) {
-        List<Course> list = new LinkedList<>(heuristics.keySet());
-        return mergeSort(list, heuristics);
+        List<Course> courses = heuristics.keySet().stream().toList();
+        Course[] arr = new Course[courses.size()];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = courses.remove(0);
+        }
+        arr = mergeSort(arr, heuristics);
+        List<Course> sorted = new LinkedList<>();
+        for (int i = 0; i < arr.length; i++) {
+            sorted.add(arr[i]);
+        }
+        return sorted;
     }
 
-    private List<Course> mergeSort(List<Course> list, Map<Course, Integer> heuristics) {
-        if (list.size() == 1) {
-            return list;
+    private Course[] mergeSort(Course[] courses, Map<Course, Integer> heuristics) {
+        if (courses.length == 1) {
+            return courses;
         }
-        List<Course> a = list.subList(0, list.size()/2);
-        List<Course> b = list.subList(list.size()/2, list.size());
+        int middle = courses.length / 2;
+        Course[] a = new Course[middle];
+        for (int i = 0; i < a.length; i++) {
+            a[i] = courses[i];
+        }
+        Course[] b = new Course[courses.length - middle];
+        for (int i = 0; i < b.length; i++) {
+            b[i] = courses[middle+i];
+        }
         a = mergeSort(a, heuristics);
         b = mergeSort(b, heuristics);
         return merge(a, b, heuristics);
     }
 
-    private List<Course> merge(List<Course> a, List<Course> b, Map<Course, Integer> heuristics) {
-        if (a.size() == 0) {
-            return b;
-        }
-        if (b.size() == 0) {
-            return a;
-        }
-        List<Course> sorted = new LinkedList<>();
-        while (a.size() > 0 && b.size() > 0) {
-            if (heuristics.get(a.get(0)) < heuristics.get(b.get(0))) {
-                sorted.add(b.remove(0));
+    private Course[] merge(Course[] a, Course[] b, Map<Course, Integer> heuristics) {
+        Course[] sorted = new Course[a.length + b.length];
+        int i = 0, ai = 0, bi = 0;
+        for (; i < sorted.length && ai < a.length && bi < b.length; i++) {
+            if (heuristics.get(a[ai]) < heuristics.get(b[bi])) {
+                sorted[i] = b[bi++];
             }
             else {
-                sorted.add(a.remove(0));
+                sorted[i] = a[ai++];
             }
         }
-        sorted.addAll(a);
-        sorted.addAll(b);
+        if (ai == a.length) {
+            for (; i < sorted.length; i++) {
+                sorted[i] = b[bi++];
+            }
+        }
+        if (bi == b.length) {
+            for (; i < sorted.length; i++) {
+                sorted[i] = a[ai++];
+            }
+        }
         return sorted;
     }
 
