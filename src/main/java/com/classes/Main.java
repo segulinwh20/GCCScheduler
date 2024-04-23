@@ -366,7 +366,7 @@ public class Main {
             else{
                 System.out.println("Please enter an integer");
                 RawLog.logger.warning("Non-integer entered for startHour");
-                scan.nextLine();
+                scan.next();
             }
         }
         correctInput = false;
@@ -379,7 +379,7 @@ public class Main {
             else{
                 System.out.println("Please enter an integer");
                 RawLog.logger.warning("Non-integer entered for startMinute");
-                scan.nextLine();
+                scan.next();
             }
         }
         correctInput = false;
@@ -392,8 +392,14 @@ public class Main {
             else{
                 System.out.println("Please enter an integer");
                 RawLog.logger.warning("Non-integer entered for endHour");
-                scan.nextLine();
+                scan.next();
             }
+            if(correctInput && endHour < startHour){
+                System.out.println("Event can't end before it starts!");
+                RawLog.logger.warning("endHour before startHour");
+                correctInput = false;
+            }
+
         }
         correctInput = false;
         while(!correctInput){
@@ -405,7 +411,13 @@ public class Main {
             else{
                 System.out.println("Please enter an integer");
                 RawLog.logger.warning("Non-integer entered for endMinute");
-                scan.nextLine();
+                scan.next();
+            }
+            if(correctInput && startHour == endHour && endMinute < startMinute){
+                System.out.println("Event can't end before it started!");
+                RawLog.logger.warning("endMinute before startMinute & startHour");
+                correctInput = false;
+                scan.next();
             }
         }
 
@@ -423,7 +435,12 @@ public class Main {
             System.out.println(times.get(i).toString());
         }
         Event e = new Event(eventName, times);
-        //schedule.add(e);
+        if(currentSchedule.addEvent(e)){
+            System.out.println("Successfully added event");
+        }
+        else{
+            System.out.println("Failed to add event");
+        }
     }
 
     static void removeEvent(String[] titleParam){

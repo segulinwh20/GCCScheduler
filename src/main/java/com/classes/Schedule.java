@@ -11,17 +11,18 @@ public class Schedule {
     private String semester;
     private Log log = new Log();
     private String name;
-    private final String[] DAYS = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+    private final String[] DAYS = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
     private final String[] TIMES = {"8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM",
             "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM",
             "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM",
             "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM",
-            "8:00 PM", "8:30 PM", "9:00 PM"};
+            "8:00 PM", "8:30 PM", "9:00 PM", "10:00 PM", "11:00 PM"};
 
     public Schedule(String name, String semester){
         this.name = name;
         this.semester = semester;
         this.courses = new ArrayList<Course>();
+        this.events = new ArrayList<Event>();
     }
 
     public Schedule(String filepath) {
@@ -37,6 +38,8 @@ public class Schedule {
         this.courses = new ArrayList<Course>();
         this.courses.addAll(s.courses);
         this.semester = s.semester;
+        this.events = new ArrayList<Event>();
+        this.events.addAll(s.events);
     }
 
     public String getName(){
@@ -57,6 +60,20 @@ public class Schedule {
         courses.add(c);
         log.addAction(new Schedule(this));
         return true;
+    }
+
+    public boolean addEvent(Event e){
+        if(conflicts(e)){
+            System.out.println("Event cannot be added because it conflicts with another course or event in the schedule");
+            return false;
+        }
+        events.add(e);
+        log.addAction(new Schedule(this));
+        return true;
+    }
+
+    public boolean removeEvent(Event e){
+        return false;
     }
 
     public boolean removeCourse(Course c) {
@@ -80,6 +97,26 @@ public class Schedule {
                 return true;
             }
         }
+        for (Event current: events){
+            if(TimeSlot.conflicts(current.getTimes(), c.getTimes())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //TODO: fix this logic
+    private boolean conflicts(Event e){
+        for (Event current: events){
+            if(TimeSlot.conflicts(current.getTimes(), e.getTimes())){
+                return true;
+            }
+        }
+        for(Course current: courses){
+            if(TimeSlot.conflicts(current.getTimes(), e.getTimes())){
+                return true;
+            }
+        }
         return false;
     }
 
@@ -98,6 +135,8 @@ public class Schedule {
             for (String day : DAYS) {
                 String courseName = getCourseSlot(courses, day, time);
                 System.out.printf("%-13s", courseName == null ? "" : courseName);
+                StringBuilder eventName = getEventSlot(events, day, time);
+                System.out.printf("%-13s", eventName == null ? "" : eventName);
             }
             System.out.println();
         }
@@ -108,6 +147,17 @@ public class Schedule {
             for (TimeSlot timeSlot : course.getTimes()) {
                 if (timeSlot.getDayOfWeek() == day.charAt(0) && isTimeInSlot(timeSlot, time)) {
                     return course.getCourseCode() + " " + course.getSectionLetter();
+                }
+            }
+        }
+        return null;
+    }
+
+    private StringBuilder getEventSlot(List<Event>  events, String day, String time){
+        for (Event event: events){
+            for(TimeSlot timeSlot: event.getTimes()){
+                if(timeSlot.getDayOfWeek() == day.charAt(0) && isTimeInSlot(timeSlot, time)){
+                    return event.getTitle();
                 }
             }
         }
