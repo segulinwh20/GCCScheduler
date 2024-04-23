@@ -147,4 +147,48 @@ public class Schedule {
     public void setName(String name) {
         this.name = name;
     }
+
+    public void loadFromLog(){
+        String line;
+        File file = new File("data/log.log");
+        try(Scanner inFile = new Scanner(file)){
+            while(inFile.hasNextLine()) {
+                inFile.nextLine();
+                line = inFile.nextLine();
+                String[] fields = line.split(" ");
+                if(fields.length >= 4) {
+                    if (fields[1].equalsIgnoreCase("Successfully")) {
+                        switch (fields[2]){
+                            case "Added":
+                                System.out.println(line);
+                                this.addCourse(stringToCourse(fields[3]));
+                                break;
+                            case "Removed":
+                                this.removeCourse(stringToCourse(fields[3]));
+                                break;
+                            case "Created":
+                                this.name = fields[3];
+                                this.semester = fields[4];
+                        }
+                    }
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("Unable to find log");
+        }
+
+    }
+
+    public Course stringToCourse(String str){
+        List<Course> list = Search.readCoursesFromFile("data/2020-2021.csv");
+        String s = str.substring(0,str.length()-1);
+        for (Course item : list) {
+            if (Objects.equals(s, item.getCourseCode()) && Objects.equals(str.charAt(str.length()-1), item.getSectionLetter())) {
+                return item;
+            }
+        }
+        return null;
+    }
+
 }
