@@ -134,9 +134,15 @@ public class Schedule {
             System.out.printf("%-15s", time);
             for (String day : DAYS) {
                 String courseName = getCourseSlot(courses, day, time);
-                System.out.printf("%-13s", courseName == null ? "" : courseName);
+                if (courseName != null) {
+                    System.out.printf("%-13s", courseName);
+                }
                 StringBuilder eventName = getEventSlot(events, day, time);
-                System.out.printf("%-13s", eventName == null ? "" : eventName);
+                if (eventName != null) {
+                    System.out.printf("%-13s", eventName);
+                } else {
+                    System.out.printf("%-13s", "");
+                }
             }
             System.out.println();
         }
@@ -166,7 +172,12 @@ public class Schedule {
 
     private boolean isTimeInSlot(TimeSlot timeSlot, String time) {
         String[] parts = time.split(":");
-        int hour = Integer.parseInt(parts[0]) + 12;
+        int hour;
+        if (parts[1].contains("PM")) {
+            hour = Integer.parseInt(parts[0]) + 12;
+        } else {
+            hour = Integer.parseInt(parts[0]);
+        }
         String stringMinute = parts[1];
         if (!timeCheck(stringMinute, timeSlot.toString())) {
             return false;
