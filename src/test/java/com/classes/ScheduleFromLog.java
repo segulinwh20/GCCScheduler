@@ -8,8 +8,9 @@ class ScheduleFromLog {
     @Test
     void loadFromLog(){
         Schedule s = new Schedule("", "");
-        s.loadFromLog();
-        System.out.println(s.getCourses());
+        s.loadFromLog("log");
+        System.out.println("Name: " + s.getName());
+        System.out.println("Semester: "+ s.getSemester());
     }
 
     @Test

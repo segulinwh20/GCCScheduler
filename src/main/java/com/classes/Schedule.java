@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class Schedule {
     private List<Course> courses;
@@ -148,9 +149,10 @@ public class Schedule {
         this.name = name;
     }
 
-    public void loadFromLog(){
+    public boolean loadFromLog(String name){
         String line;
-        File file = new File("data/log.log");
+        File file = new File("data/"+ name +".log");
+        ArrayList<String> queue = new ArrayList<>();
         try(Scanner inFile = new Scanner(file)){
             while(inFile.hasNextLine()) {
                 inFile.nextLine();
@@ -162,22 +164,46 @@ public class Schedule {
                             case "Added":
                                 System.out.println(line);
                                 this.addCourse(stringToCourse(fields[3]));
+                                queue.add("Added " + fields[3]);
                                 break;
                             case "Removed":
                                 this.removeCourse(stringToCourse(fields[3]));
+                                queue.add("Removed " + fields[3]);
                                 break;
                             case "Created":
                                 this.name = fields[3];
                                 this.semester = fields[4];
+                                queue.add("Created " + fields[3] + " " + fields[4]);
+                                break;
                         }
+                    }
+                    if (fields[1].equals("Creating")){
+                        break;
                     }
                 }
             }
+
+            new Log("data/"+ name +".log");
+            for (int i = 0; i< queue.size(); i++){
+                String[] list = queue.get(i).split(" ");
+                switch (list[0]){
+                    case "Added":
+                        Log.logger.info("Successfully Added " + list[1]);
+                        break;
+                    case "Removed":
+                        Log.logger.info("Successfully Removed " + list[1]);
+                        break;
+                    case "Created":
+                        Log.logger.info("Successfully Created " + list[1] + " " + list[2]);
+                }
+            }
+
         }
         catch (FileNotFoundException e) {
             System.out.println("Unable to find log");
+            return false;
         }
-
+        return true;
     }
 
     public Course stringToCourse(String str){

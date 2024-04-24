@@ -55,7 +55,8 @@ public class Main {
                     currentSchedule = createSchedule(cmdItems);
                     student.addSchedule(currentSchedule);
                     log = new Log(new Schedule(currentSchedule));
-                    Log.logger.info("Successfully Created" + currentSchedule.getName() + currentSchedule.getSemester());
+                    new Log("data/" + currentSchedule.getName() + ".log");
+                    Log.logger.info("Successfully Created " + currentSchedule.getName() + " " + currentSchedule.getSemester());
                     break;
                 case "switchSchedule":
                     Log.logger.info("Switching to new Schedule");
@@ -69,6 +70,7 @@ public class Main {
                         log = new Log(new Schedule(currentSchedule));
                     }
                     Log.logger.info("Successfully Switched " + currentSchedule.getName());
+                    new Log("data/" + currentSchedule.getName() + ".log");
                     break;
                 case "getSchedules":
                     Log.logger.info("Displayed All Schedules");
@@ -114,8 +116,8 @@ public class Main {
                                 student.updateSchedule(i, currentSchedule);
                             }
                         }
+                        Log.logger.info("Last Action Undone");
                     }
-                    Log.logger.info("Last Action Undone");
                     break;
                 case "redo":
                     if(log.redoLast() == null){
@@ -131,8 +133,8 @@ public class Main {
                                 student.updateSchedule(i, currentSchedule);
                             }
                         }
+                        Log.logger.info("Last Action Redone");
                     }
-                    Log.logger.info("Last Action Redone");
                     break;
                 case "load":
                     Log.logger.info("Loading new Schedule");
@@ -151,6 +153,18 @@ public class Main {
                     }
                     System.out.println("Successfully loaded schedule.");
                     Log.logger.info("Successfully loaded Schedule");
+                    break;
+                case "loadLog":
+                    System.out.println("Enter the schedule you want to load");
+                    String name = scan.nextLine();
+                    currentSchedule = new Schedule("", "");
+                    if(currentSchedule.loadFromLog(name)){
+                        System.out.println("Successfully loaded schedule.");
+                        Log.logger.info("Loaded " + name + " from log");
+                        //new Log("data/"+name+".log");
+                    } else {
+                        System.out.println("Failed to load schedule");
+                    }
                     break;
                 default:
                     Log.logger.info("Invalid Command Entered in Schedule Menu");
