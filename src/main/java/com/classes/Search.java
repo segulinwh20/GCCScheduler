@@ -67,7 +67,12 @@ public class Search {
     //main searching algorithm. Reads data from file, creates a new list of courses, and searches for matches of each type
     //of enumerator.
     public List<Course> filterCourses() {
-        List<Course> data = readCoursesFromFile("data/2020-2021.csv");
+        CourseList courseList = WebScraper(); // Fetch courses from the web API
+        if (courseList == null) {
+            System.out.println("Failed to fetch course data from the web API.");
+            return new ArrayList<>(); // Return an empty list if fetching data fails
+        }
+        List<Course> data = courseList.getClasses();
         List<Course> filteredCourses = new ArrayList<>();
         //iterating through every course
         for (Course datum : data) {
@@ -186,20 +191,9 @@ public void removeFilter(Type filterType, String filterValue) {
         addFilter(Type.SEMESTER, semester.getFirst());
     }
 
-    public static void WebScraper(){
+    public static CourseList WebScraper(){
         // Sample time string
-        String timeString = "15:30:00";
-
-        // Parse the time string into a LocalTime object
-        LocalTime time = LocalTime.parse(timeString);
-
-        // Get the hour and minute from the LocalTime object
-        int hour = time.getHour();
-        int minute = time.getMinute();
-
-        // Print the hour and minute
-        System.out.println("Hour: " + hour);
-        System.out.println("Minute: " + minute);
+        CourseList courseList = null;
         try {
             URL url = new URL("http://10.18.110.187/api/classes.json");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -222,44 +216,46 @@ public void removeFilter(Type filterType, String filterValue) {
                 mapper.enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
                 mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
                 mapper.enable(MapperFeature.ALLOW_COERCION_OF_SCALARS);
-                CourseList courseList = mapper.readValue(response.toString(), CourseList.class);
+                courseList = mapper.readValue(response.toString(), CourseList.class);
 
+            //TESTING
 
                 // Process Course objects
-                for (Course course : courseList.getClasses()) {
-                    System.out.println(course.getCourseCode());
-                    System.out.print(course.getTitle());
-                    System.out.print(" ");
-                    System.out.print(course.getSectionLetter());
-                    System.out.print(" ");
-                    Professor prof = course.getProfessor();
-                    System.out.println();
-                    System.out.println(prof.getFirst() + " " + prof.getLast());
-                    List<TimeSlot> times = course.getTimes();
-                    if (times.isEmpty()) {
-                        System.out.println("No times scheduled for this course");
-                    } else {
-                        System.out.println("Times:");
-                        for (TimeSlot timeSlot : times) {
-                            System.out.println("- Day: " + timeSlot.getDayOfWeek());
-                            System.out.println("  Start Hour: " + timeSlot.getStartHour());
-                            System.out.println("  Start Minute: " + timeSlot.getStartMinute());
-                            System.out.println("  End Hour: " + timeSlot.getEndHour());
-                            System.out.println("  End Minute: " + timeSlot.getEndMinute());
-                            System.out.println();
-//                            System.out.println(timeSlot.getStart_time());
-//                            System.out.println(timeSlot.getEnd_time());
-                        }
-                    }
-                    System.out.println();
-                    // You can access other properties of the course object here
-                }
+//                for (Course course : courseList.getClasses()) {
+//                    System.out.println(course.getCourseCode());
+//                    System.out.print(course.getTitle());
+//                    System.out.print(" ");
+//                    System.out.print(course.getSectionLetter());
+//                    System.out.print(" ");
+//                    Professor prof = course.getProfessor();
+//                    System.out.println();
+//                    System.out.println(prof.getFirst() + " " + prof.getLast());
+//                    List<TimeSlot> times = course.getTimes();
+//                    if (times.isEmpty()) {
+//                        System.out.println("No times scheduled for this course");
+//                    } else {
+//                        System.out.println("Times:");
+//                        for (TimeSlot timeSlot : times) {
+//                            System.out.println("- Day: " + timeSlot.getDayOfWeek());
+//                            System.out.println("  Start Hour: " + timeSlot.getStartHour());
+//                            System.out.println("  Start Minute: " + timeSlot.getStartMinute());
+//                            System.out.println("  End Hour: " + timeSlot.getEndHour());
+//                            System.out.println("  End Minute: " + timeSlot.getEndMinute());
+//                            System.out.println();
+////                            System.out.println(timeSlot.getStart_time());
+////                            System.out.println(timeSlot.getEnd_time());
+//                        }
+//                    }
+//                    System.out.println();
+//                    // You can access other properties of the course object here
+//                }
             } else {
                 System.out.println("HTTP request failed with response code: " + responseCode);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return courseList;
     }
 
     //File-parsing.
