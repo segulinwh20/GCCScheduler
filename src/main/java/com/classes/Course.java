@@ -3,6 +3,10 @@ package com.classes;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Course {
 
     private int id;
@@ -78,6 +82,48 @@ public class Course {
         this.times = times;
         this.professor = professor;
         this.description = description;
+    }
+
+    @JsonCreator
+    public Course(@JsonProperty("semester") String semesterYear,
+                  @JsonProperty("subject") String department,
+                  @JsonProperty("number") int id,
+                  @JsonProperty("section") String section,
+                  @JsonProperty("courseCode") String courseCode,
+                  @JsonProperty("name") String title,
+                  @JsonProperty("credits") int credits,
+                  @JsonProperty("open_seats") int seats,
+                  @JsonProperty("times") List<TimeSlot> times,
+                  @JsonProperty("faculty")List<String> faculty,
+                  @JsonProperty("location") String description){
+        String[] tokens = semesterYear.split("_");
+        this.year = Integer.parseInt(tokens[0]);
+        this.semester = tokens[1];
+        this.department = department;
+        this.courseCode = department+id;
+        this.id = id;
+        this.sectionLetter = section.charAt(0);
+        this.title = title;
+        this.credits = credits;
+        this.seats = seats;
+        this.times = times;
+        this.description = description;
+        String prof = faculty.getFirst();
+        String[] names = prof.split(",");
+        String firstName = "";
+        if(names.length > 1){
+            firstName = names[1];
+        }
+        else{
+            firstName = names[0];
+        }
+        String lastName = names[0];
+        Professor newProf = new Professor();
+        newProf.setFirst(firstName);
+        newProf.setLast(lastName);
+        newProf.setPreferred(firstName);
+        newProf.setDepartment(department);
+        this.professor = newProf;
     }
 
     public String toCSVFormat() {

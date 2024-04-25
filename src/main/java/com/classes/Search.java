@@ -1,13 +1,24 @@
 package com.classes;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.sql.SQLOutput;
+import java.time.LocalTime;
+import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.opencsv.CSVWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalTime;
 import java.util.*;
 
 import java.util.List;
@@ -176,6 +187,19 @@ public void removeFilter(Type filterType, String filterValue) {
     }
 
     public static void WebScraper(){
+        // Sample time string
+        String timeString = "15:30:00";
+
+        // Parse the time string into a LocalTime object
+        LocalTime time = LocalTime.parse(timeString);
+
+        // Get the hour and minute from the LocalTime object
+        int hour = time.getHour();
+        int minute = time.getMinute();
+
+        // Print the hour and minute
+        System.out.println("Hour: " + hour);
+        System.out.println("Minute: " + minute);
         try {
             URL url = new URL("http://10.18.110.187/api/classes.json");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -193,47 +217,43 @@ public void removeFilter(Type filterType, String filterValue) {
 
                 // Parse JSON response
                 ObjectMapper mapper = new ObjectMapper();
-                JsonNode jsonNode = mapper.readTree(response.toString());
-
-                try {
-                    CSVWriter writer = new CSVWriter(new FileWriter("output.csv"));
-                    writer.writeNext(new String[]{"Name, Number", "Credits", "Faculty", "Is Lab", "Is Open", "Location", "Section", "Semester", "Times", "Total Seats", "Open Seats"});
-
-                    for (JsonNode node : jsonNode) {
-                            System.out.println("Processing JSON Object...");
-                            System.out.println("JSON Node: " + node);
-                            String[] times = new String[]{
-                                    node.get("times").get(0).get("day").asText() + " " + node.get("times").get(0).get("start_time").asText() + "-" + node.get("times").get(0).get("end_time").asText(),
-                                    node.get("times").get(1).get("day").asText() + " " + node.get("times").get(1).get("start_time").asText() + "-" + node.get("times").get(1).get("end_time").asText(),
-                                    node.get("times").get(2).get("day").asText() + " " + node.get("times").get(2).get("start_time").asText() + "-" + node.get("times").get(2).get("end_time").asText()
-                            };
+                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+                mapper.enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
+                mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+                mapper.enable(MapperFeature.ALLOW_COERCION_OF_SCALARS);
+                CourseList courseList = mapper.readValue(response.toString(), CourseList.class);
 
 
-                            String[] data = new String[]{
-                                    node.get("name").asText(),
-                                    String.valueOf(node.get("number").asInt()),
-                                    String.valueOf(node.get("credits").asDouble()),
-                                    node.get("faculty").get(0).asText(),
-                                    String.valueOf(node.get("is_lab").asBoolean()),
-                                    String.valueOf(node.get("is_open").asBoolean()),
-                                    node.get("location").asText(),
-                                    node.get("section").asText(),
-                                    node.get("semester").asText(),
-                                    String.join(", ", times),
-                                    String.valueOf(node.get("total_seats").asInt()),
-                                    String.valueOf(node.get("open_seats").asInt())
-                            };
-                            System.out.println("Data: " + Arrays.toString(data));
-                            writer.writeNext(data);
-
+                // Process Course objects
+                for (Course course : courseList.getClasses()) {
+                    System.out.println(course.getCourseCode());
+                    System.out.print(course.getTitle());
+                    System.out.print(" ");
+                    System.out.print(course.getSectionLetter());
+                    System.out.print(" ");
+                    Professor prof = course.getProfessor();
+                    System.out.println();
+                    System.out.println(prof.getFirst() + " " + prof.getLast());
+                    List<TimeSlot> times = course.getTimes();
+                    if (times.isEmpty()) {
+                        System.out.println("No times scheduled for this course");
+                    } else {
+                        System.out.println("Times:");
+                        for (TimeSlot timeSlot : times) {
+                            System.out.println("- Day: " + timeSlot.getDayOfWeek());
+                            System.out.println("  Start Hour: " + timeSlot.getStartHour());
+                            System.out.println("  Start Minute: " + timeSlot.getStartMinute());
+                            System.out.println("  End Hour: " + timeSlot.getEndHour());
+                            System.out.println("  End Minute: " + timeSlot.getEndMinute());
+                            System.out.println();
+//                            System.out.println(timeSlot.getStart_time());
+//                            System.out.println(timeSlot.getEnd_time());
+                        }
                     }
-                    System.out.println("CSV file created successfully");
-                } catch (Exception e){
-                    e.printStackTrace();
+                    System.out.println();
+                    // You can access other properties of the course object here
                 }
-                // Process JSON data
-                // Example: Print the JSON response
-               // System.out.println(jsonNode.toString());
             } else {
                 System.out.println("HTTP request failed with response code: " + responseCode);
             }

@@ -13,7 +13,8 @@ public class Main {
     static RawLog rawlog = new RawLog();
 
     public static void main(String[] args) {
-        //Search.WebScraper();
+        //TODO: edit main to add year as well!
+        Search.WebScraper();
         System.out.println("Welcome to GCC Scheduler");
         do{
             System.out.println("Please enter your first and last name and your major separated by a space.");
@@ -36,6 +37,14 @@ public class Main {
                 for (Course course : courses) {
                     System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
                 }
+               List<Event> events = currentSchedule.getEvents();
+                if(!events.isEmpty()){
+                    System.out.println("Events: ");
+                    for (Event event: events){
+                        System.out.println(event.getTitle());
+                    }
+                }
+
             }
             System.out.print("Command: ");
             Scanner scan = new Scanner(System.in);
@@ -327,12 +336,9 @@ public class Main {
             RawLog.logger.warning("Invalid Day Entered in newEvent menu");
             newEvent(titleParam);
         } else {
-            // Split the input by comma
-            String[] daysArray = line.split(",");
-
             // Use a HashSet to store unique days
             Set<String> uniqueDays = new HashSet<>();
-            Collections.addAll(uniqueDays, daysArray);
+            Collections.addAll(uniqueDays, days);
 
             // Convert the HashSet back to an array
             newDays = uniqueDays.toArray(new String[0]);
@@ -341,6 +347,7 @@ public class Main {
             for (String day : days) {
                 System.out.println(day);
             }
+            //TODO: fix because updated days reverses order
             System.out.println("Updated Days: ");
             for (String newDay : newDays) {
                 System.out.println(newDay);
@@ -358,6 +365,7 @@ public class Main {
         int endHour = -1;
         int endMinute = -1;
         while(!correctInput){
+            //TODO: change to do-while
             System.out.println("Please input the hour the event starts in military-time format: ");
             if(scan.hasNextInt()){
                 startHour = scan.nextInt();
@@ -423,7 +431,7 @@ public class Main {
 
         //Creates timeslot(s) for the event
         String s = "";
-        for (String n:newDays)
+        for (String n:days)
             s+= n;
         char[] charDays = s.toCharArray();
         List<TimeSlot> times = new ArrayList<TimeSlot>();
@@ -440,6 +448,7 @@ public class Main {
         }
         else{
             System.out.println("Failed to add event");
+            createEvent();
         }
     }
 
@@ -599,6 +608,7 @@ public class Main {
             if (Objects.equals(courseData[1], searchResult.getCourseCode()) && Objects.equals(courseData[2].charAt(0), searchResult.getSectionLetter())) {
                 currentSchedule.addCourse(searchResult);
                 RawLog.logger.info("Successfully Added Course");
+                System.out.println(searchResult.getTimes());
                 return;
             }
         }

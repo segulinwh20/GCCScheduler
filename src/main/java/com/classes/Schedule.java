@@ -16,7 +16,7 @@ public class Schedule {
             "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM",
             "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM",
             "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM",
-            "8:00 PM", "8:30 PM", "9:00 PM", "10:00 PM", "11:00 PM"};
+            "8:00 PM", "8:30 PM", "9:00 PM", "9:30 PM", "10:00 PM", "10:30 PM", "11:00 PM", "11:30 PM"};
 
     public Schedule(String name, String semester){
         this.name = name;
@@ -50,6 +50,10 @@ public class Schedule {
 
     public List<Course> getCourses(){
         return courses;
+    }
+
+    public List<Event> getEvents(){
+        return events;
     }
 
     public boolean addCourse(Course c) {
@@ -105,7 +109,7 @@ public class Schedule {
         return false;
     }
 
-    //TODO: fix this logic
+
     private boolean conflicts(Event e){
         for (Event current: events){
             if(TimeSlot.conflicts(current.getTimes(), e.getTimes())){
@@ -139,7 +143,7 @@ public class Schedule {
                 }
                 StringBuilder eventName = getEventSlot(events, day, time);
                 if (eventName != null) {
-                    System.out.printf("%-13s", eventName);
+                    System.out.printf("%-13s", eventName.toString());
                 } else {
                     System.out.printf("%-13s", "");
                 }
@@ -149,10 +153,16 @@ public class Schedule {
     }
 
     private String getCourseSlot(List<Course> courses, String day, String time) {
+        //ISSUE: day.charAt(0) takes first letter of day of week, but Tuesday and Thursday have same starting letter
         for (Course course : courses) {
             for (TimeSlot timeSlot : course.getTimes()) {
-                if (timeSlot.getDayOfWeek() == day.charAt(0) && isTimeInSlot(timeSlot, time)) {
-                    return course.getCourseCode() + " " + course.getSectionLetter();
+                if (timeSlot.getDayOfWeek() == day.charAt(0)) {
+                    System.out.println("dayOfWeek matches");
+                    if(isTimeInSlot(timeSlot, time)){
+                        System.out.println("in time slot");
+                        return course.getCourseCode() + " " + course.getSectionLetter();
+                    }
+                  //  return course.getCourseCode() + " " + course.getSectionLetter();
                 }
             }
         }
@@ -162,9 +172,16 @@ public class Schedule {
     private StringBuilder getEventSlot(List<Event>  events, String day, String time){
         for (Event event: events){
             for(TimeSlot timeSlot: event.getTimes()){
-                if(timeSlot.getDayOfWeek() == day.charAt(0) && isTimeInSlot(timeSlot, time)){
-                    return event.getTitle();
+                System.out.println("timeSlot day: " + timeSlot.getDayOfWeek());
+                System.out.println("day.charAt(0) " + day.charAt(0));
+                if(timeSlot.getDayOfWeek()== day.charAt(0)){
+                    System.out.println("dayOfWeek matches");
+                    if(isTimeInSlot(timeSlot, time)){
+                        System.out.println("in time slot");
+                        return event.getTitle();
+                    }
                 }
+
             }
         }
         return null;
