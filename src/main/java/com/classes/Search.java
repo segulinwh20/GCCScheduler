@@ -36,7 +36,8 @@ public class Search {
         COURSECODE,
         TITLE,
         SEMESTER,
-        TIME
+        TIME,
+        YEAR
 
     }
 
@@ -134,9 +135,13 @@ public class Search {
                             match = false;
                         }
                         break;
-                        //error handling
+                    case Type.YEAR:
+                        if(!filterValues.contains(datum.getYear())){
+                            match = false;
+                        }
+                        break;
                     default:
-                        System.out.println("Invalid filter type");
+                        System.out.println("Invalid filter type!!!");
                         break;
                 }
                 //doesn't add course to search list if no match
@@ -185,14 +190,15 @@ public void removeFilter(Type filterType, String filterValue) {
 //Clears all filters from the list
     public void clearFilters() {
         List<String> semester = filters.get(Type.SEMESTER);
+        List<String> year = filters.get(Type.YEAR);
         dayFilters.clear();
         timeFilters.clear();
         filters.clear();
         addFilter(Type.SEMESTER, semester.getFirst());
+        addFilter(Type.YEAR, year.getFirst());
     }
 
     public static CourseList WebScraper(){
-        // Sample time string
         CourseList courseList = null;
         try {
             URL url = new URL("http://10.18.110.187/api/classes.json");
@@ -343,7 +349,7 @@ public void removeFilter(Type filterType, String filterValue) {
                     sectionLetter = fields[4].charAt(0);
                 }
 
-                int year = Integer.parseInt(fields[0]);
+                String year = (fields[0]);
                 String department = fields[2];
                 int id = Integer.parseInt(fields[3]);
                 String courseCode = department + id;

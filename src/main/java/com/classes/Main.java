@@ -178,7 +178,7 @@ public class Main {
             System.out.println("Schedule " + name + " does not exist.");
             return false;
         }
-        currentSchedule = new Schedule(name, coursesToAdd.getFirst().getSemester());
+        currentSchedule = new Schedule(name, coursesToAdd.getFirst().getSemester(), coursesToAdd.getFirst().getYear());
         student.addSchedule(currentSchedule);
         for (int i = 0; i < coursesToAdd.size(); i++) {
             String[] courseParams = new String[3];
@@ -238,7 +238,13 @@ public class Main {
             System.out.print("Enter Semester: ");
             String semester = scan.nextLine();
             if (semester.equals("Fall") || semester.equals("Spring")) {
-                return new Schedule(String.valueOf(scheduleName), semester);
+                do{
+                    System.out.println("Enter Year: ");
+                    String year = scan.nextLine();
+                    if(year.equals("2023") || year.equals("2024") || year.equals("2025")){
+                        return new Schedule(String.valueOf(scheduleName), semester, year);
+                    }
+                } while(true);
             }
             System.out.println(semester + " is not a valid semester.");
         } while (true);
@@ -318,7 +324,6 @@ public class Main {
     }
 
     static void newEvent(String[] titleParam){
-        String[] newDays = new String[0];
         StringBuilder eventName = new StringBuilder();
         eventName.append(titleParam[1]);
         for (int i = 2; i < titleParam.length; i++) {
@@ -328,103 +333,116 @@ public class Main {
                 "M,T,W,R,F,S,U: ");
         Scanner scan = new Scanner(System.in);
         String line = scan.nextLine().trim();
-        //TODO: Error handling
         String[] days = line.split(",");
-        if (!line.matches("^[MTWRFSU](,[MTWRFSU])*$")) {
+        while (!line.matches("^[MTWRFSU](,[MTWRFSU])*$")) {
             System.out.println("Invalid entry: Please type days as 'M,T,W,R,F,S,U' separated by commas");
             RawLog.logger.warning("Invalid Day Entered in newEvent menu");
-            newEvent(titleParam);
-        } else {
-            // Use a HashSet to store unique days
-            Set<String> uniqueDays = new HashSet<>();
-            Collections.addAll(uniqueDays, days);
-
-            // Convert the HashSet back to an array
-            newDays = uniqueDays.toArray(new String[0]);
-
-            System.out.println("Days: ");
-            for (String day : days) {
-                System.out.println(day);
-            }
-            //TODO: fix because updated days reverses order
-            System.out.println("Updated Days: ");
-            for (String newDay : newDays) {
-                System.out.println(newDay);
-            }
-
-            // Continue processing the days
-     //       for (String day : newDays) {
-                // Process each unique day
-     //       }
+            line = scan.nextLine().trim();
+            days = line.split(",");
         }
-
-        boolean correctInput = false;
         int startHour = -1;
         int startMinute = -1;
         int endHour = -1;
         int endMinute = -1;
-        while(!correctInput){
-            //TODO: change to do-while
-            System.out.println("Please input the hour the event starts in military-time format: ");
-            if(scan.hasNextInt()){
-                startHour = scan.nextInt();
-                correctInput = true;
-            }
-            else{
-                System.out.println("Please enter an integer");
-                RawLog.logger.warning("Non-integer entered for startHour");
-                scan.next();
-            }
-        }
-        correctInput = false;
-        while(!correctInput){
-            System.out.println("Please input the minute the event starts: ");
-            if(scan.hasNextInt()){
-                startMinute = scan.nextInt();
-                correctInput = true;
-            }
-            else{
-                System.out.println("Please enter an integer");
-                RawLog.logger.warning("Non-integer entered for startMinute");
-                scan.next();
-            }
-        }
-        correctInput = false;
-        while(!correctInput){
-            System.out.println("Please input the hour the event ends in military-time format: ");
-            if(scan.hasNextInt()){
-                endHour = scan.nextInt();
-                correctInput = true;
-            }
-            else{
-                System.out.println("Please enter an integer");
-                RawLog.logger.warning("Non-integer entered for endHour");
-                scan.next();
-            }
-            if(correctInput && endHour < startHour){
-                System.out.println("Event can't end before it starts!");
-                RawLog.logger.warning("endHour before startHour");
-                correctInput = false;
+
+        boolean validStartTime = false;
+        boolean validEndTime = false;
+
+        while (!validStartTime || !validEndTime) {
+            // Input and validation for start time
+            while (!validStartTime) {
+                System.out.println("Please input the time the event starts in meridian format, but NOT using AM or PM (yet)");
+                String input = scan.nextLine();
+                String[] tokens = input.split(":");
+                try {
+                    if (tokens.length != 2) {
+                        throw new NumberFormatException();
+                    }
+                    startHour = Integer.parseInt(tokens[0]);
+                    startMinute = Integer.parseInt(tokens[1]);
+                    if (startHour < 1 || startHour > 12 || startMinute < 0 || startMinute > 59) {
+                        throw new NumberFormatException();
+                    }
+                    validStartTime = true;
+                } catch (NumberFormatException e) {
+                    System.out.println("Please enter valid integers for hour and minute");
+                    RawLog.logger.warning("Non-integer entered for startHour or startMinute");
+                }
             }
 
+            // Input and validation for meridian of start time
+            System.out.println("Please enter 'AM' or 'PM' for the starting time");
+            String startMeridian = scan.nextLine();
+            if (!startMeridian.equals("AM") && !startMeridian.equals("PM")) {
+                System.out.println("Please enter AM or PM");
+                RawLog.logger.warning("Something other than AM or PM entered for startTime");
+                validStartTime = false; // Resetting validStartTime to false to repeat the loop
+            } else {
+                // Convert start time to 24-hour format
+                if (startMeridian.equals("PM") && startHour != 12) {
+                    startHour += 12;
+                } else if (startMeridian.equals("AM") && startHour == 12) {
+                    startHour = 0;
+                }
+
+                validStartTime = true; // Start time input is valid
+            }
+
+            // Input and validation for end time
+            while (!validEndTime) {
+                System.out.println("Please input the time the event ends in meridian format, but NOT using AM or PM (yet)");
+                String input = scan.nextLine();
+                String[] tokens = input.split(":");
+                try {
+                    if (tokens.length != 2) {
+                        throw new NumberFormatException();
+                    }
+                    endHour = Integer.parseInt(tokens[0]);
+                    endMinute = Integer.parseInt(tokens[1]);
+                    if (endHour < 1 || endHour > 12 || endMinute < 0 || endMinute > 59) {
+                        throw new NumberFormatException();
+                    }
+
+                    // Input and validation for meridian of end time
+                    System.out.println("Please enter 'AM' or 'PM' for the ending time");
+                    String endMeridian = scan.nextLine();
+                    if (!endMeridian.equals("AM") && !endMeridian.equals("PM")) {
+                        System.out.println("Please enter AM or PM");
+                        RawLog.logger.warning("Something other than AM or PM entered for endTime");
+                        continue; // Restart the loop to re-enter end time
+                    }
+
+                    // Convert end time to 24-hour format
+                    if (endMeridian.equals("PM") && endHour != 12) {
+                        endHour += 12;
+                    } else if (endMeridian.equals("AM") && endHour == 12) {
+                        endHour = 0;
+                    }
+
+                    // Check if end time is after start time
+                    if (endHour < startHour || (endHour == startHour && endMinute < startMinute)) {
+                        System.out.println("Event end time cannot be before start time");
+                        RawLog.logger.warning("End time before start time");
+                        continue; // Restart the loop to re-enter end time
+                    }
+
+                    validEndTime = true; // End time input is valid
+                } catch (NumberFormatException e) {
+                    System.out.println("Please enter valid integers for hour and minute");
+                    RawLog.logger.warning("Non-integer entered for endHour or endMinute");
+                }
+            }
         }
-        correctInput = false;
-        while(!correctInput){
-            System.out.println("Please input the minute the event ends: ");
-            if(scan.hasNextInt()){
-                endMinute = scan.nextInt();
-                correctInput = true;
-            }
-            else{
-                System.out.println("Please enter an integer");
-                RawLog.logger.warning("Non-integer entered for endMinute");
-                scan.next();
-            }
-            if(correctInput && startHour == endHour && endMinute < startMinute){
-                System.out.println("Event can't end before it started!");
-                RawLog.logger.warning("endMinute before startMinute & startHour");
-                correctInput = false;
-                scan.next();
+        if(endMinute == 30){
+            endMinute = 29;
+        }
+        if(endMinute == 0 && endHour > startHour){
+            if(endHour == 0){
+                endHour = 23;
+                endMinute = 59;
+            } else {
+                endHour--;
+                endMinute = 59;
             }
         }
 
@@ -463,6 +481,7 @@ public class Main {
         System.out.println("Start searching for courses or type 'help' for a list of commands.");
         courseSearch = new Search();
         courseSearch.addFilter(Search.Type.SEMESTER, currentSchedule.getSemester());
+        courseSearch.addFilter(Search.Type.YEAR, currentSchedule.getYear());
         courseList = courseSearch.filterCourses();
         searchTerminal: do {
             System.out.println(courseSearch.getFilters());
@@ -648,6 +667,9 @@ public class Main {
                     RawLog.logger.info("Displaying Start Time Filter Info");
                     System.out.println("startHours are 8:00 AM to 3:00 PM as well as night classes at 6:00 PM, enter time as 8:00-18:00.");
                     break;
+                case "Year":
+                    RawLog.logger.info("Displaying year time filter info");
+                    System.out.println("years are 2023, 2024, and 2025");
                 case "day":
                     RawLog.logger.info("Displaying Day Filter Info");
                     System.out.println("days are M T W R F, each corresponding to Monday, Tuesday, Wednesday, Thursday, and Friday respectively.");

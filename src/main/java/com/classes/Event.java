@@ -28,74 +28,76 @@ public class Event {
         this.times = times;
     }
 
-    //TODO: create a toCSVFormat() method for event
-//    public String toCSVFormat() {
-//        StringBuilder s = new StringBuilder();
-//
-//        List<List<TimeSlot>> groups = getTimeSlotGroups();
-//
-//        for (List<TimeSlot> group : groups) {
-//            s.append(year);
-//            s.append(',');
-//            s.append(semester.equals("Fall") ? 10 : 30);
-//            s.append(',');
-//            s.append(department);
-//            s.append(',');
-//            s.append(id);
-//            s.append(',');
-//            s.append(sectionLetter);
-//            s.append(',');
-//            s.append(title);
-//            s.append(',');
-//            s.append(credits);
-//            s.append(',');
-//            s.append(seats); // this might be wrong
-//            s.append(',');
-//            s.append(seats);
-//            s.append(',');
-//
-//            // Time logic
-//            String daysOfWeek = "";
-//            for (TimeSlot t : group) {
-//                daysOfWeek += t.getDayOfWeek();
-//            }
-//            if (daysOfWeek.contains("M")) {
-//                s.append('M');
-//            }
-//            s.append(',');
-//            if (daysOfWeek.contains("T")) {
-//                s.append('T');
-//            }
-//            s.append(',');
-//            if (daysOfWeek.contains("W")) {
-//                s.append('W');
-//            }
-//            s.append(',');
-//            if (daysOfWeek.contains("R")) {
-//                s.append('R');
-//            }
-//            s.append(',');
-//            if (daysOfWeek.contains("F")) {
-//                s.append('F');
-//            }
-//            s.append(',');
-//            s.append(group.get(0).csvFormattedStartTime());
-//            s.append(',');
-//            s.append(group.get(0).csvFormattedEndTime());
-//            s.append(',');
-//
-//            s.append(professor.getLast());
-//            s.append(',');
-//            s.append(professor.getFirst());
-//            s.append(',');
-//            s.append(professor.getPreferred());
-//            s.append(',');
-//            s.append(description);
-//            s.append('\n');
-//        }
-//
-//        return s.toString();
-//    }
+    //TODO: actually check to see if this works
+    public String toCSVFormat() {
+        StringBuilder s = new StringBuilder();
+
+        List<List<TimeSlot>> groups = getTimeSlotGroups();
+
+        for (List<TimeSlot> group : groups) {
+            s.append(title);
+            s.append(',');
+
+            // Time logic
+            String daysOfWeek = "";
+            for (TimeSlot t : group) {
+                daysOfWeek += t.getDayOfWeek();
+            }
+            if (daysOfWeek.contains("M")) {
+                s.append('M');
+            }
+            s.append(',');
+            if (daysOfWeek.contains("T")) {
+                s.append('T');
+            }
+            s.append(',');
+            if (daysOfWeek.contains("W")) {
+                s.append('W');
+            }
+            s.append(',');
+            if (daysOfWeek.contains("R")) {
+                s.append('R');
+            }
+            s.append(',');
+            if (daysOfWeek.contains("F")) {
+                s.append('F');
+            }
+            if(daysOfWeek.contains("S")){
+                s.append('S');
+            }
+            s.append(',');
+            if(daysOfWeek.contains("U")){
+                s.append('U');
+            }
+            s.append(',');
+            s.append(group.get(0).csvFormattedStartTime());
+            s.append(',');
+            s.append(group.get(0).csvFormattedEndTime());
+            s.append(',');
+            s.append('\n');
+        }
+        return s.toString();
+    }
+
+    private List<List<TimeSlot>> getTimeSlotGroups() {
+        List<List<TimeSlot>> groups = new LinkedList<>();
+        for (TimeSlot t : times) {
+            boolean updated = false;
+            for (int i = 0; i < groups.size(); i++) {
+                if(groups.get(i).size() > 0 && t.sameStartEndTime(groups.get(i).get(0))) {
+                    groups.get(i).add(t);
+                    updated = true;
+                    break;
+                }
+            }
+            if (!updated) {
+                List<TimeSlot> group = new LinkedList<>();
+                group.add(t);
+                groups.add(group);
+            }
+        }
+        return groups;
+    }
 }
 
 

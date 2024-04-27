@@ -17,7 +17,15 @@ public class Course {
     private String courseCode;
     private String semester;
 
-    private int year;
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    private String year;
     private Professor professor;
     private List<TimeSlot> times;
     private char sectionLetter;
@@ -69,7 +77,7 @@ public class Course {
 
 
 
-    public Course(int year, String semester, String department, int id, char sectionLetter, String courseCode, String title, int credits, int seats, List<TimeSlot> times, Professor professor, String description){
+    public Course(String year, String semester, String department, int id, char sectionLetter, String courseCode, String title, int credits, int seats, List<TimeSlot> times, Professor professor, String description){
         this.year = year;
         this.semester = semester;
         this.department = department;
@@ -97,7 +105,7 @@ public class Course {
                   @JsonProperty("faculty")List<String> faculty,
                   @JsonProperty("location") String description){
         String[] tokens = semesterYear.split("_");
-        this.year = Integer.parseInt(tokens[0]);
+        this.year = tokens[0];
         this.semester = tokens[1];
         this.department = department;
         this.courseCode = department+id;

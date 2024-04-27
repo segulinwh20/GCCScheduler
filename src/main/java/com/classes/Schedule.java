@@ -9,6 +9,8 @@ public class Schedule {
     private List<Event> events;
     private List<Course> courses;
     private String semester;
+
+    private String year;
     private Log log = new Log();
     private String name;
     private final String[] DAYS = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
@@ -18,9 +20,10 @@ public class Schedule {
             "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM",
             "8:00 PM", "8:30 PM", "9:00 PM", "9:30 PM", "10:00 PM", "10:30 PM", "11:00 PM", "11:30 PM"};
 
-    public Schedule(String name, String semester){
+    public Schedule(String name, String semester, String year){
         this.name = name;
         this.semester = semester;
+        this.year = year;
         this.courses = new ArrayList<Course>();
         this.events = new ArrayList<Event>();
     }
@@ -30,7 +33,8 @@ public class Schedule {
         String[] scheduleData = path[path.length - 1].split("\\|");
         this.name = scheduleData[0];
         this.semester = scheduleData[1];
-        this.courses = Search.readCoursesFromFile(filepath);
+        this.courses = Search.WebScraper().getClasses();
+        this.year = year;
     }
 
     public Schedule(Schedule s){
@@ -40,6 +44,7 @@ public class Schedule {
         this.semester = s.semester;
         this.events = new ArrayList<Event>();
         this.events.addAll(s.events);
+        this.year = year;
     }
 
     public String getName(){
@@ -77,6 +82,16 @@ public class Schedule {
     }
 
     public boolean removeEvent(Event e){
+        if(events.isEmpty()){
+            System.out.println("You have no events in your schedule.");
+            return false;
+        }
+        if(events.remove(e)){
+            System.out.println("Event: " + e.getTitle() + " has been removed from your schedule");
+            log.addAction(new Schedule(this));
+            return true;
+        }
+        System.out.println("Event: " + e.getTitle() + " is not in your schedule");
         return false;
     }
 
@@ -98,6 +113,8 @@ public class Schedule {
     private boolean conflicts(Course c) {
         for (Course current : courses) {
             if (TimeSlot.conflicts(current.getTimes(), c.getTimes()) || current.getCourseCode().equals(c.getCourseCode())) {
+                System.out.println(current.getCourseCode());
+                System.out.println(c.getCourseCode());
                 return true;
             }
         }
@@ -157,9 +174,7 @@ public class Schedule {
         for (Course course : courses) {
             for (TimeSlot timeSlot : course.getTimes()) {
                 if (timeSlot.getDayOfWeek() == day.charAt(0)) {
-                    System.out.println("dayOfWeek matches");
                     if(isTimeInSlot(timeSlot, time)){
-                        System.out.println("in time slot");
                         return course.getCourseCode() + " " + course.getSectionLetter();
                     }
                   //  return course.getCourseCode() + " " + course.getSectionLetter();
@@ -172,12 +187,8 @@ public class Schedule {
     private StringBuilder getEventSlot(List<Event>  events, String day, String time){
         for (Event event: events){
             for(TimeSlot timeSlot: event.getTimes()){
-                System.out.println("timeSlot day: " + timeSlot.getDayOfWeek());
-                System.out.println("day.charAt(0) " + day.charAt(0));
                 if(timeSlot.getDayOfWeek()== day.charAt(0)){
-                    System.out.println("dayOfWeek matches");
                     if(isTimeInSlot(timeSlot, time)){
-                        System.out.println("in time slot");
                         return event.getTitle();
                     }
                 }
@@ -216,6 +227,9 @@ public class Schedule {
             for (Course c : courses) {
                 p.print(c.toCSVFormat());
             }
+            for(Event e: events){
+                p.println(e.toCSVFormat());
+            }
             p.flush();
             p.close();
         } catch (FileNotFoundException e) {
@@ -225,5 +239,12 @@ public class Schedule {
 
     public void setName(String name) {
         this.name = name;
+    }
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
     }
 }
