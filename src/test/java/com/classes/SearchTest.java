@@ -25,6 +25,10 @@ class SearchTest {
 
 
     @Test
+    void  WebScraper(){
+        //WebScraper();
+    }
+    @Test
     void search(){
         Search s = new Search();
         assert s!= null;
@@ -45,6 +49,8 @@ class SearchTest {
 
         //time as 9:30
         System.out.println("Starting 9:30 test \n");
+        y.addFilter(Search.Type.SEMESTER, "Fall");
+        y.addFilter(Search.Type.YEAR, "2023");
         y.clearFilters();
         y.addFilter(Search.Type.TIME, "11:30");
         e.clear();
@@ -169,6 +175,7 @@ class SearchTest {
         y.addFilter(Search.Type.TIME, "9:00");
         y.addFilter(Search.Type.SEMESTER, "Spring");
         y.addFilter(Search.Type.COURSECODE, "ACCT201");
+        y.addFilter(Search.Type.YEAR, "2023");
         y.clearFilters();
         testFilters.computeIfAbsent(Search.Type.TIME, k -> new ArrayList<>()).add("9:00");
         testFilters.computeIfAbsent(Search.Type.SEMESTER, k -> new ArrayList<>()).add("Spring");

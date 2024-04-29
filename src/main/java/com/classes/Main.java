@@ -1,8 +1,7 @@
 package com.classes;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
+import java.sql.Array;
+import java.util.*;
 
 public class Main {
     static Student student;
@@ -14,6 +13,7 @@ public class Main {
     static RawLog rawlog = new RawLog();
 
     public static void main(String[] args) {
+        //TODO: edit main to add year as well!
         System.out.println("Welcome to GCC Scheduler");
         do{
             System.out.println("Please enter your first and last name and your major separated by a space.");
@@ -36,6 +36,14 @@ public class Main {
                 for (Course course : courses) {
                     System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
                 }
+               List<Event> events = currentSchedule.getEvents();
+                if(!events.isEmpty()){
+                    System.out.println("Events: ");
+                    for (Event event: events){
+                        System.out.println(event.getTitle());
+                    }
+                }
+
             }
             System.out.print("Command: ");
             Scanner scan = new Scanner(System.in);
@@ -45,6 +53,10 @@ public class Main {
                 case "help":
                     RawLog.logger.info("Opened Schedule Help Menu");
                     consoleHelp();
+                    break;
+                case "createEvent":
+                    RawLog.logger.info("Creating New Event");
+                    createEvent();
                     break;
                 case "createSchedule":
                     RawLog.logger.info("Creating New Schedule");
@@ -166,7 +178,7 @@ public class Main {
             System.out.println("Schedule " + name + " does not exist.");
             return false;
         }
-        currentSchedule = new Schedule(name, coursesToAdd.getFirst().getSemester());
+        currentSchedule = new Schedule(name, coursesToAdd.getFirst().getSemester(), coursesToAdd.getFirst().getYear());
         student.addSchedule(currentSchedule);
         for (int i = 0; i < coursesToAdd.size(); i++) {
             String[] courseParams = new String[3];
@@ -196,6 +208,7 @@ public class Main {
         System.out.println("'undo': This will undo the last change to schedule.");
         System.out.println("'redo': This will redo the last change to schedule.");
         System.out.println("'quit': This will exit GCC Scheduler");
+        System.out.println("'createEvent': this creates a custom event, prompting you with day(s) and time(s)'");
     }
 
     static void searchHelp() {
@@ -209,6 +222,11 @@ public class Main {
         System.out.println("'back': This will return to the schedule management section");
     }
 
+    static void eventHelp(){
+        System.out.println("'newEvent': This will start the process to create a new event, prompting you to type a title as well as event times. \n Format: 'newEvent: [title]'");
+        System.out.println("'removeEvent': This will remove the event matching the title given. Format: 'removeEvent: [title]'");
+    }
+
     static Schedule createSchedule(String[] name) {
         StringBuilder scheduleName = new StringBuilder();
         scheduleName.append(name[1]);
@@ -220,7 +238,13 @@ public class Main {
             System.out.print("Enter Semester: ");
             String semester = scan.nextLine();
             if (semester.equals("Fall") || semester.equals("Spring")) {
-                return new Schedule(String.valueOf(scheduleName), semester);
+                do{
+                    System.out.println("Enter Year: ");
+                    String year = scan.nextLine();
+                    if(year.equals("2023") || year.equals("2024") || year.equals("2025")){
+                        return new Schedule(String.valueOf(scheduleName), semester, year);
+                    }
+                } while(true);
             }
             System.out.println(semester + " is not a valid semester.");
         } while (true);
@@ -257,10 +281,207 @@ public class Main {
         }
     }
 
+    static void createEvent(){
+        eventTerminal: do {
+            System.out.println("createEvent: ");
+            Scanner scan = new Scanner(System.in);
+            String cmdLine = scan.nextLine();
+            String[] cmdItems = cmdLine.split(" ");
+            switch(cmdItems[0]){
+                case "help":
+                    RawLog.logger.info("Opened Event Help Menu");
+                    eventHelp();
+                    break;
+                case "newEvent":
+                    RawLog.logger.info("Creating New Event");
+                    if (cmdItems.length < 2) {
+                        RawLog.logger.warning("Tried to Create an Event With No Name");
+                        System.out.println("Cannot create an event with no name.");
+                        break;
+                    }
+                    RawLog.logger.info("Successfully created event title");
+                    newEvent(cmdItems);
+                    break;
+                case "removeEvent":
+                    RawLog.logger.info("Remove Event");
+                    if(cmdItems.length<= 1){
+                        RawLog.logger.warning("No title specified for removal");
+                        System.out.println("No title specified for removal");
+                        break;
+                    }
+                    removeEvent(cmdItems);
+                    RawLog.logger.info("Successfully removed event");
+                case "back":
+                    RawLog.logger.info("Going Back to Schedule Menu");
+                    log.setErrorIndex();
+                    log.redoLast();
+                    break eventTerminal;
+                default:
+                    RawLog.logger.warning("Invalid Command Entered in Event Menu");
+                    System.out.println("Invalid Command, Please Re-Enter Command");
+            }
+        } while(true);
+    }
+
+    static void newEvent(String[] titleParam){
+        StringBuilder eventName = new StringBuilder();
+        eventName.append(titleParam[1]);
+        for (int i = 2; i < titleParam.length; i++) {
+            eventName.append(" ").append(titleParam[i]);
+        }
+        System.out.println("Please input the days in which this event occurs, separated by commas, in the following format: \n" +
+                "M,T,W,R,F,S,U: ");
+        Scanner scan = new Scanner(System.in);
+        String line = scan.nextLine().trim();
+        String[] days = line.split(",");
+        while (!line.matches("^[MTWRFSU](,[MTWRFSU])*$")) {
+            System.out.println("Invalid entry: Please type days as 'M,T,W,R,F,S,U' separated by commas");
+            RawLog.logger.warning("Invalid Day Entered in newEvent menu");
+            line = scan.nextLine().trim();
+            days = line.split(",");
+        }
+        int startHour = -1;
+        int startMinute = -1;
+        int endHour = -1;
+        int endMinute = -1;
+
+        boolean validStartTime = false;
+        boolean validEndTime = false;
+
+        while (!validStartTime || !validEndTime) {
+            // Input and validation for start time
+            while (!validStartTime) {
+                System.out.println("Please input the time the event starts in meridian format, but NOT using AM or PM (yet)");
+                String input = scan.nextLine();
+                String[] tokens = input.split(":");
+                try {
+                    if (tokens.length != 2) {
+                        throw new NumberFormatException();
+                    }
+                    startHour = Integer.parseInt(tokens[0]);
+                    startMinute = Integer.parseInt(tokens[1]);
+                    if (startHour < 1 || startHour > 12 || startMinute < 0 || startMinute > 59) {
+                        throw new NumberFormatException();
+                    }
+                    validStartTime = true;
+                } catch (NumberFormatException e) {
+                    System.out.println("Please enter valid integers for hour and minute");
+                    RawLog.logger.warning("Non-integer entered for startHour or startMinute");
+                }
+            }
+
+            // Input and validation for meridian of start time
+            System.out.println("Please enter 'AM' or 'PM' for the starting time");
+            String startMeridian = scan.nextLine();
+            if (!startMeridian.equals("AM") && !startMeridian.equals("PM")) {
+                System.out.println("Please enter AM or PM");
+                RawLog.logger.warning("Something other than AM or PM entered for startTime");
+                validStartTime = false; // Resetting validStartTime to false to repeat the loop
+            } else {
+                // Convert start time to 24-hour format
+                if (startMeridian.equals("PM") && startHour != 12) {
+                    startHour += 12;
+                } else if (startMeridian.equals("AM") && startHour == 12) {
+                    startHour = 0;
+                }
+
+                validStartTime = true; // Start time input is valid
+            }
+
+            // Input and validation for end time
+            while (!validEndTime) {
+                System.out.println("Please input the time the event ends in meridian format, but NOT using AM or PM (yet)");
+                String input = scan.nextLine();
+                String[] tokens = input.split(":");
+                try {
+                    if (tokens.length != 2) {
+                        throw new NumberFormatException();
+                    }
+                    endHour = Integer.parseInt(tokens[0]);
+                    endMinute = Integer.parseInt(tokens[1]);
+                    if (endHour < 1 || endHour > 12 || endMinute < 0 || endMinute > 59) {
+                        throw new NumberFormatException();
+                    }
+
+                    // Input and validation for meridian of end time
+                    System.out.println("Please enter 'AM' or 'PM' for the ending time");
+                    String endMeridian = scan.nextLine();
+                    if (!endMeridian.equals("AM") && !endMeridian.equals("PM")) {
+                        System.out.println("Please enter AM or PM");
+                        RawLog.logger.warning("Something other than AM or PM entered for endTime");
+                        continue; // Restart the loop to re-enter end time
+                    }
+
+                    // Convert end time to 24-hour format
+                    if (endMeridian.equals("PM") && endHour != 12) {
+                        endHour += 12;
+                    } else if (endMeridian.equals("AM") && endHour == 12) {
+                        endHour = 0;
+                    }
+
+                    // Check if end time is after start time
+                    if (endHour < startHour || (endHour == startHour && endMinute < startMinute)) {
+                        System.out.println("Event end time cannot be before start time");
+                        RawLog.logger.warning("End time before start time");
+                        continue; // Restart the loop to re-enter end time
+                    }
+
+                    validEndTime = true; // End time input is valid
+                } catch (NumberFormatException e) {
+                    System.out.println("Please enter valid integers for hour and minute");
+                    RawLog.logger.warning("Non-integer entered for endHour or endMinute");
+                }
+            }
+        }
+        if(endMinute == 30){
+            endMinute = 29;
+        }
+        if(endMinute == 0 && endHour > startHour){
+            if(endHour == 0){
+                endHour = 23;
+                endMinute = 59;
+            } else {
+                endHour--;
+                endMinute = 59;
+            }
+        }
+
+        //Creates timeslot(s) for the event
+        String s = "";
+        for (String n:days)
+            s+= n;
+        char[] charDays = s.toCharArray();
+        List<TimeSlot> times = new ArrayList<TimeSlot>();
+        for (int i = 0; i < charDays.length; i++) {
+            TimeSlot timeslot = new TimeSlot(charDays[i], startHour, startMinute, endHour, endMinute);
+            times.add(timeslot);
+        }
+        for (int i = 0; i < times.size(); i++) {
+            System.out.println(times.get(i).toString());
+        }
+        Event e = new Event(eventName, times);
+        if(currentSchedule.addEvent(e)){
+            System.out.println("Successfully added event");
+        }
+        else{
+            System.out.println("Failed to add event");
+            createEvent();
+        }
+    }
+
+    static void removeEvent(String[] titleParam){
+        StringBuilder eventName = new StringBuilder();
+        eventName.append(titleParam[1]);
+        for (int i = 2; i < titleParam.length; i++) {
+            eventName.append(" ").append(titleParam[i]);
+        }
+    }
+
     static void search() {
         System.out.println("Start searching for courses or type 'help' for a list of commands.");
         courseSearch = new Search();
         courseSearch.addFilter(Search.Type.SEMESTER, currentSchedule.getSemester());
+        courseSearch.addFilter(Search.Type.YEAR, currentSchedule.getYear());
         courseList = courseSearch.filterCourses();
         searchTerminal: do {
             System.out.println(courseSearch.getFilters());
@@ -405,6 +626,7 @@ public class Main {
             if (Objects.equals(courseData[1], searchResult.getCourseCode()) && Objects.equals(courseData[2].charAt(0), searchResult.getSectionLetter())) {
                 currentSchedule.addCourse(searchResult);
                 RawLog.logger.info("Successfully Added Course");
+                System.out.println(searchResult.getTimes());
                 return;
             }
         }
@@ -445,6 +667,9 @@ public class Main {
                     RawLog.logger.info("Displaying Start Time Filter Info");
                     System.out.println("startHours are 8:00 AM to 3:00 PM as well as night classes at 6:00 PM, enter time as 8:00-18:00.");
                     break;
+                case "Year":
+                    RawLog.logger.info("Displaying year time filter info");
+                    System.out.println("years are 2023, 2024, and 2025");
                 case "day":
                     RawLog.logger.info("Displaying Day Filter Info");
                     System.out.println("days are M T W R F, each corresponding to Monday, Tuesday, Wednesday, Thursday, and Friday respectively.");

@@ -11,8 +11,8 @@ class LogTest {
 
     @Test
     void getLast() {
-        Schedule s = new Schedule("", "");
-        Schedule s1 = new Schedule("", "");
+        Schedule s = new Schedule("", "", "2023");
+        Schedule s1 = new Schedule("", "", "2023");
         Log log = new Log(s);
         assertEquals(log.getLast(), s);
 
@@ -22,9 +22,9 @@ class LogTest {
 
     @Test
     void undoLast() {
-        Schedule s1 = new Schedule("", "");
+        Schedule s1 = new Schedule("", "", "2023");
         Log log = new Log(s1);
-        Schedule s = new Schedule("", "");
+        Schedule s = new Schedule("", "", "2023");
 
         assertNull(log.undoLast()); // when last item is not present, return null
 
@@ -38,9 +38,9 @@ class LogTest {
 
     @Test
     void redoLast() {
-        Schedule s1 = new Schedule("", "");
+        Schedule s1 = new Schedule("", "", "2023");
         Log log = new Log(s1);
-        Schedule s2 = new Schedule("", "");
+        Schedule s2 = new Schedule("", "", "2023");
 
         assertNull(log.redoLast()); // if you try to redo an action that does not exist it returns null
         log.addAction(s2);
@@ -54,9 +54,9 @@ class LogTest {
 
     @Test
     void addAction() {
-        Schedule s = new Schedule("", "");
-        Schedule s1 = new Schedule("", "");
-        Schedule first = new Schedule("","");
+        Schedule s = new Schedule("", "", "2023");
+        Schedule s1 = new Schedule("", "", "2023");
+        Schedule first = new Schedule("","", "2023");
         Log log = new Log(first);
 
         log.addAction(s);

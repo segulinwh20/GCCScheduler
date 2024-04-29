@@ -6,21 +6,26 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public class Schedule {
+    private List<Event> events;
     private List<Course> courses;
     private String semester;
+
+    private String year;
     private Log log = new Log();
     private String name;
-    private final String[] DAYS = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+    private final String[] DAYS = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
     private final String[] TIMES = {"8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM",
             "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM",
             "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM",
             "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM",
-            "8:00 PM", "8:30 PM", "9:00 PM"};
+            "8:00 PM", "8:30 PM", "9:00 PM", "9:30 PM", "10:00 PM", "10:30 PM", "11:00 PM", "11:30 PM"};
 
-    public Schedule(String name, String semester){
+    public Schedule(String name, String semester, String year){
         this.name = name;
         this.semester = semester;
+        this.year = year;
         this.courses = new ArrayList<Course>();
+        this.events = new ArrayList<Event>();
     }
 
     public Schedule(String filepath) {
@@ -28,7 +33,8 @@ public class Schedule {
         String[] scheduleData = path[path.length - 1].split("\\|");
         this.name = scheduleData[0];
         this.semester = scheduleData[1];
-        this.courses = Search.readCoursesFromFile(filepath);
+        this.courses = Search.WebScraper().getClasses();
+        this.year = year;
     }
 
     public Schedule(Schedule s){
@@ -36,6 +42,9 @@ public class Schedule {
         this.courses = new ArrayList<Course>();
         this.courses.addAll(s.courses);
         this.semester = s.semester;
+        this.events = new ArrayList<Event>();
+        this.events.addAll(s.events);
+        this.year = year;
     }
 
     public String getName(){
@@ -48,6 +57,10 @@ public class Schedule {
         return courses;
     }
 
+    public List<Event> getEvents(){
+        return events;
+    }
+
     public boolean addCourse(Course c) {
         if (conflicts(c)) {
             System.out.println("Class cannot be added because it conflicts with another course in the schedule.");
@@ -56,6 +69,30 @@ public class Schedule {
         courses.add(c);
         log.addAction(new Schedule(this));
         return true;
+    }
+
+    public boolean addEvent(Event e){
+        if(conflicts(e)){
+            System.out.println("Event cannot be added because it conflicts with another course or event in the schedule");
+            return false;
+        }
+        events.add(e);
+        log.addAction(new Schedule(this));
+        return true;
+    }
+
+    public boolean removeEvent(Event e){
+        if(events.isEmpty()){
+            System.out.println("You have no events in your schedule.");
+            return false;
+        }
+        if(events.remove(e)){
+            System.out.println("Event: " + e.getTitle() + " has been removed from your schedule");
+            log.addAction(new Schedule(this));
+            return true;
+        }
+        System.out.println("Event: " + e.getTitle() + " is not in your schedule");
+        return false;
     }
 
     public boolean removeCourse(Course c) {
@@ -76,6 +113,28 @@ public class Schedule {
     private boolean conflicts(Course c) {
         for (Course current : courses) {
             if (TimeSlot.conflicts(current.getTimes(), c.getTimes()) || current.getCourseCode().equals(c.getCourseCode())) {
+                System.out.println(current.getCourseCode());
+                System.out.println(c.getCourseCode());
+                return true;
+            }
+        }
+        for (Event current: events){
+            if(TimeSlot.conflicts(current.getTimes(), c.getTimes())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private boolean conflicts(Event e){
+        for (Event current: events){
+            if(TimeSlot.conflicts(current.getTimes(), e.getTimes())){
+                return true;
+            }
+        }
+        for(Course current: courses){
+            if(TimeSlot.conflicts(current.getTimes(), e.getTimes())){
                 return true;
             }
         }
@@ -96,18 +155,44 @@ public class Schedule {
             System.out.printf("%-15s", time);
             for (String day : DAYS) {
                 String courseName = getCourseSlot(courses, day, time);
-                System.out.printf("%-13s", courseName == null ? "" : courseName);
+                if (courseName != null) {
+                    System.out.printf("%-13s", courseName);
+                }
+                StringBuilder eventName = getEventSlot(events, day, time);
+                if (eventName != null) {
+                    System.out.printf("%-13s", eventName.toString());
+                } else {
+                    System.out.printf("%-13s", "");
+                }
             }
             System.out.println();
         }
     }
 
     private String getCourseSlot(List<Course> courses, String day, String time) {
+        //ISSUE: day.charAt(0) takes first letter of day of week, but Tuesday and Thursday have same starting letter
         for (Course course : courses) {
             for (TimeSlot timeSlot : course.getTimes()) {
-                if (timeSlot.getDayOfWeek() == day.charAt(0) && isTimeInSlot(timeSlot, time)) {
-                    return course.getCourseCode() + " " + course.getSectionLetter();
+                if (timeSlot.getDayOfWeek() == day.charAt(0)) {
+                    if(isTimeInSlot(timeSlot, time)){
+                        return course.getCourseCode() + " " + course.getSectionLetter();
+                    }
+                  //  return course.getCourseCode() + " " + course.getSectionLetter();
                 }
+            }
+        }
+        return null;
+    }
+
+    private StringBuilder getEventSlot(List<Event>  events, String day, String time){
+        for (Event event: events){
+            for(TimeSlot timeSlot: event.getTimes()){
+                if(timeSlot.getDayOfWeek()== day.charAt(0)){
+                    if(isTimeInSlot(timeSlot, time)){
+                        return event.getTitle();
+                    }
+                }
+
             }
         }
         return null;
@@ -115,7 +200,12 @@ public class Schedule {
 
     private boolean isTimeInSlot(TimeSlot timeSlot, String time) {
         String[] parts = time.split(":");
-        int hour = Integer.parseInt(parts[0]) + 12;
+        int hour;
+        if (parts[1].contains("PM")) {
+            hour = Integer.parseInt(parts[0]) + 12;
+        } else {
+            hour = Integer.parseInt(parts[0]);
+        }
         String stringMinute = parts[1];
         if (!timeCheck(stringMinute, timeSlot.toString())) {
             return false;
@@ -137,6 +227,9 @@ public class Schedule {
             for (Course c : courses) {
                 p.print(c.toCSVFormat());
             }
+            for(Event e: events){
+                p.println(e.toCSVFormat());
+            }
             p.flush();
             p.close();
         } catch (FileNotFoundException e) {
@@ -146,5 +239,12 @@ public class Schedule {
 
     public void setName(String name) {
         this.name = name;
+    }
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
     }
 }
