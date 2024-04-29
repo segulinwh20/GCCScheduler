@@ -1,10 +1,29 @@
 package com.classes;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.sql.SQLOutput;
+import java.time.LocalTime;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.time.LocalTime;
 import java.util.*;
 
-//Load all of the courses into a giant course list. From there,
+import java.util.List;
+
+//Load all the courses into a giant course list. From there,
 //when it comes time to search based on parameters, iterate through each course's "get____" method,
 //and return the list of classes containing that match.
 
@@ -17,7 +36,8 @@ public class Search {
         COURSECODE,
         TITLE,
         SEMESTER,
-        TIME
+        TIME,
+        YEAR
 
     }
 
@@ -48,7 +68,12 @@ public class Search {
     //main searching algorithm. Reads data from file, creates a new list of courses, and searches for matches of each type
     //of enumerator.
     public List<Course> filterCourses() {
-        List<Course> data = readCoursesFromFile("data/2020-2021.csv");
+        CourseList courseList = WebScraper(); // Fetch courses from the web API
+        if (courseList == null) {
+            System.out.println("Failed to fetch course data from the web API.");
+            return new ArrayList<>(); // Return an empty list if fetching data fails
+        }
+        List<Course> data = courseList.getClasses();
         List<Course> filteredCourses = new ArrayList<>();
         //iterating through every course
         for (Course datum : data) {
@@ -110,9 +135,13 @@ public class Search {
                             match = false;
                         }
                         break;
-                        //error handling
+                    case Type.YEAR:
+                        if(!filterValues.contains(datum.getYear())){
+                            match = false;
+                        }
+                        break;
                     default:
-                        System.out.println("Invalid filter type");
+                        System.out.println("Invalid filter type!!!");
                         break;
                 }
                 //doesn't add course to search list if no match
@@ -161,10 +190,78 @@ public void removeFilter(Type filterType, String filterValue) {
 //Clears all filters from the list
     public void clearFilters() {
         List<String> semester = filters.get(Type.SEMESTER);
+        List<String> year = filters.get(Type.YEAR);
         dayFilters.clear();
         timeFilters.clear();
         filters.clear();
         addFilter(Type.SEMESTER, semester.getFirst());
+        addFilter(Type.YEAR, year.getFirst());
+    }
+
+    public static CourseList WebScraper(){
+        CourseList courseList = null;
+        try {
+            URL url = new URL("http://10.18.110.187/api/classes.json");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+
+                // Parse JSON response
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+                mapper.enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
+                mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+                mapper.enable(MapperFeature.ALLOW_COERCION_OF_SCALARS);
+                courseList = mapper.readValue(response.toString(), CourseList.class);
+
+            //TESTING
+
+                // Process Course objects
+//                for (Course course : courseList.getClasses()) {
+//                    System.out.println(course.getCourseCode());
+//                    System.out.print(course.getTitle());
+//                    System.out.print(" ");
+//                    System.out.print(course.getSectionLetter());
+//                    System.out.print(" ");
+//                    Professor prof = course.getProfessor();
+//                    System.out.println();
+//                    System.out.println(prof.getFirst() + " " + prof.getLast());
+//                    List<TimeSlot> times = course.getTimes();
+//                    if (times.isEmpty()) {
+//                        System.out.println("No times scheduled for this course");
+//                    } else {
+//                        System.out.println("Times:");
+//                        for (TimeSlot timeSlot : times) {
+//                            System.out.println("- Day: " + timeSlot.getDayOfWeek());
+//                            System.out.println("  Start Hour: " + timeSlot.getStartHour());
+//                            System.out.println("  Start Minute: " + timeSlot.getStartMinute());
+//                            System.out.println("  End Hour: " + timeSlot.getEndHour());
+//                            System.out.println("  End Minute: " + timeSlot.getEndMinute());
+//                            System.out.println();
+////                            System.out.println(timeSlot.getStart_time());
+////                            System.out.println(timeSlot.getEnd_time());
+//                        }
+//                    }
+//                    System.out.println();
+//                    // You can access other properties of the course object here
+//                }
+            } else {
+                System.out.println("HTTP request failed with response code: " + responseCode);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return courseList;
     }
 
     //File-parsing.
@@ -252,7 +349,7 @@ public void removeFilter(Type filterType, String filterValue) {
                     sectionLetter = fields[4].charAt(0);
                 }
 
-                int year = Integer.parseInt(fields[0]);
+                String year = (fields[0]);
                 String department = fields[2];
                 int id = Integer.parseInt(fields[3]);
                 String courseCode = department + id;
