@@ -178,7 +178,7 @@ public class Schedule {
                     if(isTimeInSlot(timeSlot, time)){
                         return course.getCourseCode() + " " + course.getSectionLetter();
                     }
-                  //  return course.getCourseCode() + " " + course.getSectionLetter();
+                    //  return course.getCourseCode() + " " + course.getSectionLetter();
                 }
             }
         }
@@ -241,7 +241,7 @@ public class Schedule {
     public void setName(String name) {
         this.name = name;
     }
-  
+
     public boolean loadFromLog(String name){
         String line;
         File file = new File("data/"+ name +".log");
@@ -266,7 +266,7 @@ public class Schedule {
                             case "Created":
                                 this.name = fields[3];
                                 this.semester = fields[4];
-                                queue.add("Created " + fields[3] + " " + fields[4]);
+                                queue.add("Created " + fields[3] + " " + fields[4] + " " + fields[5]);
                                 break;
                         }
                     }
@@ -287,7 +287,7 @@ public class Schedule {
                         Log.logger.info("Successfully Removed " + list[1]);
                         break;
                     case "Created":
-                        Log.logger.info("Successfully Created " + list[1] + " " + list[2]);
+                        Log.logger.info("Successfully Created " + list[1] + " " + list[2] + " " + list[3]);
                 }
             }
 
@@ -309,7 +309,7 @@ public class Schedule {
         }
         return null;
     }
-  
+
     public String getYear() {
         return year;
     }
