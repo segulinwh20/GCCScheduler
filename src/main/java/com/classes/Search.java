@@ -1,11 +1,10 @@
 package com.classes;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.SQLOutput;
-import java.time.LocalTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -16,12 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.time.LocalTime;
 import java.util.*;
-
-import java.util.List;
 
 //Load all the courses into a giant course list. From there,
 //when it comes time to search based on parameters, iterate through each course's "get____" method,
@@ -393,5 +387,37 @@ public void removeFilter(Type filterType, String filterValue) {
         catch (FileNotFoundException e){
             throw new RuntimeException("NO FILE");
         }
+    }
+    public static void viewMajorMinor(String name) {
+        String path;
+        if(name.endsWith(".pdf")){
+            path = "MamPDFs/" + name;
+        } else {
+            path = "MamPDFs/" + name + ".pdf";
+        }
+        if (Desktop.isDesktopSupported()) {
+            try {
+                File myFile = new File(path);
+                if(myFile.exists()) {
+                    Desktop.getDesktop().open(myFile);
+                    Log.logger.info("Viewing pdf " + myFile);
+                } else{
+                    System.out.println("File does not exist");
+                    Log.logger.info("Tried to view a pdf that does not exist");
+                }
+            } catch (IOException ex) {
+                System.out.println("Action not supported on device");
+                Log.logger.info("'Desktop' is not supported on this device");
+            }
+        }
+    }
+    public static ArrayList<String> getMajorsMinors(){
+        ArrayList<String> fileNames = new ArrayList<>();
+        File folder = new File("MamPDFs/");
+        File[] files = folder.listFiles();
+        for(File f: files){
+            fileNames.add(f.toString());
+        }
+        return fileNames;
     }
 }

@@ -180,6 +180,17 @@ public class Main {
                         System.out.println("Failed to load schedule");
                     }
                     break;
+                case "viewSupportedMajors":
+                    ArrayList<String> list = Search.getMajorsMinors();
+                    for(String str: list){
+                        System.out.println(str.substring(8));
+                    }
+                    break;
+                case "viewMajor":
+                    System.out.print("Enter the schedule you want to load: ");
+                    String maj = scan.nextLine();
+                    Search.viewMajorMinor(maj);
+                    break;
                 default:
                     Log.logger.info("Invalid Command Entered in Schedule Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
@@ -224,6 +235,8 @@ public class Main {
         System.out.println("'redo': This will redo the last change to schedule.");
         System.out.println("'quit': This will exit GCC Scheduler");
         System.out.println("'createEvent': this creates a custom event, prompting you with day(s) and time(s)'");
+        System.out.println("'viewSupportedMajors': Lists the major requirements that are currently available");
+        System.out.println("'viewMajor': Opens a pdf version of major the requirement sheets");
     }
 
     static void searchHelp() {

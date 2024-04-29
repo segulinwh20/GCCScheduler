@@ -183,4 +183,19 @@ class SearchTest {
         testFilters.clear();
         assertEquals(testFilters.get(Search.Type.TIME), y.getFilters().get(Search.Type.TIME));
     }
+
+    @Test
+    void viewMajor(){
+        Search s = new Search();
+        s.viewMajorMinor("Computer Science BA");
+    }
+
+    @Test
+    void getMajorsMinors(){
+        ArrayList<String> majMin = Search.getMajorsMinors();
+        for(String str: majMin){
+            System.out.println(str.substring(8));
+
+        }
+    }
 }
