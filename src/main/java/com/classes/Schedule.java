@@ -9,6 +9,7 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public class Schedule {
     private List<Event> events;
@@ -320,6 +321,75 @@ public class Schedule {
     public void setName(String name) {
         this.name = name;
     }
+  
+    public boolean loadFromLog(String name){
+        String line;
+        File file = new File("data/"+ name +".log");
+        ArrayList<String> queue = new ArrayList<>();
+        try(Scanner inFile = new Scanner(file)){
+            while(inFile.hasNextLine()) {
+                inFile.nextLine();
+                line = inFile.nextLine();
+                String[] fields = line.split(" ");
+                if(fields.length >= 4) {
+                    if (fields[1].equalsIgnoreCase("Successfully")) {
+                        switch (fields[2]){
+                            case "Added":
+                                System.out.println(line);
+                                this.addCourse(stringToCourse(fields[3]));
+                                queue.add("Added " + fields[3]);
+                                break;
+                            case "Removed":
+                                this.removeCourse(stringToCourse(fields[3]));
+                                queue.add("Removed " + fields[3]);
+                                break;
+                            case "Created":
+                                this.name = fields[3];
+                                this.semester = fields[4];
+                                queue.add("Created " + fields[3] + " " + fields[4]);
+                                break;
+                        }
+                    }
+                    if (fields[1].equals("Creating")){
+                        break;
+                    }
+                }
+            }
+
+            new Log("data/"+ name +".log");
+            for (int i = 0; i< queue.size(); i++){
+                String[] list = queue.get(i).split(" ");
+                switch (list[0]){
+                    case "Added":
+                        Log.logger.info("Successfully Added " + list[1]);
+                        break;
+                    case "Removed":
+                        Log.logger.info("Successfully Removed " + list[1]);
+                        break;
+                    case "Created":
+                        Log.logger.info("Successfully Created " + list[1] + " " + list[2]);
+                }
+            }
+
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("Unable to find log");
+            return false;
+        }
+        return true;
+    }
+
+    public Course stringToCourse(String str){
+        List<Course> list = Search.readCoursesFromFile("data/2020-2021.csv");
+        String s = str.substring(0,str.length()-1);
+        for (Course item : list) {
+            if (Objects.equals(s, item.getCourseCode()) && Objects.equals(str.charAt(str.length()-1), item.getSectionLetter())) {
+                return item;
+            }
+        }
+        return null;
+    }
+  
     public String getYear() {
         return year;
     }
