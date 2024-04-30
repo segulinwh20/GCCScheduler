@@ -236,4 +236,50 @@ public class Course {
     public void setTimes(List<TimeSlot> times) {
         this.times = times;
     }
+
+    public boolean meetsOnDay(char c) {
+        for (TimeSlot t : times) {
+            if (t.getDayOfWeek() == Character.toUpperCase(c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean meetsAt(int hour, int minute) {
+        for (TimeSlot t : times) {
+            if (t.timeFallsInRange(hour, minute)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append(courseCode);
+        s.append(' ');
+        s.append(sectionLetter);
+        s.append(": ");
+        s.append(title);
+        s.append(" [");
+        List<List<TimeSlot>> timeSlotGroups = getTimeSlotGroups();
+        if (timeSlotGroups.size() > 0) {
+            for (List<TimeSlot> group : timeSlotGroups) {
+                for (TimeSlot t : group) {
+                    s.append(t.getDayOfWeek());
+                }
+                s.append(' ');
+                s.append(group.get(0).timeRangeAsString());
+                s.append(", ");
+            }
+            s.delete(s.length() - 2, s.length());
+        }
+        else {
+            s.append("No time listed");
+        }
+        s.append(']');
+        return s.toString();
+    }
 }

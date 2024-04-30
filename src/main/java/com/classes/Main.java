@@ -13,7 +13,6 @@ public class Main {
     static Log log = new Log("data/log.log");
 
     public static void main(String[] args) throws IOException {
-        //TODO: edit main to add year as well!
         System.out.println("Welcome to GCC Scheduler");
         do{
             System.out.println("Please enter your first and last name and your major separated by a space.");
