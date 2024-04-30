@@ -1,10 +1,56 @@
 package com.classes;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import java.time.LocalTime;
 
 public class TimeSlot {
-    private int startHour, endHour, startMinute, endMinute;
+    private int startHour;
+
+    public void setStartHour(int startHour) {
+        this.startHour = startHour;
+    }
+
+    public void setEndHour(int endHour) {
+        this.endHour = endHour;
+    }
+
+    public void setStartMinute(int startMinute) {
+        this.startMinute = startMinute;
+    }
+
+    public void setEndMinute(int endMinute) {
+        this.endMinute = endMinute;
+    }
+
+    public void setDayOfWeek(char dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+    }
+
+
+
+    private int endHour;
+    private int startMinute;
+    private int endMinute;
+
     private char dayOfWeek;
+
+
+
+
+    @JsonCreator
+    public TimeSlot(@JsonProperty("day") char dayOfWeek,
+                    @JsonProperty("start_time") String start_time,
+                    @JsonProperty("end_time") String end_time) {
+        this.dayOfWeek = Character.toUpperCase(dayOfWeek);
+        LocalTime startTime = LocalTime.parse(start_time);
+        this.startHour = startTime.getHour();
+        this.startMinute = startTime.getMinute();
+        LocalTime endTime = LocalTime.parse(end_time);
+        this.endHour = endTime.getHour();
+        this.endMinute = endTime.getMinute();
+    }
 
     public TimeSlot(char dayOfWeek, int startHour, int startMinute, int endHour, int endMinute) {
         dayOfWeek = Character.toUpperCase(dayOfWeek);
@@ -18,6 +64,9 @@ public class TimeSlot {
         this.startMinute = startMinute;
         this.endHour = endHour;
         this.endMinute = endMinute;
+    }
+
+    public TimeSlot(){
     }
 
     public boolean timeFallsInRange(int hour, int minute) {

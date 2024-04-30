@@ -1,16 +1,33 @@
 package com.classes;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class Log {
     private static List<Schedule> actions = new ArrayList<Schedule>();
     private static int index = 0;
     private static Schedule problemAction;
     private static int problemIndex = 0;
+    public static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     public Log(){
 
+    }
+    public Log(String location){
+        try {
+            FileHandler fileHandler = new FileHandler(location);
+            logger.addHandler(fileHandler);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fileHandler.setFormatter(formatter);
+            logger.setUseParentHandlers(false);
+        }
+        catch(IOException e){
+            System.out.println(e);
+        }
     }
 
     public Log(Schedule s){
