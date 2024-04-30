@@ -17,7 +17,8 @@ public class Search {
         COURSECODE,
         TITLE,
         SEMESTER,
-        TIME
+        TIME,
+        YEAR
 
     }
 
@@ -26,8 +27,6 @@ public class Search {
     private Map<Type, List<String>> filters;
 
     private List<String> timeFilters;
-
-    private List<String> minuteFilters;
 
     private List<String> dayFilters;
 
@@ -161,10 +160,12 @@ public class Search {
 //Clears all filters from the list
     public void clearFilters() {
         List<String> semester = filters.get(Type.SEMESTER);
+        List<String> year = filters.get(Type.YEAR);
         dayFilters.clear();
         timeFilters.clear();
         filters.clear();
         addFilter(Type.SEMESTER, semester.getFirst());
+        addFilter(Type.YEAR, year.getFirst());
     }
 
     //File-parsing.
@@ -298,8 +299,8 @@ public class Search {
         }
     }
 
-    public Map<Course, Integer>/*List<Course>*/ smartSearch(String input) {
-        List<Course> courses = filterCourses();
+    public List<Course> smartSearch(String input) {
+        clearFilters();
 
         String[] tokens = input.toUpperCase().split(" ");
 
@@ -373,6 +374,16 @@ public class Search {
             }
         }
 
+        // filter the courses
+        for (Character day : daysOfWeek) {
+            addFilter(Type.DAY, day.toString());
+        }
+        for (int[] time : times) {
+
+        }
+
+        List<Course> courses = filterCourses();
+
         // calculate the heuristic
         Map<Course, Integer> courseHeuristic = new HashMap<>();
         for (Course course : courses) {
@@ -420,8 +431,7 @@ public class Search {
             courseHeuristic.put(course, h);
         }
 
-        return courseHeuristic;
-        // return sortCourseHeuristic(courseHeuristic);
+        return sortCourseHeuristic(courseHeuristic);
     }
 
     private double jaroWinkler(String s1, String s2) {
@@ -430,7 +440,7 @@ public class Search {
         double jaro = jaro(s1, s2);
         int MAX_PREFIX_LENGTH = 4;
         int commonPrefixLength = 0;
-        double prefixScalar = 0.1;  // Can't exceed 1 div MAX_PREFIX_LENGTH
+        double prefixScalar = 0.2;  // Can't exceed 1 div MAX_PREFIX_LENGTH
 
         for (int i = 0; i < Integer.min(MAX_PREFIX_LENGTH, Integer.min(s1.length(), s2.length())); i++) {
             if (s1.charAt(i) == s2.charAt(i)) {
