@@ -1,5 +1,6 @@
 package com.classes;
 
+import java.io.IOException;
 import java.sql.Array;
 import java.util.*;
 
@@ -11,7 +12,7 @@ public class Main {
     static List<Course> searchResults;
     static Log log = new Log("data/log.log");
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         //TODO: edit main to add year as well!
         System.out.println("Welcome to GCC Scheduler");
         do{
@@ -53,9 +54,13 @@ public class Main {
                     Log.logger.info("Opened Schedule Help Menu");
                     consoleHelp();
                     break;
-                case "createEvent":
-                    RawLog.logger.info("Creating New Event");
+                case "event":
+                    Log.logger.info("Creating New Event");
                     createEvent();
+                    break;
+                case "export":
+                    Log.logger.info("Exporting");
+                    export();
                     break;
                 case "createSchedule":
                     Log.logger.info("Creating New Schedule");
@@ -169,7 +174,7 @@ public class Main {
                 case "loadLog":
                     System.out.println("Enter the schedule you want to load");
                     String name = scan.nextLine();
-                    currentSchedule = new Schedule("", "");
+                    currentSchedule = new Schedule("", "", "");
                     if(currentSchedule.loadFromLog(name)){
                         System.out.println("Successfully loaded schedule.");
                         Log.logger.info("Loaded " + name + " from log");
@@ -221,7 +226,8 @@ public class Main {
         System.out.println("'undo': This will undo the last change to schedule.");
         System.out.println("'redo': This will redo the last change to schedule.");
         System.out.println("'quit': This will exit GCC Scheduler");
-        System.out.println("'createEvent': this creates a custom event, prompting you with day(s) and time(s)'");
+        System.out.println("'export': This will export your schedule in calendar format as a PDF");
+        System.out.println("'event': This brings you to the event menu");
     }
 
     static void searchHelp() {
@@ -283,6 +289,9 @@ public class Main {
         System.out.println("Schedule " + scheduleName + " does not exist.");
         return currentSchedule;
     }
+    static void export() throws IOException {
+        currentSchedule.export();
+    }
 
     static void getSchedules() {
         List<Schedule> schedules = student.getSchedules();
@@ -296,60 +305,68 @@ public class Main {
 
     static void createEvent(){
         eventTerminal: do {
-            System.out.println("createEvent: ");
+            System.out.println("event: ");
             Scanner scan = new Scanner(System.in);
             String cmdLine = scan.nextLine();
             String[] cmdItems = cmdLine.split(" ");
             switch(cmdItems[0]){
                 case "help":
-                    RawLog.logger.info("Opened Event Help Menu");
+                    Log.logger.info("Opened Event Help Menu");
                     eventHelp();
                     break;
                 case "newEvent":
-                    RawLog.logger.info("Creating New Event");
-                    if (cmdItems.length < 2) {
-                        RawLog.logger.warning("Tried to Create an Event With No Name");
-                        System.out.println("Cannot create an event with no name.");
-                        break;
-                    }
-                    RawLog.logger.info("Successfully created event title");
-                    newEvent(cmdItems);
+                    Log.logger.info("Creating New Event");
+                    newEvent();
                     break;
                 case "removeEvent":
-                    RawLog.logger.info("Remove Event");
+                    Log.logger.info("Remove Event");
                     if(cmdItems.length<= 1){
-                        RawLog.logger.warning("No title specified for removal");
+                        Log.logger.warning("No title specified for removal");
                         System.out.println("No title specified for removal");
                         break;
                     }
                     removeEvent(cmdItems);
-                    RawLog.logger.info("Successfully removed event");
+                    Log.logger.info("Successfully removed event");
                 case "back":
-                    RawLog.logger.info("Going Back to Schedule Menu");
+                    Log.logger.info("Going Back to Schedule Menu");
                     log.setErrorIndex();
                     log.redoLast();
                     break eventTerminal;
                 default:
-                    RawLog.logger.warning("Invalid Command Entered in Event Menu");
+                    Log.logger.warning("Invalid Command Entered in Event Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
             }
         } while(true);
     }
 
-    static void newEvent(String[] titleParam){
+    static void newEvent(){
+        boolean goodLength = false;
+        Scanner scan = new Scanner(System.in);
+        System.out.println("What's the name of this event?");
         StringBuilder eventName = new StringBuilder();
-        eventName.append(titleParam[1]);
-        for (int i = 2; i < titleParam.length; i++) {
-            eventName.append(" ").append(titleParam[i]);
+        while(!goodLength){
+            System.out.println("Name must be limited to 15 characters");
+            eventName.append(scan.nextLine());
+            if(eventName.length() <= 15){
+                goodLength =  true;
+                Log.logger.info("Successfully created event title");
+            }
+            else{
+                Log.logger.warning("Tried to Create an Event With Invalid Name");
+                eventName = new StringBuilder();
+            }
         }
+//        eventName.append(titleParam[1]);
+//        for (int i = 2; i < titleParam.length; i++) {
+//            eventName.append(" ").append(titleParam[i]);
+//        }
         System.out.println("Please input the days in which this event occurs, separated by commas, in the following format: \n" +
                 "M,T,W,R,F,S,U: ");
-        Scanner scan = new Scanner(System.in);
         String line = scan.nextLine().trim();
         String[] days = line.split(",");
         while (!line.matches("^[MTWRFSU](,[MTWRFSU])*$")) {
             System.out.println("Invalid entry: Please type days as 'M,T,W,R,F,S,U' separated by commas");
-            RawLog.logger.warning("Invalid Day Entered in newEvent menu");
+            Log.logger.warning("Invalid Day Entered in newEvent menu");
             line = scan.nextLine().trim();
             days = line.split(",");
         }
@@ -379,7 +396,7 @@ public class Main {
                     validStartTime = true;
                 } catch (NumberFormatException e) {
                     System.out.println("Please enter valid integers for hour and minute");
-                    RawLog.logger.warning("Non-integer entered for startHour or startMinute");
+                    Log.logger.warning("Non-integer entered for startHour or startMinute");
                 }
             }
 
@@ -388,7 +405,7 @@ public class Main {
             String startMeridian = scan.nextLine();
             if (!startMeridian.equals("AM") && !startMeridian.equals("PM")) {
                 System.out.println("Please enter AM or PM");
-                RawLog.logger.warning("Something other than AM or PM entered for startTime");
+                Log.logger.warning("Something other than AM or PM entered for startTime");
                 validStartTime = false; // Resetting validStartTime to false to repeat the loop
             } else {
                 // Convert start time to 24-hour format
@@ -421,7 +438,7 @@ public class Main {
                     String endMeridian = scan.nextLine();
                     if (!endMeridian.equals("AM") && !endMeridian.equals("PM")) {
                         System.out.println("Please enter AM or PM");
-                        RawLog.logger.warning("Something other than AM or PM entered for endTime");
+                        Log.logger.warning("Something other than AM or PM entered for endTime");
                         continue; // Restart the loop to re-enter end time
                     }
 
@@ -435,14 +452,14 @@ public class Main {
                     // Check if end time is after start time
                     if (endHour < startHour || (endHour == startHour && endMinute < startMinute)) {
                         System.out.println("Event end time cannot be before start time");
-                        RawLog.logger.warning("End time before start time");
+                        Log.logger.warning("End time before start time");
                         continue; // Restart the loop to re-enter end time
                     }
 
                     validEndTime = true; // End time input is valid
                 } catch (NumberFormatException e) {
                     System.out.println("Please enter valid integers for hour and minute");
-                    RawLog.logger.warning("Non-integer entered for endHour or endMinute");
+                    Log.logger.warning("Non-integer entered for endHour or endMinute");
                 }
             }
         }
@@ -680,7 +697,7 @@ public class Main {
                     System.out.println("startHours are 8:00 AM to 3:00 PM as well as night classes at 6:00 PM, enter time as 8:00-18:00.");
                     break;
                 case "Year":
-                    RawLog.logger.info("Displaying year time filter info");
+                    Log.logger.info("Displaying year time filter info");
                     System.out.println("years are 2023, 2024, and 2025");
                 case "day":
                     Log.logger.info("Displaying Day Filter Info");
