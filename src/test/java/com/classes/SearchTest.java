@@ -191,7 +191,7 @@ class SearchTest {
         search.addFilter(Search.Type.SEMESTER, schedule.getSemester());
         search.addFilter(Search.Type.YEAR, schedule.getYear());
 
-        List<Course> list = search.smartSearch("camp");
+        List<Course> list = search.smartSearch("stud");
 
         Map<Search.Type, List<String>> filters = search.getFilters();
         for (Search.Type type : filters.keySet()) {

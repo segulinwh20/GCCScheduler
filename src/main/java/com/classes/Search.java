@@ -425,7 +425,7 @@ public class Search {
             else if (token.matches("[A-Z]")) {
                 sectionLetters.add(token.charAt(0));
             }
-            else if (token.matches("[A-Z]{1,4}\\d{3}")) {
+            else if (token.matches("[A-Z]{2,4}\\d{3}")) {
                 String[] strings = token.split("(?<=\\D)(?=\\d)");
                 depts.add(strings[0]);
                 courseCodes.add(parseInteger(strings[1]));
@@ -474,8 +474,8 @@ public class Search {
                 if (String.valueOf(courseCode).equals(course.getCourseCode().split("(?<=\\D)(?=\\d)")[1])) {
                     h += 1000;
                 }
-                if (String.valueOf(courseCode).substring(0,1).equals(course.getCourseCode().substring(0,1))) {
-                    h += 100;
+                else if (String.valueOf(courseCode).substring(0,1).equals(course.getCourseCode().substring(0,1))) {
+                    h += 250;
                 }
             }
             for (char sectionLetter : sectionLetters) {
@@ -485,7 +485,7 @@ public class Search {
             }
             for (String s : genStrings) {
                 for (String word : course.getTitle().split(" ")) {
-                    if (word.length() > 4) {
+                    if (word.length() >= 4) {
                         double jaroWinkler = jaroWinkler(s, word);
                         if (jaroWinkler > .95) {
                             h += 5000;
@@ -501,8 +501,8 @@ public class Search {
                         }
                     }
                 }
-                if (jaroWinkler(s, course.getProfessor().getLast()) > .7) {
-                    h += 500;
+                if (jaroWinkler(s, course.getProfessor().getLast()) > .95) {
+                    h += 5000;
                 }
             }
             courseHeuristic.put(course, h);
