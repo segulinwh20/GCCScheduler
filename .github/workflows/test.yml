@@ -22,7 +22,7 @@ jobs:
           architecture: x64
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v8.6
+        uses: gradle/actions/setup-gradle@d55c486870a0dc6f6278f53d21381396d0741c6e
 
       - name: Build with Gradle
         run: ./gradlew build
