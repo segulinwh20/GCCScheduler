@@ -55,10 +55,14 @@ public class Main {
                     break;
                 case "createEvent":
                     Log.logger.info("Creating New Event");
-                    createEvent();
+                    if(currentSchedule != null) {
+                        createEvent();
+                    } else {
+                        System.out.println("Create a schedule before adding an event");
+                    }
                     break;
                 case "createSchedule":
-                    Log.logger.info("Creating New Schedule");
+                    Log.logger.info("Making New Schedule");
                     if (cmdItems.length < 2) {
                         Log.logger.warning("Tried to Create a Schedule With No Name");
                         System.out.println("Cannot create a schedule with no name.");
@@ -327,7 +331,7 @@ public class Main {
                         System.out.println("Cannot create an event with no name.");
                         break;
                     }
-                    Log.logger.info("Successfully created event title");
+                    Log.logger.info("Successful creation of event title");
                     newEvent(cmdItems);
                     break;
                 case "removeEvent":
@@ -490,6 +494,7 @@ public class Main {
         Event e = new Event(eventName, times);
         if(currentSchedule.addEvent(e)){
             System.out.println("Successfully added event");
+            Log.logger.info("Successfully Added event " + e.toLogFormat());
         }
         else{
             System.out.println("Failed to add event");

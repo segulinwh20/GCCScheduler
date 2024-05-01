@@ -188,6 +188,33 @@ public class TimeSlot {
         return this.dayOfWeek == other.dayOfWeek;
     }
 
+    public String logFormattedStartTime() {
+        StringBuilder s = new StringBuilder();
+        boolean isAM = startHour >= 12;
+        if (startHour < 12) {
+            if (startHour == 0) {
+                s.append(12);
+            }
+            else {
+                s.append(startHour);
+            }
+            s.append(':');
+            s.append(String.format("%02d", startMinute));
+            s.append(":00AM");
+        }
+        else {
+            if (startHour == 12) {
+                s.append(12);
+            }
+            else {
+                s.append(startHour-12);
+            }
+            s.append(':');
+            s.append(String.format("%02d", startMinute));
+            s.append(":00PM");
+        }
+        return s.toString();
+    }
     public String csvFormattedStartTime() {
         StringBuilder s = new StringBuilder();
         boolean isAM = startHour >= 12;
@@ -215,7 +242,32 @@ public class TimeSlot {
         }
         return s.toString();
     }
-
+    public String logFormattedEndTime(){
+        StringBuilder s = new StringBuilder();
+        if (endHour < 12) {
+            if (endHour == 0) {
+                s.append(12);
+            }
+            else {
+                s.append(endHour);
+            }
+            s.append(':');
+            s.append(String.format("%02d", endMinute));
+            s.append(":00AM");
+        }
+        else {
+            if (endHour == 12) {
+                s.append(12);
+            }
+            else {
+                s.append(endHour-12);
+            }
+            s.append(':');
+            s.append(String.format("%02d", endMinute));
+            s.append(":00PM");
+        }
+        return s.toString();
+    }
     public String csvFormattedEndTime() {
         StringBuilder s = new StringBuilder();
         if (endHour < 12) {
