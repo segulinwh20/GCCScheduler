@@ -1,8 +1,13 @@
 package com.classes;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -72,6 +77,7 @@ public class Schedule {
         return true;
     }
 
+
     public boolean addEvent(Event e){
         if(conflicts(e)){
             System.out.println("Event cannot be added because it conflicts with another course or event in the schedule");
@@ -81,6 +87,8 @@ public class Schedule {
         log.addAction(new Schedule(this));
         return true;
     }
+
+
 
     public boolean removeEvent(Event e){
         if(events.isEmpty()){
@@ -142,11 +150,83 @@ public class Schedule {
         return false;
     }
 
-    public File export() {
-        return null;
+    public void export()  {
+        try (PDDocument document = new PDDocument()) {
+            // Define custom landscape page dimensions
+            PDPage page = new PDPage(new PDRectangle(792, 800)); // Width: 792 points, Height: 612 points (A4 in landscape)
+            document.addPage(page);
+
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+            // Define cell width and height
+            float cellWidth = 80;
+            float cellHeight = 20;
+
+            String title = "Schedule: " + this.name + ", for " + this.semester + " " + this.year; // PDF Title basically
+            contentStream.beginText();
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18); // Adjust font and size as needed
+            contentStream.newLineAtOffset(50, 750); // Adjust x and y coordinates as needed
+            contentStream.showText(title);
+            contentStream.endText();
+
+            // Adjust y-coordinate to leave space for times before 10:00 AM
+            float startY = 1400 - (TIMES.length + 2) * cellHeight; // Start below the times (plus some additional space)
+
+            // Table header
+            drawCell(contentStream, 50, startY, cellWidth, cellHeight, "Time", true);
+            for (int i = 0; i < DAYS.length; i++) {
+                drawCell(contentStream, 50 + (i + 1) * cellWidth, startY, cellWidth, cellHeight, DAYS[i], true);
+            }
+
+            // Table content
+            for (int i = 0; i < TIMES.length; i++) {
+                drawCell(contentStream, 50, startY - (i + 1) * cellHeight, cellWidth, cellHeight, TIMES[i], true);
+                for (int j = 0; j < DAYS.length; j++) {
+                    String courseName = getCourseSlot(courses, DAYS[j], TIMES[i]);
+                    StringBuilder eventName = getEventSlot(events, DAYS[j], TIMES[i]);
+                    String content = "";
+                    if (courseName != null) {
+                        content += courseName + "\n";
+                    }
+                    if (eventName != null) {
+                        content += eventName.toString() + "\n";
+                    }
+                    drawCell(contentStream, 50 + (j + 1) * cellWidth, startY - (i + 1) * cellHeight, cellWidth, cellHeight, content, false);
+                }
+            }
+
+            contentStream.close();
+
+            // Save the PDF document
+            File file = new File(this.name + ".pdf");
+            document.save(file);
+            System.out.println("PDF created successfully.");
+        } catch (IOException e) {
+            System.err.println("Error creating PDF: " + e.getMessage());
+        }
     }
 
-    public void viewGrid() {
+    // Method to draw a cell in the PDF
+    private static void drawCell(PDPageContentStream contentStream, float x, float y, float width, float height, String content, boolean bold) throws IOException {
+        // Filter out control characters
+        content = content.replaceAll("\\p{Cntrl}", "");
+
+        contentStream.setFont(PDType1Font.HELVETICA, 9);
+        if (bold) {
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+        }
+        contentStream.beginText();
+        contentStream.newLineAtOffset(x, y);
+        contentStream.showText(content);
+        contentStream.endText();
+
+        // Adjust cell width and height to fixed values
+
+        contentStream.addRect(x, y - height, width, height);
+        contentStream.stroke();
+    }
+
+    public void viewGrid()  {
         System.out.printf("%-15s", "");
         for (String day : DAYS) {
             System.out.printf("%-13s", day);
@@ -178,7 +258,7 @@ public class Schedule {
                     if(isTimeInSlot(timeSlot, time)){
                         return course.getCourseCode() + " " + course.getSectionLetter();
                     }
-                  //  return course.getCourseCode() + " " + course.getSectionLetter();
+                    //  return course.getCourseCode() + " " + course.getSectionLetter();
                 }
             }
         }
@@ -241,7 +321,7 @@ public class Schedule {
     public void setName(String name) {
         this.name = name;
     }
-  
+
     public boolean loadFromLog(String name){
         String line;
         File file = new File("data/"+ name +".log");
@@ -255,22 +335,39 @@ public class Schedule {
                     if (fields[1].equalsIgnoreCase("Successfully")) {
                         switch (fields[2]){
                             case "Added":
-                                System.out.println(line);
-                                this.addCourse(stringToCourse(fields[3]));
-                                queue.add("Added " + fields[3]);
+                                if(fields[3].equals("event")){
+                                    Event e = eventFromLog(fields);
+                                    this.addEvent(e);
+                                    queue.add("Added event " + e.toLogFormat());
+                                } else {
+                                    System.out.println(line);
+                                    this.addCourse(stringToCourse(fields[3]));
+                                    queue.add("Added " + fields[3]);
+                                }
                                 break;
                             case "Removed":
-                                this.removeCourse(stringToCourse(fields[3]));
-                                queue.add("Removed " + fields[3]);
+                                if(fields[3].equals("event")){
+                                    Event e = eventFromLog(fields);
+                                    this.removeEvent(e);
+                                    queue.add("Removed event " + e.toLogFormat());
+                                } else {
+                                    this.removeCourse(stringToCourse(fields[3]));
+                                    queue.add("Removed " + fields[3]);
+                                }
                                 break;
                             case "Created":
+                                if(fields[3].equals("event")){
+                                    Event e = eventFromLog(fields);
+                                    this.addEvent(e);
+                                    queue.add("Created event " + e.toLogFormat());
+                                }
                                 this.name = fields[3];
                                 this.semester = fields[4];
                                 queue.add("Created " + fields[3] + " " + fields[4] + " " + fields[5]);
                                 break;
                         }
                     }
-                    if (fields[1].equals("Creating")){
+                    if (fields[1].equals("Making")){
                         break;
                     }
                 }
@@ -281,7 +378,11 @@ public class Schedule {
                 String[] list = queue.get(i).split(" ");
                 switch (list[0]){
                     case "Added":
-                        Log.logger.info("Successfully Added " + list[1]);
+                        if(list[1].equals("event")){
+                            Log.logger.info("Successfully Added " + list[2]);
+                        } else {
+                            Log.logger.info("Successfully Added " + list[1]);
+                        }
                         break;
                     case "Removed":
                         Log.logger.info("Successfully Removed " + list[1]);
@@ -299,6 +400,46 @@ public class Schedule {
         return true;
     }
 
+    private static StringBuilder getStringBuilder(String[] fields) {
+        StringBuilder daysOfWeek = new StringBuilder();
+        if(fields[5].startsWith("M")){
+            daysOfWeek.append("M");
+        } else if (fields[5].contains("T")) {
+            daysOfWeek.append("T");
+        } else if (fields[5].contains("W")) {
+            daysOfWeek.append("W");
+        } else if (fields[5].contains("R")) {
+            daysOfWeek.append("R");
+        } else if (fields[5].contains("F")) {
+            daysOfWeek.append("F");
+        } else if (fields[5].contains("S")) {
+            daysOfWeek.append("S");
+        } else if (fields[5].contains("U")) {
+            daysOfWeek.append("U");
+        }
+        return daysOfWeek;
+    }
+    public Event eventFromLog(String[] fields){
+        StringBuilder title = new StringBuilder(fields[4]);
+        StringBuilder daysOfWeek = getStringBuilder(fields);
+        String[] beginTime = fields[6].split(":");
+        String[] endTime = fields[7].split(":");
+        int beginHr = Integer.parseInt(beginTime[0]);
+        int endHr = Integer.parseInt(endTime[0]);
+        List<TimeSlot> times = new ArrayList<>();
+
+        for (int i = 0; i < daysOfWeek.length(); i++) {
+            if(fields[6].contains("P") && !beginTime[0].equals("12")){
+                beginHr += 12;
+            }
+            if(fields[7].contains("P") && !endTime[0].equals("12")){
+                endHr += 12;
+            }
+            times.add(new TimeSlot(daysOfWeek.charAt(i), beginHr, Integer.parseInt(beginTime[1]), endHr,Integer.parseInt(endTime[1])));
+        }
+        return new Event(title, times);
+    }
+
     public Course stringToCourse(String str){
         List<Course> list = Search.readCoursesFromFile("data/2020-2021.csv");
         String s = str.substring(0,str.length()-1);
@@ -309,7 +450,7 @@ public class Schedule {
         }
         return null;
     }
-  
+
     public String getYear() {
         return year;
     }
