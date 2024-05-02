@@ -16,6 +16,7 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.17.2'
     implementation 'com.opencsv:opencsv:5.5.2'
     implementation 'org.apache.pdfbox:pdfbox:2.0.24'
+    implementation 'com.amdelamar:jhash:2.2.0'
 }
 
 test {
