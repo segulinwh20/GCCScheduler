@@ -66,10 +66,6 @@ public class Main {
                     Log.logger.info("Exporting");
                     export();
                     break;
-                case "export":
-                    Log.logger.info("Exporting");
-                    export();
-                    break;
                 case "createSchedule":
                     Log.logger.info("Making New Schedule");
                     if (cmdItems.length < 2) {
