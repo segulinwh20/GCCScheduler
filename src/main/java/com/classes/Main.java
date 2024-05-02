@@ -1,5 +1,6 @@
 package com.classes;
 
+import java.io.IOException;
 import java.sql.Array;
 import java.util.*;
 
@@ -11,8 +12,7 @@ public class Main {
     static List<Course> searchResults;
     static Log log = new Log("data/log.log");
 
-    public static void main(String[] args) {
-        //TODO: edit main to add year as well!
+    public static void main(String[] args) throws IOException {
         System.out.println("Welcome to GCC Scheduler");
         do{
             System.out.println("Please enter your first and last name and your major separated by a space.");
@@ -60,6 +60,11 @@ public class Main {
                     } else {
                         System.out.println("Create a schedule before adding an event");
                     }
+
+                    break;
+                case "export":
+                    Log.logger.info("Exporting");
+                    export();
                     break;
                 case "createSchedule":
                     Log.logger.info("Making New Schedule");
@@ -173,9 +178,11 @@ public class Main {
                 case "loadLog":
                     System.out.println("Enter the schedule you want to load");
                     String name = scan.nextLine();
+
                     if(currentSchedule == null) {
                         currentSchedule = new Schedule("", "", "");
                     }
+
                     if(currentSchedule.loadFromLog(name)){
                         System.out.println("Successfully loaded schedule.");
                         Log.logger.info("Loaded " + name + " from log");
@@ -238,9 +245,10 @@ public class Main {
         System.out.println("'undo': This will undo the last change to schedule.");
         System.out.println("'redo': This will redo the last change to schedule.");
         System.out.println("'quit': This will exit GCC Scheduler");
-        System.out.println("'createEvent': this creates a custom event, prompting you with day(s) and time(s)'");
         System.out.println("'viewSupportedMajors': Lists the major requirements that are currently available");
         System.out.println("'viewMajor': Opens a pdf version of major the requirement sheets");
+        System.out.println("'export': This will export your schedule in calendar format as a PDF");
+        System.out.println("'event': This brings you to the event menu");
     }
 
     static void searchHelp() {
@@ -302,6 +310,9 @@ public class Main {
         System.out.println("Schedule " + scheduleName + " does not exist.");
         return currentSchedule;
     }
+    static void export() throws IOException {
+        currentSchedule.export();
+    }
 
     static void getSchedules() {
         List<Schedule> schedules = student.getSchedules();
@@ -315,7 +326,7 @@ public class Main {
 
     static void createEvent(){
         eventTerminal: do {
-            System.out.println("createEvent: ");
+            System.out.println("event: ");
             Scanner scan = new Scanner(System.in);
             String cmdLine = scan.nextLine();
             String[] cmdItems = cmdLine.split(" ");
@@ -326,13 +337,7 @@ public class Main {
                     break;
                 case "newEvent":
                     Log.logger.info("Creating New Event");
-                    if (cmdItems.length < 2) {
-                        Log.logger.warning("Tried to Create an Event With No Name");
-                        System.out.println("Cannot create an event with no name.");
-                        break;
-                    }
-                    Log.logger.info("Successful creation of event title");
-                    newEvent(cmdItems);
+                    newEvent();
                     break;
                 case "removeEvent":
                     Log.logger.info("Remove Event");
@@ -355,15 +360,29 @@ public class Main {
         } while(true);
     }
 
-    static void newEvent(String[] titleParam){
+    static void newEvent(){
+        boolean goodLength = false;
+        Scanner scan = new Scanner(System.in);
+        System.out.println("What's the name of this event?");
         StringBuilder eventName = new StringBuilder();
-        eventName.append(titleParam[1]);
-        for (int i = 2; i < titleParam.length; i++) {
-            eventName.append(" ").append(titleParam[i]);
+        while(!goodLength){
+            System.out.println("Name must be limited to 15 characters");
+            eventName.append(scan.nextLine());
+            if(eventName.length() <= 15){
+                goodLength =  true;
+                Log.logger.info("Successfully created event title");
+            }
+            else{
+                Log.logger.warning("Tried to Create an Event With Invalid Name");
+                eventName = new StringBuilder();
+            }
         }
+//        eventName.append(titleParam[1]);
+//        for (int i = 2; i < titleParam.length; i++) {
+//            eventName.append(" ").append(titleParam[i]);
+//        }
         System.out.println("Please input the days in which this event occurs, separated by commas, in the following format: \n" +
                 "M,T,W,R,F,S,U: ");
-        Scanner scan = new Scanner(System.in);
         String line = scan.nextLine().trim();
         String[] days = line.split(",");
         while (!line.matches("^[MTWRFSU](,[MTWRFSU])*$")) {

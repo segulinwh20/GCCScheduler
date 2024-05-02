@@ -1,8 +1,13 @@
 package com.classes;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -72,6 +77,7 @@ public class Schedule {
         return true;
     }
 
+
     public boolean addEvent(Event e){
         if(conflicts(e)){
             System.out.println("Event cannot be added because it conflicts with another course or event in the schedule");
@@ -81,6 +87,8 @@ public class Schedule {
         log.addAction(new Schedule(this));
         return true;
     }
+
+
 
     public boolean removeEvent(Event e){
         if(events.isEmpty()){
@@ -142,11 +150,83 @@ public class Schedule {
         return false;
     }
 
-    public File export() {
-        return null;
+    public void export()  {
+        try (PDDocument document = new PDDocument()) {
+            // Define custom landscape page dimensions
+            PDPage page = new PDPage(new PDRectangle(792, 800)); // Width: 792 points, Height: 612 points (A4 in landscape)
+            document.addPage(page);
+
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+            // Define cell width and height
+            float cellWidth = 80;
+            float cellHeight = 20;
+
+            String title = "Schedule: " + this.name + ", for " + this.semester + " " + this.year; // PDF Title basically
+            contentStream.beginText();
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18); // Adjust font and size as needed
+            contentStream.newLineAtOffset(50, 750); // Adjust x and y coordinates as needed
+            contentStream.showText(title);
+            contentStream.endText();
+
+            // Adjust y-coordinate to leave space for times before 10:00 AM
+            float startY = 1400 - (TIMES.length + 2) * cellHeight; // Start below the times (plus some additional space)
+
+            // Table header
+            drawCell(contentStream, 50, startY, cellWidth, cellHeight, "Time", true);
+            for (int i = 0; i < DAYS.length; i++) {
+                drawCell(contentStream, 50 + (i + 1) * cellWidth, startY, cellWidth, cellHeight, DAYS[i], true);
+            }
+
+            // Table content
+            for (int i = 0; i < TIMES.length; i++) {
+                drawCell(contentStream, 50, startY - (i + 1) * cellHeight, cellWidth, cellHeight, TIMES[i], true);
+                for (int j = 0; j < DAYS.length; j++) {
+                    String courseName = getCourseSlot(courses, DAYS[j], TIMES[i]);
+                    StringBuilder eventName = getEventSlot(events, DAYS[j], TIMES[i]);
+                    String content = "";
+                    if (courseName != null) {
+                        content += courseName + "\n";
+                    }
+                    if (eventName != null) {
+                        content += eventName.toString() + "\n";
+                    }
+                    drawCell(contentStream, 50 + (j + 1) * cellWidth, startY - (i + 1) * cellHeight, cellWidth, cellHeight, content, false);
+                }
+            }
+
+            contentStream.close();
+
+            // Save the PDF document
+            File file = new File(this.name + ".pdf");
+            document.save(file);
+            System.out.println("PDF created successfully.");
+        } catch (IOException e) {
+            System.err.println("Error creating PDF: " + e.getMessage());
+        }
     }
 
-    public void viewGrid() {
+    // Method to draw a cell in the PDF
+    private static void drawCell(PDPageContentStream contentStream, float x, float y, float width, float height, String content, boolean bold) throws IOException {
+        // Filter out control characters
+        content = content.replaceAll("\\p{Cntrl}", "");
+
+        contentStream.setFont(PDType1Font.HELVETICA, 9);
+        if (bold) {
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+        }
+        contentStream.beginText();
+        contentStream.newLineAtOffset(x, y);
+        contentStream.showText(content);
+        contentStream.endText();
+
+        // Adjust cell width and height to fixed values
+
+        contentStream.addRect(x, y - height, width, height);
+        contentStream.stroke();
+    }
+
+    public void viewGrid()  {
         System.out.printf("%-15s", "");
         for (String day : DAYS) {
             System.out.printf("%-13s", day);

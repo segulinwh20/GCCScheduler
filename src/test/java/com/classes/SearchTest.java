@@ -185,6 +185,7 @@ class SearchTest {
     }
 
     @Test
+
     void viewMajor(){
         Search s = new Search();
         s.viewMajorMinor("Computer Science BA");
@@ -197,5 +198,28 @@ class SearchTest {
             System.out.println(str.substring(8));
 
         }
+
+    public void smartSearch() {
+        Schedule schedule = new Schedule("TestSchedule", "Spring", "2024");
+        Search search = new Search();
+        search.addFilter(Search.Type.SEMESTER, schedule.getSemester());
+        search.addFilter(Search.Type.YEAR, schedule.getYear());
+
+        List<Course> list = search.smartSearch("camp");
+
+        Map<Search.Type, List<String>> filters = search.getFilters();
+        for (Search.Type type : filters.keySet()) {
+            System.out.println("\u001B[31m" + type + "\u001B[37m");
+            for (String filter : filters.get(type)) {
+                System.out.println("\t" + filter);
+            }
+        }
+
+        System.out.println("\n\u001B[33mClasses Returned:\u001B[37m");
+        for (Course c : list) {
+            System.out.print("\t");
+            System.out.println(c);
+        }
+        System.out.println("\u001B[33mEnd of List\u001B[37m");
     }
 }

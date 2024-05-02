@@ -106,9 +106,13 @@ class ScheduleTest {
 
     @Test
     void testExport() {
+        Schedule A = new Schedule("","","");
+        A.export();
     }
 
     @Test
     void testViewGrid() {
+        Schedule A = new Schedule("","","");
+        A.viewGrid();
     }
 }
