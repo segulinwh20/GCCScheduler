@@ -196,7 +196,7 @@ class SearchTest {
 
         }
     }
-
+    @Test
     public void smartSearch() {
         Schedule schedule = new Schedule("TestSchedule", "Spring", "2024");
         Search search = new Search();
