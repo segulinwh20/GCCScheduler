@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -41,6 +42,12 @@ public class Search {
 
     }
 
+    // Ignoring the "date" and "time" fields
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private String date;
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private String time;
 
     //various data structures for search algorithm
     private Map<Type, List<String>> filters;

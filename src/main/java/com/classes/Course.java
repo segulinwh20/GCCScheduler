@@ -5,9 +5,16 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Course {
+    // Ignoring the "date" and "time" fields
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private String date;
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private String time;
 
     private int id;
     private String title;
