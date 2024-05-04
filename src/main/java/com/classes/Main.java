@@ -32,7 +32,7 @@ public class Main {
                 for (Course course : courses) {
                     System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
                 }
-               List<Event> events = currentSchedule.getEvents();
+                List<Event> events = currentSchedule.getEvents();
                 if(!events.isEmpty()){
                     System.out.println("Events: ");
                     for (Event event: events){
@@ -50,17 +50,21 @@ public class Main {
                     Log.logger.info("Opened Schedule Help Menu");
                     consoleHelp();
                     break;
-
                 case "event":
                     Log.logger.info("Creating New Event");
-                    createEvent();
+                    if(currentSchedule != null) {
+                        createEvent();
+                    } else {
+                        System.out.println("Create a schedule before adding an event");
+                    }
+
                     break;
                 case "export":
                     Log.logger.info("Exporting");
                     export();
                     break;
                 case "createSchedule":
-                    Log.logger.info("Creating New Schedule");
+                    Log.logger.info("Making New Schedule");
                     if (cmdItems.length < 2) {
                         Log.logger.warning("Tried to Create a Schedule With No Name");
                         System.out.println("Cannot create a schedule with no name.");
@@ -184,6 +188,17 @@ public class Main {
                         System.out.println("Failed to load schedule");
                     }
                     break;
+                case "viewSupportedMajors":
+                    ArrayList<String> list = Search.getMajorsMinors();
+                    for(String str: list){
+                        System.out.println(str.substring(8));
+                    }
+                    break;
+                case "viewMajor":
+                    System.out.print("Enter the schedule you want to load: ");
+                    String maj = scan.nextLine();
+                    Search.viewMajorMinor(maj);
+                    break;
                 default:
                     Log.logger.info("Invalid Command Entered in Schedule Menu");
                     System.out.println("Invalid Command, Please Re-Enter Command");
@@ -227,6 +242,8 @@ public class Main {
         System.out.println("'undo': This will undo the last change to schedule.");
         System.out.println("'redo': This will redo the last change to schedule.");
         System.out.println("'quit': This will exit GCC Scheduler");
+        System.out.println("'viewSupportedMajors': Lists the major requirements that are currently available");
+        System.out.println("'viewMajor': Opens a pdf version of major the requirement sheets");
         System.out.println("'export': This will export your schedule in calendar format as a PDF");
         System.out.println("'event': This brings you to the event menu");
     }
@@ -494,6 +511,7 @@ public class Main {
         Event e = new Event(eventName, times);
         if(currentSchedule.addEvent(e)){
             System.out.println("Successfully added event");
+            Log.logger.info("Successfully Added event " + e.toLogFormat());
         }
         else{
             System.out.println("Failed to add event");

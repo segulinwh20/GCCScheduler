@@ -258,7 +258,7 @@ public class Schedule {
                     if(isTimeInSlot(timeSlot, time)){
                         return course.getCourseCode() + " " + course.getSectionLetter();
                     }
-                  //  return course.getCourseCode() + " " + course.getSectionLetter();
+                    //  return course.getCourseCode() + " " + course.getSectionLetter();
                 }
             }
         }
@@ -321,7 +321,7 @@ public class Schedule {
     public void setName(String name) {
         this.name = name;
     }
-  
+
     public boolean loadFromLog(String name){
         String line;
         File file = new File("data/"+ name +".log");
@@ -335,22 +335,39 @@ public class Schedule {
                     if (fields[1].equalsIgnoreCase("Successfully")) {
                         switch (fields[2]){
                             case "Added":
-                                System.out.println(line);
-                                this.addCourse(stringToCourse(fields[3]));
-                                queue.add("Added " + fields[3]);
+                                if(fields[3].equals("event")){
+                                    Event e = eventFromLog(fields);
+                                    this.addEvent(e);
+                                    queue.add("Added event " + e.toLogFormat());
+                                } else {
+                                    System.out.println(line);
+                                    this.addCourse(stringToCourse(fields[3]));
+                                    queue.add("Added " + fields[3]);
+                                }
                                 break;
                             case "Removed":
-                                this.removeCourse(stringToCourse(fields[3]));
-                                queue.add("Removed " + fields[3]);
+                                if(fields[3].equals("event")){
+                                    Event e = eventFromLog(fields);
+                                    this.removeEvent(e);
+                                    queue.add("Removed event " + e.toLogFormat());
+                                } else {
+                                    this.removeCourse(stringToCourse(fields[3]));
+                                    queue.add("Removed " + fields[3]);
+                                }
                                 break;
                             case "Created":
+                                if(fields[3].equals("event")){
+                                    Event e = eventFromLog(fields);
+                                    this.addEvent(e);
+                                    queue.add("Created event " + e.toLogFormat());
+                                }
                                 this.name = fields[3];
                                 this.semester = fields[4];
                                 queue.add("Created " + fields[3] + " " + fields[4] + " " + fields[5]);
                                 break;
                         }
                     }
-                    if (fields[1].equals("Creating")){
+                    if (fields[1].equals("Making")){
                         break;
                     }
                 }
@@ -361,7 +378,11 @@ public class Schedule {
                 String[] list = queue.get(i).split(" ");
                 switch (list[0]){
                     case "Added":
-                        Log.logger.info("Successfully Added " + list[1]);
+                        if(list[1].equals("event")){
+                            Log.logger.info("Successfully Added " + list[2]);
+                        } else {
+                            Log.logger.info("Successfully Added " + list[1]);
+                        }
                         break;
                     case "Removed":
                         Log.logger.info("Successfully Removed " + list[1]);
@@ -379,6 +400,46 @@ public class Schedule {
         return true;
     }
 
+    private static StringBuilder getStringBuilder(String[] fields) {
+        StringBuilder daysOfWeek = new StringBuilder();
+        if(fields[5].startsWith("M")){
+            daysOfWeek.append("M");
+        } else if (fields[5].contains("T")) {
+            daysOfWeek.append("T");
+        } else if (fields[5].contains("W")) {
+            daysOfWeek.append("W");
+        } else if (fields[5].contains("R")) {
+            daysOfWeek.append("R");
+        } else if (fields[5].contains("F")) {
+            daysOfWeek.append("F");
+        } else if (fields[5].contains("S")) {
+            daysOfWeek.append("S");
+        } else if (fields[5].contains("U")) {
+            daysOfWeek.append("U");
+        }
+        return daysOfWeek;
+    }
+    public Event eventFromLog(String[] fields){
+        StringBuilder title = new StringBuilder(fields[4]);
+        StringBuilder daysOfWeek = getStringBuilder(fields);
+        String[] beginTime = fields[6].split(":");
+        String[] endTime = fields[7].split(":");
+        int beginHr = Integer.parseInt(beginTime[0]);
+        int endHr = Integer.parseInt(endTime[0]);
+        List<TimeSlot> times = new ArrayList<>();
+
+        for (int i = 0; i < daysOfWeek.length(); i++) {
+            if(fields[6].contains("P") && !beginTime[0].equals("12")){
+                beginHr += 12;
+            }
+            if(fields[7].contains("P") && !endTime[0].equals("12")){
+                endHr += 12;
+            }
+            times.add(new TimeSlot(daysOfWeek.charAt(i), beginHr, Integer.parseInt(beginTime[1]), endHr,Integer.parseInt(endTime[1])));
+        }
+        return new Event(title, times);
+    }
+
     public Course stringToCourse(String str){
         List<Course> list = Search.readCoursesFromFile("data/2020-2021.csv");
         String s = str.substring(0,str.length()-1);
@@ -389,7 +450,7 @@ public class Schedule {
         }
         return null;
     }
-  
+
     public String getYear() {
         return year;
     }
