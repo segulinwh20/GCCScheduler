@@ -3,6 +3,10 @@ package com.classes;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Course {
 
     private int id;
@@ -13,7 +17,15 @@ public class Course {
     private String courseCode;
     private String semester;
 
-    private int year;
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    private String year;
     private Professor professor;
     private List<TimeSlot> times;
     private char sectionLetter;
@@ -65,7 +77,7 @@ public class Course {
 
 
 
-    public Course(int year, String semester, String department, int id, char sectionLetter, String courseCode, String title, int credits, int seats, List<TimeSlot> times, Professor professor, String description){
+    public Course(String year, String semester, String department, int id, char sectionLetter, String courseCode, String title, int credits, int seats, List<TimeSlot> times, Professor professor, String description){
         this.year = year;
         this.semester = semester;
         this.department = department;
@@ -78,6 +90,48 @@ public class Course {
         this.times = times;
         this.professor = professor;
         this.description = description;
+    }
+
+    @JsonCreator
+    public Course(@JsonProperty("semester") String semesterYear,
+                  @JsonProperty("subject") String department,
+                  @JsonProperty("number") int id,
+                  @JsonProperty("section") String section,
+                  @JsonProperty("courseCode") String courseCode,
+                  @JsonProperty("name") String title,
+                  @JsonProperty("credits") int credits,
+                  @JsonProperty("open_seats") int seats,
+                  @JsonProperty("times") List<TimeSlot> times,
+                  @JsonProperty("faculty")List<String> faculty,
+                  @JsonProperty("location") String description){
+        String[] tokens = semesterYear.split("_");
+        this.year = tokens[0];
+        this.semester = tokens[1];
+        this.department = department;
+        this.courseCode = department+id;
+        this.id = id;
+        this.sectionLetter = section.charAt(0);
+        this.title = title;
+        this.credits = credits;
+        this.seats = seats;
+        this.times = times;
+        this.description = description;
+        String prof = faculty.getFirst();
+        String[] names = prof.split(",");
+        String firstName = "";
+        if(names.length > 1){
+            firstName = names[1];
+        }
+        else{
+            firstName = names[0];
+        }
+        String lastName = names[0];
+        Professor newProf = new Professor();
+        newProf.setFirst(firstName);
+        newProf.setLast(lastName);
+        newProf.setPreferred(firstName);
+        newProf.setDepartment(department);
+        this.professor = newProf;
     }
 
     public String toCSVFormat() {
@@ -181,5 +235,51 @@ public class Course {
 
     public void setTimes(List<TimeSlot> times) {
         this.times = times;
+    }
+
+    public boolean meetsOnDay(char c) {
+        for (TimeSlot t : times) {
+            if (t.getDayOfWeek() == Character.toUpperCase(c)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean meetsAt(int hour, int minute) {
+        for (TimeSlot t : times) {
+            if (t.timeFallsInRange(hour, minute)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append(courseCode);
+        s.append(' ');
+        s.append(sectionLetter);
+        s.append(": ");
+        s.append(title);
+        s.append(" [");
+        List<List<TimeSlot>> timeSlotGroups = getTimeSlotGroups();
+        if (timeSlotGroups.size() > 0) {
+            for (List<TimeSlot> group : timeSlotGroups) {
+                for (TimeSlot t : group) {
+                    s.append(t.getDayOfWeek());
+                }
+                s.append(' ');
+                s.append(group.get(0).timeRangeAsString());
+                s.append(", ");
+            }
+            s.delete(s.length() - 2, s.length());
+        }
+        else {
+            s.append("No time listed");
+        }
+        s.append(']');
+        return s.toString();
     }
 }
