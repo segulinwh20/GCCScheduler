@@ -12,8 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SearchTest {
 
 
-
-//class variables for testing
+    //class variables for testing
     private Map<String, String> testAddFilters = new HashMap<>();
 
     private Map<String, String> testRemoveFilters = new HashMap<>();
@@ -25,25 +24,26 @@ class SearchTest {
 
 
     @Test
-    void  WebScraper(){
+    void WebScraper() {
         //WebScraper();
     }
+
     @Test
-    void search(){
+    void search() {
         Search s = new Search();
-        assert s!= null;
+        assert s != null;
     }
 
     //to test time + minute
     @Test
-    void  filterTimeTest(){
+    void filterTimeTest() {
         //time as 10:05
         System.out.println(" \n Starting 10:05 test \n");
         Search y = new Search();
         y.addFilter(Search.Type.TIME, "10:05");
         List<Course> e;
         e = y.filterCourses();
-        for(Course course: e){
+        for (Course course : e) {
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
         }
 
@@ -55,10 +55,9 @@ class SearchTest {
         y.addFilter(Search.Type.TIME, "11:30");
         e.clear();
         e = y.filterCourses();
-        for(Course course: e){
+        for (Course course : e) {
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
         }
-
 
 
     }
@@ -72,7 +71,7 @@ class SearchTest {
         y.addFilter(Search.Type.COURSECODE, "ACCT201");
         List<Course> e;
         e = y.filterCourses();
-        for(Course course: e){
+        for (Course course : e) {
             assertEquals("ACCT201 A", (course.getCourseCode()) + " " + course.getSectionLetter());
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
         }
@@ -83,7 +82,7 @@ class SearchTest {
         e.clear();
         y.addFilter(Search.Type.SEMESTER, "Fall");
         e = y.filterCourses();
-        for(Course course: e){
+        for (Course course : e) {
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
         }
 
@@ -93,7 +92,7 @@ class SearchTest {
         e.clear();
         y.addFilter(Search.Type.SEMESTER, "Fall");
         e = y.filterCourses();
-        for(Course course: e){
+        for (Course course : e) {
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
         }
 
@@ -103,7 +102,7 @@ class SearchTest {
         e.clear();
         y.addFilter(Search.Type.SEMESTER, "Spring");
         e = y.filterCourses();
-        for(Course course: e){
+        for (Course course : e) {
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
         }
 
@@ -113,7 +112,7 @@ class SearchTest {
         e.clear();
         y.addFilter(Search.Type.DAY, "R");
         e = y.filterCourses();
-        for(Course course: e){
+        for (Course course : e) {
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
         }
 
@@ -123,7 +122,7 @@ class SearchTest {
         e.clear();
         y.addFilter(Search.Type.DAY, "U");
         e = y.filterCourses();
-        for(Course course: e){
+        for (Course course : e) {
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
             assertEquals("", course.getCourseCode());
         }
@@ -134,7 +133,7 @@ class SearchTest {
         e.clear();
         y.addFilter(Search.Type.TITLE, "DIGITAL PHOTOGRAPHY");
         e = y.filterCourses();
-        for(Course course: e){
+        for (Course course : e) {
             System.out.println(course.getCourseCode() + " " + course.getSectionLetter());
             assertEquals("COMM245 A", (course.getCourseCode() + " " + course.getSectionLetter()));
         }
@@ -166,7 +165,6 @@ class SearchTest {
     }
 
 
-
     @Test
     void clearFilters() {
         Search y = new Search();
@@ -184,6 +182,20 @@ class SearchTest {
         assertEquals(testFilters.get(Search.Type.TIME), y.getFilters().get(Search.Type.TIME));
     }
 
+    @Test
+    void viewMajor() {
+        Search s = new Search();
+        s.viewMajorMinor("Computer Science BA");
+    }
+
+    @Test
+    void getMajorsMinors() {
+        ArrayList<String> majMin = Search.getMajorsMinors();
+        for (String str : majMin) {
+            System.out.println(str.substring(8));
+
+        }
+    }
     @Test
     public void smartSearch() {
         Schedule schedule = new Schedule("TestSchedule", "Spring", "2024");

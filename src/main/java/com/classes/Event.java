@@ -98,8 +98,51 @@ public class Event {
         }
         return groups;
     }
+    public String toLogFormat(){
+        StringBuilder s = new StringBuilder();
+
+        List<List<TimeSlot>> groups = getTimeSlotGroups();
+
+        for (List<TimeSlot> group : groups) {
+            s.append(title);
+            s.append(' ');
+
+            // Time logic
+            String daysOfWeek = "";
+            for (TimeSlot t : group) {
+                daysOfWeek += t.getDayOfWeek();
+            }
+            if (daysOfWeek.contains("M")) {
+                s.append('M');
+            }
+            s.append(',');
+            if (daysOfWeek.contains("T")) {
+                s.append('T');
+            }
+            s.append(',');
+            if (daysOfWeek.contains("W")) {
+                s.append('W');
+            }
+            s.append(',');
+            if (daysOfWeek.contains("R")) {
+                s.append('R');
+            }
+            s.append(',');
+            if (daysOfWeek.contains("F")) {
+                s.append('F');
+            }
+            if (daysOfWeek.contains("S")) {
+                s.append('S');
+            }
+            s.append(',');
+            if (daysOfWeek.contains("U")) {
+                s.append('U');
+            }
+            s.append(' ');
+            s.append(group.get(0).logFormattedStartTime());
+            s.append(' ');
+            s.append(group.get(0).logFormattedEndTime());
+        }
+        return s.toString();
+    }
 }
-
-
-
-

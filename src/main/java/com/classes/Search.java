@@ -1,11 +1,10 @@
 package com.classes;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.SQLOutput;
-import java.time.LocalTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -16,12 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.time.LocalTime;
 import java.util.*;
-
-import java.util.List;
 
 //Load all the courses into a giant course list. From there,
 //when it comes time to search based on parameters, iterate through each course's "get____" method,
@@ -30,7 +24,7 @@ import java.util.List;
 public class Search {
 
 
-//enumerators for search variables
+    //enumerators for search variables
     enum Type {
         DAY,
         COURSECODE,
@@ -106,7 +100,7 @@ public class Search {
                             match = false;
                         }
                         break;
-                        //match is true if DAY matches
+                    //match is true if DAY matches
                     case Type.DAY:
                         match = false;
                         for (TimeSlot timeSlot : datum.getTimes()) {
@@ -120,19 +114,19 @@ public class Search {
                             break;
                         }
                         break;
-                        //no match if courseCode doesn't match
+                    //no match if courseCode doesn't match
                     case Type.COURSECODE:
                         if (!filterValues.contains(datum.getCourseCode())) {
                             match = false;
                         }
                         break;
-                        //no match if title doesn't match
+                    //no match if title doesn't match
                     case Type.TITLE:
                         if (!filterValues.contains(datum.getTitle())) {
                             match = false;
                         }
                         break;
-                        //no match if semester doesn't match
+                    //no match if semester doesn't match
                     case Type.SEMESTER:
                         if (!filterValues.contains(datum.getSemester())) {
                             match = false;
@@ -167,7 +161,7 @@ public class Search {
 
     //Adds filter to the filter list
     public void addFilter(Type filterType, String filterValue) {
-       if(filterType.equals(Type.DAY)){
+        if(filterType.equals(Type.DAY)){
             dayFilters.add(filterValue);
             filters.put(filterType, dayFilters);
         }
@@ -179,6 +173,7 @@ public class Search {
 
     //Removes filter from the filter list
     public void removeFilter(Type filterType, String filterValue) {
+
        if (filterType.equals(Type.DAY)) {
             if (dayFilters.contains(filterValue)) {
                 dayFilters.remove(filterValue);
@@ -373,6 +368,39 @@ public class Search {
         }
     }
 
+    public static void viewMajorMinor(String name) {
+        String path;
+        if(name.endsWith(".pdf")){
+            path = "MamPDFs/" + name;
+        } else {
+            path = "MamPDFs/" + name + ".pdf";
+        }
+        if (Desktop.isDesktopSupported()) {
+            try {
+                File myFile = new File(path);
+                if(myFile.exists()) {
+                    Desktop.getDesktop().open(myFile);
+                    Log.logger.info("Viewing pdf " + myFile);
+                } else{
+                    System.out.println("File does not exist");
+                    Log.logger.info("Tried to view a pdf that does not exist");
+                }
+            } catch (IOException ex) {
+                System.out.println("Action not supported on device");
+                Log.logger.info("'Desktop' is not supported on this device");
+            }
+        }
+    }
+    public static ArrayList<String> getMajorsMinors() {
+        ArrayList<String> fileNames = new ArrayList<>();
+        File folder = new File("MamPDFs/");
+        File[] files = folder.listFiles();
+        for (File f : files) {
+            fileNames.add(f.toString());
+        }
+        return fileNames;
+    }
+
     public List<Course> smartSearch(String input) {
         clearFilters();
 
@@ -399,6 +427,7 @@ public class Search {
 
                 }
                 else if (num < 2400) {
+
 //                    if (num / 100 < 24 && num / 100 > 0 && num % 100 < 60) {
 //                        int[] time1 = {num/100, num%100};
 //                        times.add(time1);
@@ -407,6 +436,7 @@ public class Search {
 //                            times.add(time2);
 //                        }
 //                    }
+
                     if (num >= 100 && num < 600) {
                         courseCodes.add(200);
                     }
