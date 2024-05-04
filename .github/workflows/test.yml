@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK
@@ -21,21 +21,8 @@ jobs:
           distribution: 'oracle'
           architecture: x64
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
-
       - name: Build with Gradle
         run: ./gradlew clean build
 
-      - name: Junit FileIO
-        run: FileIOTest.java
-      - name: Junit Log
-        run: LogTest.java
-      - name: Junit ScheduleFromLog
-        run: ScheduleFromLog.java
-      - name: Junit Shedule
-        run: ScheduleTest.java
-      - name: Junit Search
-        run: SearchTest.java
-      - name: Junit TimeSlot
-        run: TimeSlotTest.java
+      - name: Junit Tests
+        run: ./gradlew test
