@@ -27,15 +27,5 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build
 
-      - name: Junit FileIO
-        run: FileIOTest.java
-      - name: Junit Log
-        run: LogTest.java
-      - name: Junit ScheduleFromLog
-        run: ScheduleFromLog.java
-      - name: Junit Shedule
-        run: ScheduleTest.java
-      - name: Junit Search
-        run: SearchTest.java
-      - name: Junit TimeSlot
-        run: TimeSlotTest.java
+      - name: Junit Tests
+        run: ./gradlew test
