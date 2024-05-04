@@ -1,6 +1,10 @@
 package com.classes;
 
+
+import com.sun.net.httpserver.Authenticator;
+
 import java.io.IOException;
+
 import java.sql.Array;
 import java.util.*;
 
@@ -11,19 +15,12 @@ public class Main {
     static List<Course> courseList;
     static List<Course> searchResults;
     static Log log = new Log("data/log.log");
+    static Account act = new Account();
 
     public static void main(String[] args) throws IOException {
         System.out.println("Welcome to GCC Scheduler");
-        do{
-            System.out.println("Please enter your first and last name and your major separated by a space.");
-            Scanner scanner = new Scanner(System.in);
-            String studentData = scanner.nextLine();
-            String[] studentParam = studentData.split(" ");
-            if (studentBuilder(studentParam)) {
-                break;
-            }
-            System.out.println("Please fill out all three fields.");
-        } while (true);
+        Login();
+
         System.out.println("Start building your schedule or type 'help' for a list of commands.");
         cmdTerminal: do {
             if (currentSchedule != null) {
@@ -53,7 +50,7 @@ public class Main {
                     Log.logger.info("Opened Schedule Help Menu");
                     consoleHelp();
                     break;
-                case "createEvent":
+                case "event":
                     Log.logger.info("Creating New Event");
                     if(currentSchedule != null) {
                         createEvent();
@@ -337,6 +334,7 @@ public class Main {
                     break;
                 case "newEvent":
                     Log.logger.info("Creating New Event");
+
                     newEvent();
                     break;
                 case "removeEvent":
@@ -742,4 +740,46 @@ public class Main {
             }
         } while(true);
     }
+     static void Login() {
+         Scanner scanner = new Scanner(System.in);
+         boolean validAccount = false;
+         while (!validAccount) {
+             System.out.println("Do you already have an account? (Y/N)");
+             if (scanner.nextLine().equalsIgnoreCase("y")) {
+                 System.out.println("Please enter your username");
+                 String username = scanner.nextLine();
+                 if(act.userExists(username)) {
+                     System.out.println("Please enter your password");
+                     String password = scanner.nextLine();
+                     if (act.Login(username, password)) {
+                         System.out.println("Login successful");
+                         break;
+                     } else {
+                         System.out.println("Failed login");
+                         System.out.println("Do you want to create a new password? (Y/N)");
+                         String answer = scanner.nextLine();
+                         if (answer.equalsIgnoreCase("Y")) {
+                             act.resetPassword(username);
+                             break;
+                         }
+                     }
+                 } else{
+                     System.out.println("Username doesn't exist");
+                 }
+             } else {
+                 do {
+                     System.out.println("Please enter your first and last name and your major separated by a space.");
+
+                     String studentData = scanner.nextLine();
+                     String[] studentParam = studentData.split(" ");
+                     if (studentBuilder(studentParam)) {
+                         act.createAccount(student);
+                         validAccount = true;
+                         break;
+                     }
+                     System.out.println("Please fill out all three fields.");
+                 } while (true);
+             }
+         }
+     }
 }
