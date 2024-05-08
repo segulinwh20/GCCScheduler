@@ -753,6 +753,8 @@ public class Main {
                      String password = scanner.nextLine();
                      if (act.Login(username, password)) {
                          System.out.println("Login successful");
+                         String[] hold = {username, ".", "."};
+                         studentBuilder(hold);
                          break;
                      } else {
                          System.out.println("Failed login");
