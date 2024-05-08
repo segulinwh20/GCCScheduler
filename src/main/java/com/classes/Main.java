@@ -276,7 +276,7 @@ public class Main {
             String semester = scan.nextLine();
             if (semester.equals("Fall") || semester.equals("Spring")) {
                 do{
-                    System.out.println("Enter Year: ");
+                    System.out.print("Enter Year: ");
                     String year = scan.nextLine();
                     if(year.equals("2023") || year.equals("2024") || year.equals("2025")){
                         return new Schedule(String.valueOf(scheduleName), semester, year);

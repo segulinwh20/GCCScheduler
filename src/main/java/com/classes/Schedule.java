@@ -239,11 +239,13 @@ public class Schedule {
                 if (courseName != null) {
                     System.out.printf("%-13s", courseName);
                 }
-                StringBuilder eventName = getEventSlot(events, day, time);
-                if (eventName != null) {
-                    System.out.printf("%-13s", eventName.toString());
-                } else {
-                    System.out.printf("%-13s", "");
+                else {
+                    StringBuilder eventName = getEventSlot(events, day, time);
+                    if (eventName != null) {
+                        System.out.printf("%-13s", eventName.toString());
+                    } else {
+                        System.out.printf("%-13s", "");
+                    }
                 }
             }
             System.out.println();
