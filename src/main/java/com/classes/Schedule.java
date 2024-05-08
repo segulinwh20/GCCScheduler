@@ -50,7 +50,7 @@ public class Schedule {
         this.semester = s.semester;
         this.events = new ArrayList<Event>();
         this.events.addAll(s.events);
-        this.year = year;
+        this.year = s.year;
     }
 
     public String getName(){
