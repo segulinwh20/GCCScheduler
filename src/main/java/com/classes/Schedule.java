@@ -254,11 +254,18 @@ public class Schedule {
         //ISSUE: day.charAt(0) takes first letter of day of week, but Tuesday and Thursday have same starting letter
         for (Course course : courses) {
             for (TimeSlot timeSlot : course.getTimes()) {
-                if (timeSlot.getDayOfWeek() == day.charAt(0)) {
+                String fullDay = switch (timeSlot.getDayOfWeek()) {
+                    case 'M' -> "Monday";
+                    case 'T' -> "Tuesday";
+                    case 'W' -> "Wednesday";
+                    case 'R' -> "Thursday";
+                    case 'F' -> "Friday";
+                    default -> null;
+                };
+                if (Objects.equals(fullDay, day)) {
                     if(isTimeInSlot(timeSlot, time)){
                         return course.getCourseCode() + " " + course.getSectionLetter();
                     }
-                    //  return course.getCourseCode() + " " + course.getSectionLetter();
                 }
             }
         }
@@ -268,7 +275,17 @@ public class Schedule {
     private StringBuilder getEventSlot(List<Event>  events, String day, String time){
         for (Event event: events){
             for(TimeSlot timeSlot: event.getTimes()){
-                if(timeSlot.getDayOfWeek()== day.charAt(0)){
+                String fullDay = switch (timeSlot.getDayOfWeek()) {
+                    case 'M' -> "Monday";
+                    case 'T' -> "Tuesday";
+                    case 'W' -> "Wednesday";
+                    case 'R' -> "Thursday";
+                    case 'F' -> "Friday";
+                    case 'S' -> "Saturday";
+                    case 'U' -> "Sunday";
+                    default -> null;
+                };
+                if(Objects.equals(fullDay, day)){
                     if(isTimeInSlot(timeSlot, time)){
                         return event.getTitle();
                     }
@@ -283,7 +300,12 @@ public class Schedule {
         String[] parts = time.split(":");
         int hour;
         if (parts[1].contains("PM")) {
-            hour = Integer.parseInt(parts[0]) + 12;
+            if (Integer.parseInt(parts[0]) != 12) {
+                hour = Integer.parseInt(parts[0]) + 12;
+            }
+            else {
+                hour = Integer.parseInt(parts[0]);
+            }
         } else {
             hour = Integer.parseInt(parts[0]);
         }
