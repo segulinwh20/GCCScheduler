@@ -761,6 +761,8 @@ public class Main {
                          System.out.println("Do you want to create a new password? (Y/N)");
                          String answer = scanner.nextLine();
                          if (answer.equalsIgnoreCase("Y")) {
+                             String[] hold = {username, ".", "."};
+                             studentBuilder(hold);
                              act.resetPassword(username);
                              break;
                          }
