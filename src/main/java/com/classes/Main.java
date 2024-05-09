@@ -753,12 +753,16 @@ public class Main {
                      String password = scanner.nextLine();
                      if (act.Login(username, password)) {
                          System.out.println("Login successful");
+                         String[] hold = {username, ".", "."};
+                         studentBuilder(hold);
                          break;
                      } else {
                          System.out.println("Failed login");
                          System.out.println("Do you want to create a new password? (Y/N)");
                          String answer = scanner.nextLine();
                          if (answer.equalsIgnoreCase("Y")) {
+                             String[] hold = {username, ".", "."};
+                             studentBuilder(hold);
                              act.resetPassword(username);
                              break;
                          }
