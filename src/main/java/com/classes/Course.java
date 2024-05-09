@@ -10,11 +10,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Course {
     // Ignoring the "date" and "time" fields
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private String date;
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private String time;
+//    @JsonIgnoreProperties(ignoreUnknown = true)
+//    private String date;
+//
+//    @JsonIgnoreProperties(ignoreUnknown = true)
+//    private String time;
 
     private int id;
     private String title;

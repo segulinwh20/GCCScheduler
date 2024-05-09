@@ -43,12 +43,12 @@ public class Search {
 
     }
 
-    // Ignoring the "date" and "time" fields
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private String date;
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private String time;
+//    // Ignoring the "date" and "time" fields
+//    @JsonIgnoreProperties(ignoreUnknown = true)
+//    private String date;
+//
+//    @JsonIgnoreProperties(ignoreUnknown = true)
+//    private String time;
 
     //various data structures for search algorithm
     private Map<Type, List<String>> filters;

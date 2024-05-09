@@ -16,11 +16,11 @@ public class CourseList {
     private List<Course> classes;
 
     // Ignoring the "date" and "time" fields
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private String date;
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private String time;
+//    @JsonIgnoreProperties(ignoreUnknown = true)
+//    private String date;
+//
+//    @JsonIgnoreProperties(ignoreUnknown = true)
+//    private String time;
 
 
 }
